@@ -1,0 +1,5 @@
+
+[2018-03-21 14:29:26] [ERROR] select * from user where 1=1 and username='admin' and password='12345'
+[2018-03-21 14:30:25] [ERROR] select * from user where 1=1 and username='admin' and password='12345'
+[2018-03-21 14:30:29] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-21 14:30:29] [ERROR] update user set password = '1' where username = 'admin'

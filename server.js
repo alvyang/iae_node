@@ -48,7 +48,7 @@ fs.readdirSync(routes).forEach(function(fileName) {
     var filePath = routes + fileName;
     var rname=fileName.substr(0,fileName.lastIndexOf("."));
     if(!fs.lstatSync(filePath).isDirectory()) {
-       app.use("/inter/"+rname,require(filePath));
+       app.use("/iae/"+rname,require(filePath));
     }
 });
 //Session拦截控制

@@ -1,0 +1,18 @@
+
+[2018-03-14 19:46:12] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:46:32] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:46:32] [ERROR] update user set machine_code = 'undefined' where username = admin
+[2018-03-14 19:48:01] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:48:01] [ERROR] update user set machine_code = 'undefined' where username = admin
+[2018-03-14 19:53:15] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:53:15] [ERROR] update user set machine_code = 'undefined' where username = admin
+[2018-03-14 19:55:23] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:55:23] [ERROR] update user set machine_code = 'undefined' where username = admin
+[2018-03-14 19:55:57] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:55:57] [ERROR] update user set machine_code = 'undefined' where username = admin
+[2018-03-14 19:58:53] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:58:53] [ERROR] update user set machine_code = '1111111' where username = admin
+[2018-03-14 19:59:33] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 19:59:33] [ERROR] update user set machine_code = '1111111' where username = 'admin'
+[2018-03-14 19:59:56] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
+[2018-03-14 20:00:23] [ERROR] select * from user where 1=1 and username='admin' and password='123456'
