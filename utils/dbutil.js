@@ -76,7 +76,7 @@ Table.prototype.insertIncrement = function(values, callback) {
                 if (err) {
                     callback(err,null);
                 }else{
-                    callback(null,values["id"]);//TODO　返回生成ＩＤ
+                    callback(null,result);//TODO　返回生成ＩＤ
                 }
                 connection.release(); //release
             });
@@ -130,14 +130,14 @@ Table.prototype.get = function(ID, callback) {
 };
 
 //update
-Table.prototype.update = function(values, callback) {
+Table.prototype.update = function(values,id,callback) {
     if(!callback){
         callback=function(){};
     }
     var me=this;
     if (this.clearTable(values)) {
         this.getConnection(function(connection) {
-            var query = connection.query("update  " + me.tablename + " set ? where id=" + connection.escape(values.id), values, function(err, result) {
+            var query = connection.query("update  " + me.tablename + " set ? where "+id+"=" + connection.escape(values[id]), values, function(err, result) {
                 if (err) {
                     callback(err,result);
                 }else{
@@ -268,7 +268,6 @@ Table.prototype.where = function(params, callback) {
             sql += " and " + pro + "=" + this.pool.escape(params[pro]);
         }
     }
-
     this.getConnection(function(connection) {
         var query = connection.query(sql, function(err, result) {
             if (err) {
@@ -379,10 +378,10 @@ Table.prototype.queryPageBySql = function(sql, page,params, callback) {
         }else{
             //计数
             page.totalCount = result;
-            page.totalPage = Math.ceil(page.totalCount / page.pageSize);
+            page.totalPage = Math.ceil(page.totalCount / page.limit);
             //分页
             me.getConnection(function(connection) {
-                var query = connection.query(  sql + "  limit " + page.start + "," + page.end + "", function(err, result) {
+                var query = connection.query(  sql + "  limit " + page.start + "," + page.limit + "", function(err, result) {
                     if (err) {
                         callback(err,result);
                     }else{
@@ -404,14 +403,33 @@ Table.prototype.queryPage = function(page,params, callback) {
     var sql = "select * from " + this.tablename + " where 1=1";
     if (this.clearTable(params)) {
         for (var pro in params) {
-            sql += " and " + pro + "=" + this.pool.escape(params[pro]);
+          if(params[pro] || params[pro]==0){
+            sql += " and " + pro + " like '%" + params[pro] +"%'";
+          }
         }
     }
     this.queryPageBySql(sql,page,callback);
 }
 
 //executeSql
-Table.prototype.executeSql = function(sql,params, callback) {
+Table.prototype.executeSql = function(sql,callback) {
+    if(!callback){
+        callback=function(){};
+    }
+    this.getConnection(function(connection) {
+        var query = connection.query(sql, function(err, result) {
+            if (err) {
+                callback(err,result);
+            }else{
+                callback(null,result);
+            }
+            connection.release(); //release
+        });
+        logger.debug(query.sql);
+    });
+}
+//executeSql
+Table.prototype.executeSqlParams = function(sql,params, callback) {
     if(!callback){
         callback=function(){};
     }

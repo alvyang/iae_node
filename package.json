@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "repository": "https://github.com/alvyang/iae_node.git",
   "dependencies": {
     "body-parser-xml": "^1.1.0"
   },

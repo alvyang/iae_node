@@ -4,7 +4,7 @@ var app = {
     host: 'localhost',
     port: '3306',
     user: 'root',
-    password: 'lv705916',
+    password: 'lv705916,',
     database: 'iae',
     logger_path: "./log/error.log",
     logger_level: 'debug' //debug | error

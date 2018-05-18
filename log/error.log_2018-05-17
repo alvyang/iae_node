@@ -1,0 +1,588 @@
+
+[2018-05-17 14:13:07] [ERROR] select * from user u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:13:07] [ERROR] update user set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:13:09] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:13:09] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:13:23] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:13:23] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:24:23] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:24:23] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:25:38] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:25:38] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:26:31] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:26:31] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:26:45] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:26:45] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:27:19] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:27:19] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:34:18] [ERROR] insert into groups set `group_name` = 'undefined', `start_time` = 'NaN-aN-aN', `end_time` = 'NaN-aN-aN'
+[2018-05-17 14:35:44] [ERROR] select * from user u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:35:44] [ERROR] update user set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:35:46] [ERROR] select count(*) as count from ( select * from user where 1=1 and username like '%%' ) T
+[2018-05-17 14:35:46] [ERROR] select * from user where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:35:59] [ERROR] insert into user set 
+[2018-05-17 14:37:52] [ERROR] select * from user u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:38:59] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:38:59] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:39:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' ) T
+[2018-05-17 14:39:01] [ERROR] select * from users where 1=1 and username like '%%'  limit 0,10
+[2018-05-17 14:39:16] [ERROR] insert into users set 
+[2018-05-17 14:42:06] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:42:06] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:42:09] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:42:09] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 14:42:20] [ERROR] insert into users set 
+[2018-05-17 14:42:58] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:42:58] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 14:43:05] [ERROR] insert into users set 
+[2018-05-17 14:49:58] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:49:58] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:50:00] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:50:00] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 14:50:09] [ERROR] insert into users set 
+[2018-05-17 14:51:50] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:51:50] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:51:53] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:51:53] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 14:51:58] [ERROR] insert into users set 
+[2018-05-17 14:52:32] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 14:52:32] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 14:52:35] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:52:35] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 14:52:46] [ERROR] insert into users set `username` = 'wangshan', `password` = '111111', `realname` = '王山'
+[2018-05-17 14:53:19] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 14:53:19] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:03:43] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:03:43] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:04:20] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:04:20] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:05:13] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:05:13] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:05:15] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:05:15] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:05:22] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `login_time` = '2018-05-16T16:00:00.000Z', `version` = '0.0.2', `group_id` = 1, `realname` = '吕扬' where role_id=NULL
+[2018-05-17 15:05:28] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:05:28] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:06:10] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:06:10] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:06:13] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:06:13] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:06:22] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `login_time` = '2018-05-16T16:00:00.000Z', `version` = '0.0.2', `group_id` = 1, `realname` = '吕扬' where id='1'
+[2018-05-17 15:06:25] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:06:25] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:07:46] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:07:46] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:07:49] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:07:49] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:07:55] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `login_time` = '2018-05-16T16:00:00.000Z', `version` = '0.0.2', `group_id` = 1, `realname` = '吕扬' where id='1'
+[2018-05-17 15:09:19] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:09:19] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:09:21] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:09:21] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:09:38] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `login_time` = '2018-05-16T16:00:00.000Z', `version` = '0.0.2', `group_id` = 1, `realname` = '吕扬' where id='1'
+[2018-05-17 15:10:19] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:10:19] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:10:21] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:10:21] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:10:28] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `login_time` = '2018-05-16T16:00:00.000Z', `version` = '0.0.2', `group_id` = 1, `role_id` = '', `realname` = '吕扬' where id='1'
+[2018-05-17 15:10:33] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:10:33] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:12:40] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:12:40] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:12:42] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:12:42] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:12:50] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `version` = '0.0.2', `group_id` = 1, `role_id` = '', `realname` = '吕扬' where id='1'
+[2018-05-17 15:12:54] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:12:54] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:13:42] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:13:42] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:13:45] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:13:45] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:13:51] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `version` = '0.0.2', `group_id` = 1, `role_id` = '', `realname` = '吕扬' where id='1'
+[2018-05-17 15:14:43] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:14:43] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:14:46] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:14:46] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:14:51] [ERROR] update  users set `id` = '1', `username` = 'admin', `password` = '111111', `delete_flag` = '0', `machine_code` = '', `version` = '0.0.2', `group_id` = 1, `realname` = '吕扬' where id='1'
+[2018-05-17 15:14:56] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:14:56] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:23:31] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:23:31] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:23:39] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 15:23:39] [ERROR] select * from authority where 1=1 and delete_flag=0 and authority_open=1 order by authority_code asc
+[2018-05-17 15:23:39] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:23:56] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:23:56] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:23:59] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:23:59] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:28:09] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:28:09] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:28:16] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:28:16] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:28:26] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:28:26] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:29:22] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:29:22] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:29:26] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:29:26] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:29:51] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:29:51] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:29:54] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:29:54] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:29:57] [ERROR] update  users set `group_id` = '1', `delete_flag` = 1 where id=NULL
+[2018-05-17 15:29:57] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:29:57] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:30:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:30:01] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:30:57] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:30:57] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:31:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:31:01] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:31:03] [ERROR] update  users set `delete_flag` = 1 where id=NULL
+[2018-05-17 15:31:03] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:31:03] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:32:38] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:32:38] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:32:40] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:32:40] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:32:42] [ERROR] update  users set `group_id` = '1', `delete_flag` = 1 where id=NULL
+[2018-05-17 15:32:42] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:32:42] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:33:37] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:33:37] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:33:40] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:33:40] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:33:43] [ERROR] update  users set `group_id` = '1', `delete_flag` = 1 where id=NULL
+[2018-05-17 15:33:43] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:33:43] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:33:47] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:33:47] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:34:11] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:34:11] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:34:13] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:34:13] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:34:15] [ERROR] update  users set `group_id` = '1', `delete_flag` = 1 where id=NULL
+[2018-05-17 15:34:15] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:34:15] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:35:22] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 15:35:22] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 15:35:24] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:35:24] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:35:27] [ERROR] update  users set `id` = '5', `delete_flag` = 1 where id='5'
+[2018-05-17 15:35:27] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:35:27] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:35:29] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:35:29] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:40:47] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:40:47] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:41:44] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:41:44] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:41:58] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:41:58] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:49:59] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:49:59] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:50:41] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:50:41] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:51:27] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:51:27] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:52:19] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:52:19] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:52:48] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:52:48] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:53:08] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:53:08] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:53:17] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 15:53:17] [ERROR] select * from authority where 1=1 and delete_flag=0 and authority_open=1 order by authority_code asc
+[2018-05-17 15:53:17] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:53:25] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:53:25] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:53:36] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:53:36] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:56:40] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:56:40] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:58:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:58:01] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:59:21] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 15:59:21] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:59:21] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 15:59:21] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 15:59:26] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 15:59:26] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 15:59:26] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 15:59:26] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:01:44] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:44] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:44] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:01:44] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:01:46] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:46] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 5,5
+[2018-05-17 16:01:47] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:47] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:01:49] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:49] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 5,5
+[2018-05-17 16:01:50] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:50] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:01:52] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:52] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 5,5
+[2018-05-17 16:01:54] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:01:54] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:02:31] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:02:31] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:02:31] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:02:31] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:02:48] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:02:48] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:02:48] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:02:48] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:06:17] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:06:17] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:06:20] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:06:20] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:06:28] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:06:28] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:06:28] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:06:28] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:06:41] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:06:41] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:06:41] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:06:41] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:07:43] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:07:43] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:07:43] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:07:43] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:08:10] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:08:10] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 5,5
+[2018-05-17 16:08:11] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:08:11] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:12:49] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:12:49] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:12:49] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:12:49] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:13:22] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:13:22] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:13:22] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:13:22] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:15:15] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:15:15] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:15:15] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:15:15] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:15:23] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:15:23] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:15:23] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:15:23] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:16:33] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:16:33] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:16:33] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:16:33] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:16:42] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:16:42] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 5,5
+[2018-05-17 16:16:44] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:16:44] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:32:51] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:32:51] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:32:51] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:32:51] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:33:18] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:33:18] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:33:18] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:33:18] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:34:47] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:34:47] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:34:47] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:34:47] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:35:54] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:35:54] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:35:54] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:35:54] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:36:01] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:36:57] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:36:57] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:37:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:37:01] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:37:07] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:37:07] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:37:07] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:37:07] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:37:31] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:38:36] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:38:36] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:38:36] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:38:36] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:41:39] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:41:39] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:41:39] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:41:39] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:43:01] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:01] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:01] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:43:01] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:43:41] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:41] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:41] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:43:41] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:43:57] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:57] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:43:57] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:43:57] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:47:55] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:47:55] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:47:55] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:47:55] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:48:12] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:48:12] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:48:12] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:48:12] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:48:50] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:48:50] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:48:50] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:48:50] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:48:56] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:49:33] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:49:33] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:49:33] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:49:33] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:49:37] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:50:26] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:50:26] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:50:29] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:50:29] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:50:33] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:50:33] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:50:33] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:50:33] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:50:36] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:51:41] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:51:41] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:51:41] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:51:41] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:51:46] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:52:18] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:52:18] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:52:21] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:52:21] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:52:28] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:52:28] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:52:28] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:52:28] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:52:31] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:54:09] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:54:09] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:54:12] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:54:12] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:54:16] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:54:16] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:54:16] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:54:16] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:54:22] [ERROR] update  users set `id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 16:55:38] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 16:55:38] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 16:55:42] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:55:42] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:55:46] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:55:46] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:55:46] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:55:46] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:55:50] [ERROR] update  users set `id` = '1', `role_id` = '2', `group_id` = 1 where id='1'
+[2018-05-17 16:57:35] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 16:57:35] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 16:57:35] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 16:57:35] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 16:57:39] [ERROR] update  users set `id` = '1', `role_id` = '1', `group_id` = 1 where id='1'
+[2018-05-17 17:01:21] [ERROR] update  users set `id` = '1', `role_id` = '2', `group_id` = 1 where id='1'
+[2018-05-17 17:02:53] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:02:53] [ERROR] select count(*) as count from ( select * from users where 1=1 and username like '%%' and delete_flag like '%0%' ) T
+[2018-05-17 17:02:53] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:02:53] [ERROR] select * from users where 1=1 and username like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 17:02:57] [ERROR] update  users set `id` = '1', `role_id` = '2', `group_id` = 1 where id='1'
+[2018-05-17 17:16:52] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:16:52] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:16:54] [ERROR] select count(*) as count from ( select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' ) T
+[2018-05-17 17:20:06] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:20:06] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:20:09] [ERROR] select count(*) as count from ( select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' ) T
+[2018-05-17 17:21:47] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:21:47] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:22:10] [ERROR] select count(*) as count from ( select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' ) T
+[2018-05-17 17:22:10] [ERROR] select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' limit 0,10
+[2018-05-17 17:22:54] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:22:54] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:22:57] [ERROR] select count(*) as count from ( select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' ) T
+[2018-05-17 17:22:57] [ERROR] select * from users u ,role r where u.role_id = r.role_id and u.group_id = '1' and delete_flag = '0' limit 0,10
+[2018-05-17 17:26:43] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:26:43] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:26:46] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' ) T
+[2018-05-17 17:26:46] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' limit 0,10
+[2018-05-17 17:27:07] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:27:07] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' ) T
+[2018-05-17 17:27:07] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' limit 0,10
+[2018-05-17 17:27:07] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:27:21] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:27:21] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' ) T
+[2018-05-17 17:27:21] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:27:21] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' limit 0,10
+[2018-05-17 17:27:23] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:27:23] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' ) T
+[2018-05-17 17:27:23] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:27:23] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and r.delete_flag = '0' limit 0,10
+[2018-05-17 17:27:54] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:27:54] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:27:56] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:27:56] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:28:00] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:28:00] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:28:00] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:28:00] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:28:04] [ERROR] update  users set `id` = '5', `role_id` = '1', `group_id` = 1 where id='5'
+[2018-05-17 17:28:07] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:28:07] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:28:07] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:28:07] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:29:06] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:29:06] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:29:08] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:29:08] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:29:08] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 17:29:08] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:32:08] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:32:08] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:32:11] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:32:11] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:32:21] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:32:21] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:33:04] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:33:04] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:33:04] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:33:04] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:33:34] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:33:34] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:33:37] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:33:37] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:33:37] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-17 17:33:37] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:35:17] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:35:17] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:35:17] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:35:17] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:35:46] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:35:46] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:35:49] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:35:49] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:36:44] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:36:44] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:36:44] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:36:44] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:36:55] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 17:36:55] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 17:37:10] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:37:10] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:37:10] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:37:10] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:40:00] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:40:00] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:40:00] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:40:00] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:41:37] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:41:37] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:41:37] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:41:37] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:41:47] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:41:47] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:41:47] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:41:47] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:43:16] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:43:16] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:43:16] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:43:16] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:45:49] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:45:49] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:45:49] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:45:49] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:47:28] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:47:28] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:47:28] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:47:28] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:47:51] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:47:51] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:47:51] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:47:51] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:47:56] [ERROR] update  users set `id` = '1', `role_id` = '6', `group_id` = 1 where id='1'
+[2018-05-17 17:48:00] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:48:00] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:48:00] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:48:00] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:49:06] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:49:06] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:49:06] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:49:06] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:51:39] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:51:39] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:51:39] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:51:39] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:53:08] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:53:08] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:53:08] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:53:08] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:54:32] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:54:32] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:54:32] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:54:32] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:54:53] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:54:53] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:54:53] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:54:53] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:55:08] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:55:08] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:55:08] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:55:08] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:55:44] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:55:44] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:55:44] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:55:44] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:57:03] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:57:03] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:57:03] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:57:03] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 17:57:42] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 17:57:42] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 17:57:42] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 17:57:42] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:00:45] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:00:45] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:00:45] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:00:45] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:02:05] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:02:05] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:02:05] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:02:05] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:03:02] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:03:02] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:03:02] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:03:02] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:03:15] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:03:15] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:04:48] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 18:04:48] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 18:04:50] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:04:50] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:04:50] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:04:50] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:04:52] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:04:52] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:05:35] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 18:05:35] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 18:05:36] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:05:36] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:05:36] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:05:36] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:05:57] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:05:57] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:06:54] [ERROR] select * from users u ,groups g where username='admin' and password = '111111' and u.group_id = g.group_id 
+[2018-05-17 18:06:54] [ERROR] update users set login_time = '2018-05-17',version = '0.0.2' where username = 'admin'
+[2018-05-17 18:06:56] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:06:56] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-17 18:06:56] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-17 18:06:56] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-17 18:06:59] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' and u.username like '%w%' ) T
+[2018-05-17 18:06:59] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' and u.username like '%w%' limit 0,10
+[2018-05-17 18:07:01] [ERROR] select count(*) as count from ( select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-17 18:07:01] [ERROR] select * from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10

@@ -1,5 +1,6 @@
 var express = require("express");
 var svgCaptcha = require('svg-captcha');
+var crypto = require('crypto');
 var router = express.Router();
 
 Date.prototype.format = function(fmt) {
@@ -24,16 +25,16 @@ Date.prototype.format = function(fmt) {
 }
 
 router.post("/login",function(req,res){
-	var user = DB.get("User");
+	var user = DB.get("Users");
+  var md5 = crypto.createHash('md5');
+  req.body.password = md5.update(req.body.password).digest('base64');
 	if(req.session.captcha.toLowerCase() != req.body.code.toLowerCase()){
 		res.json({"code":"100001",message:"验证码错误"});
 	}else{
-		delete req.body.code;
 		var machineCode = req.body.machineCode;
     var version = req.body.version;
-		delete req.body.machineCode;
-    delete req.body.version;
-		user.where(req.body,null,function(err,result){
+    var sql = "select * from users u ,groups g where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id ";
+		user.executeSql(sql,function(err,result){
       if(result.length == 0){
 				res.json({"code":"100000",message:"用户名或密码错误！"});
         return ;
@@ -46,17 +47,19 @@ router.post("/login",function(req,res){
 					startTime:startTime,
 					endTime:endTime
 				}});
-			}else if(result[0].machine_code && result[0].machine_code != machineCode){
-				res.json({"code":"100003",message:"该电脑没有授权"});
-			}else{
+			}
+      // else if(result[0].machine_code && result[0].machine_code != machineCode){
+			// 	res.json({"code":"100003",message:"该电脑没有授权"});
+			// }
+      else{
 				var time = new Date().format("yyyy-MM-dd");
-				if(!result[0].machine_code){//首次登陆记录该机器码
-					var sqlCode = "update user set machine_code = '"+machineCode+"',login_time = '"+time+"' where username = '"+req.body.username+"'";
+				// if(!result[0].machine_code){//首次登陆记录该机器码
+				// 	var sqlCode = "update user set machine_code = '"+machineCode+"',login_time = '"+time+"' where username = '"+req.body.username+"'";
+				// 	user.executeSql(sqlCode);
+				// }else{
+					var sqlCode = "update users set login_time = '"+time+"',version = '"+version+"' where username = '"+req.body.username+"'";
 					user.executeSql(sqlCode);
-				}else{
-					var sqlCode = "update user set login_time = '"+time+"',version = '"+version+"' where username = '"+req.body.username+"'";
-					user.executeSql(sqlCode);
-				}
+				// }
 				req.session.user=result;
 				res.json({"code":"000000",message:"登录成功！"});
 			}
@@ -64,7 +67,7 @@ router.post("/login",function(req,res){
 	}
 });
 router.post("/password",function(req,res){
-	var user = DB.get("User");
+	var user = DB.get("Users");
   delete req.body.code;
   var modifyPass = req.body.pass;
   delete req.body.pass;
@@ -74,7 +77,7 @@ router.post("/password",function(req,res){
       res.json({"code":"100000",message:"旧密码错误！"});
       return;
     }
-    var sqlCode = "update user set password = '"+modifyPass+"' where username = '"+req.body.username+"'";
+    var sqlCode = "update users set password = '"+modifyPass+"' where username = '"+req.body.username+"'";
     user.executeSql(sqlCode);
     res.json({"code":"000000",message:"修改成功！"});
   });

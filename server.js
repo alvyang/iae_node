@@ -14,12 +14,12 @@ app.use(multiparty());
 
 require("body-parser-xml")(bodyParser);
 app.use(bodyParser.xml({
-  	limit: "1MB",   // Reject payload bigger than 1 MB
-	xmlParseOptions: {
+    limit: "1MB",   // Reject payload bigger than 1 MB
+	  xmlParseOptions: {
 	    normalize: true,     // Trim whitespace inside text nodes
 	    normalizeTags: true, // Transform tags to lowercase
 	    explicitArray: false // Only put nodes in array if >1
-	}
+	  }
 }));
 
 app.use(bodyParser.json());
@@ -31,6 +31,17 @@ global.logger=require("./utils/logger.js");
 global.moment = require('moment');//日期函数全局访问
 global.moment.locale('zh-cn');
 global.DB=require("./utils/dbutil.js").Instance();
+
+//Session拦截控制
+app.all('/*', function(req,res,next){
+  var url = req.url.split("/");
+  var keyWords = url[url.length-1].split("?")[0];
+  if(keyWords == "captcha" || keyWords == "login" || req.session.user){
+    next();
+  }else{
+    res.json({"code":"111111",message:"请先登陆"});
+  }
+});
 
 ///定义实体
 app.set('entity',__dirname + '/entity/');
@@ -50,10 +61,6 @@ fs.readdirSync(routes).forEach(function(fileName) {
     if(!fs.lstatSync(filePath).isDirectory()) {
        app.use("/iae/"+rname,require(filePath));
     }
-});
-//Session拦截控制
-app.all("*",function(req,res,next){
-    next();
 });
 ///404
 app.use(function(req, res, next) {

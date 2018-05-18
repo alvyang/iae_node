@@ -1,5 +1,5 @@
 module.exports = {
-	key:'User',
-	name:'user',
-	fields:['id','username','password','start_time','end_time','flag','machine_code','login_time','version']
+	key:'Users',
+	name:'users',
+	fields:['id','username','realname','password','delete_flag','machine_code','group_id','role_id','login_time','version']
 };
