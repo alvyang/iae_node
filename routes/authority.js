@@ -3,6 +3,10 @@ var router = express.Router();
 
 //新增菜单
 router.post("/saveAuthoritys",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("18") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return;
+  }
   var authority = DB.get("Authority");
 	delete req.body.label;
   authority.insertIncrement(req.body,function(err,result){
@@ -11,8 +15,12 @@ router.post("/saveAuthoritys",function(req,res){
 });
 //编辑菜单
 router.post("/editAuthoritys",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("23") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var authority = DB.get("Authority");
-	delete req.body.label;
+  delete req.body.label;
   delete req.body.id;
   authority.update(req.body,'authority_id',function(err,result){
     res.json({"code":"000000",message:null});
@@ -54,7 +62,11 @@ router.post("/getAuthoritys",function(req,res){
 //获得对外开放的菜单
 router.post("/getOpenAuthoritys",function(req,res){
   var authority = DB.get("Authority");
-  authority.where({delete_flag:0,authority_open:1},{authority_code:"asc"},function(err,result){
+  var temp = {delete_flag:0};
+  if(req.session.user[0].username != "admin"){
+    temp.authority_open = 1;
+  }
+  authority.where(temp,{authority_code:"asc"},function(err,result){
     if(err){
       res.json({"code":"100000",message:"查询菜单出错"});
     }else{
@@ -62,6 +74,18 @@ router.post("/getOpenAuthoritys",function(req,res){
         result[i].label = result[i].authority_name;
         result[i].id = result[i].authority_id;
       }
+      res.json({"code":"000000",message:toTree(result,null)});
+    }
+  });
+});
+//获取权限列表
+router.post("/getAuthoritysList",function(req,res){
+  var authority = DB.get("Authority");
+  var sql = "select * from authority a where a.delete_flag = '0' and a.authority_id in ("+"0,"+req.body.authority_code+") order by authority_code desc";
+  authority.executeSql(sql,function(err,result){
+    if(err){
+      res.json({"code":"100000",message:"查询权限出错"});
+    }else{
       res.json({"code":"000000",message:toTree(result,null)});
     }
   });

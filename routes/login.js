@@ -33,7 +33,7 @@ router.post("/login",function(req,res){
 	}else{
 		var machineCode = req.body.machineCode;
     var version = req.body.version;
-    var sql = "select * from users u ,groups g where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id ";
+    var sql = "select * from users u ,groups g,role r where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id and u.role_id = r.role_id";
 		user.executeSql(sql,function(err,result){
       if(result.length == 0){
 				res.json({"code":"100000",message:"用户名或密码错误！"});
@@ -61,7 +61,7 @@ router.post("/login",function(req,res){
 					user.executeSql(sqlCode);
 				// }
 				req.session.user=result;
-				res.json({"code":"000000",message:"登录成功！"});
+				res.json({"code":"000000",message:result});
 			}
 		});
 	}

@@ -13,6 +13,10 @@ router.post("/exitsUsers",function(req,res){
 });
 //新增角色
 router.post("/saveUsers",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("22") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
   req.body.group_id = req.session.user[0].group_id;
@@ -23,6 +27,10 @@ router.post("/saveUsers",function(req,res){
 });
 //编辑菜单
 router.post("/editUsers",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("27") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
 	req.body.group_id = req.session.user[0].group_id;
@@ -36,8 +44,12 @@ router.post("/editUsers",function(req,res){
     res.json({"code":"000000",message:null});
   });
 });
-//编辑菜单
+//编辑菜单权限
 router.post("/editUserRole",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("34") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var user = DB.get("Users");
 	req.body.group_id = req.session.user[0].group_id;
   user.update(req.body,'id',function(err,result){
@@ -46,6 +58,10 @@ router.post("/editUserRole",function(req,res){
 });
 //删除菜单
 router.post("/deleteUsers",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("26") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var user = DB.get("Users");
   req.body.delete_flag = 1;
   user.update(req.body,'id',function(err,result){
