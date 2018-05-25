@@ -47,7 +47,7 @@ function toTree(data, parent_id) {
 //获得全部菜单
 router.post("/getAuthoritys",function(req,res){
   var authority = DB.get("Authority");
-  authority.where({delete_flag:0},{authority_code:"asc"},function(err,result){
+  authority.where({delete_flag:0},{authority_code:"desc"},function(err,result){
     if(err){
       res.json({"code":"100000",message:"查询菜单出错"});
     }else{
@@ -66,7 +66,7 @@ router.post("/getOpenAuthoritys",function(req,res){
   if(req.session.user[0].username != "admin"){
     temp.authority_open = 1;
   }
-  authority.where(temp,{authority_code:"asc"},function(err,result){
+  authority.where(temp,{authority_code:"desc"},function(err,result){
     if(err){
       res.json({"code":"100000",message:"查询菜单出错"});
     }else{

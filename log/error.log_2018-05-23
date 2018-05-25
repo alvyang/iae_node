@@ -1,0 +1,119 @@
+
+[2018-05-23 15:51:05] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 15:51:05] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 15:51:05] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:51:32] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:52:00] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 15:52:00] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 15:52:00] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:52:03] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 15:52:32] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 15:52:32] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:28:50] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 16:28:50] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 16:28:50] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:28:52] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:34:38] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:34:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:35:20] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 16:35:20] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 16:35:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:35:24] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:36:29] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:36:51] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 16:36:51] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-23 16:36:51] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 16:36:57] [ERROR] update  role set `authority_code` = '17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18', `authority_parent_code` = '', `role_id` = '1', `group_id` = 1 where role_id='1'
+[2018-05-23 16:37:08] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 16:37:08] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 16:37:08] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:37:13] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:37:37] [ERROR] insert into drugs set `product_id` = '', `product_common_name` = '1', `product_specifications` = '1', `product_unit` = '盒', `product_packing` = '100', `product_price` = '10', `product_code` = '1', `product_makesmakers` = '1', `product_supplier` = '11', `product_mack_price` = '8.80', `product_discount` = '88', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '4.20', `product_return_discount` = '42.00', `product_return_type` = '是', `product_floor_price` = '3', `product_high_discount` = '40', `contacts_id` = '1', `group_id` = 1
+[2018-05-23 16:39:58] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 16:39:58] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 16:39:58] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:40:00] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:40:27] [ERROR] insert into drugs set `product_common_name` = '1', `product_specifications` = '1', `product_unit` = '瓶', `product_packing` = '100', `product_price` = '12', `product_code` = '1', `product_makesmakers` = '1', `product_supplier` = '11', `product_mack_price` = '10.56', `product_discount` = '88', `product_medical_type` = '省医保', `product_type` = '高打', `product_return_money` = '5.28', `product_return_discount` = '44.00', `product_return_type` = '是', `product_floor_price` = '6', `product_high_discount` = '12', `contacts_id` = '', `product_return_explain` = '', `group_id` = 1
+[2018-05-23 16:43:04] [ERROR] insert into drugs set `product_common_name` = '1', `product_specifications` = '1', `product_unit` = '瓶', `product_packing` = '100', `product_price` = '10', `product_code` = '1', `product_makesmakers` = '1', `product_supplier` = '11', `product_mack_price` = '8.80', `product_discount` = '88', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '6.40', `product_return_discount` = '64.00', `product_return_type` = '是', `product_floor_price` = '2', `product_high_discount` = '20', `contacts_id` = '', `product_return_explain` = '', `group_id` = 1
+[2018-05-23 16:43:56] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:44:50] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:44:50] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:45:21] [ERROR] insert into drugs set `product_common_name` = '1', `product_specifications` = '1', `product_unit` = '瓶', `product_packing` = '10', `product_price` = '10', `product_code` = '1', `product_makesmakers` = '1', `product_supplier` = '11', `product_mack_price` = '8.80', `product_discount` = '88', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '6.16', `product_return_discount` = '61.60', `product_return_type` = '是', `product_floor_price` = '2', `product_high_discount` = '23', `contacts_id` = '', `product_return_explain` = '', `group_id` = 1
+[2018-05-23 16:45:37] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:45:37] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:46:33] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 16:46:33] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 16:46:33] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 16:51:00] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 16:51:19] [ERROR] insert into drugs set `product_common_name` = '1', `product_specifications` = '1', `product_unit` = '盒', `product_packing` = '100', `product_price` = '10', `product_code` = '1', `product_makesmakers` = '1', `product_supplier` = '1', `product_mack_price` = '8.80', `product_discount` = '88', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '5.39', `product_return_discount` = '53.90', `product_return_type` = '是', `product_floor_price` = '3', `product_high_discount` = '23', `product_return_explain` = '', `group_id` = 1
+[2018-05-23 21:37:10] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 21:37:10] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 21:37:10] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 21:37:11] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-23 21:37:51] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 09:36:54] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 09:36:54] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 09:36:54] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 09:36:56] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 10:16:23] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 10:16:23] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 10:16:23] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 10:16:43] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 10:17:15] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-24 10:17:26] [ERROR] update  authority set `authority_id` = '17', `authority_name` = '药品管理', `authority_describe` = '', `authority_code` = '401', `authority_path` = '/main/drugs', `authority_parent_id` = '0', `delete_flag` = '0', `authority_open` = '1', `authority_type` = '2', `button_type` = '' where authority_id='17'
+[2018-05-24 10:17:30] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-24 10:17:30] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 10:17:39] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 10:24:35] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 10:24:35] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 10:55:09] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 10:55:09] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 10:55:09] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 10:55:10] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:10:53] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:10:53] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:14:13] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:14:13] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:14:36] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:14:36] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:14:53] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:14:53] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:15:03] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:15:03] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:16:06] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:16:06] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:16:25] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:16:25] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:18:01] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:18:01] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:19:41] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:19:41] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:21:10] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:21:10] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:38:52] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 11:38:52] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 11:38:52] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:38:54] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:39:21] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:39:21] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:39:38] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:39:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:39:52] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:39:52] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 11:41:07] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 11:41:07] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 12:23:50] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 12:23:50] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 12:23:50] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 12:23:53] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 12:25:57] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 12:25:57] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 12:27:01] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 12:27:01] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 12:28:20] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 12:28:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 14:05:10] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-24 14:05:10] [ERROR] update users set login_time = '2018-05-24',version = '0.0.2' where username = 'admin'
+[2018-05-24 14:05:10] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,56,57,58,59,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-24 14:05:12] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-05-24 14:05:41] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0

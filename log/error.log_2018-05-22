@@ -1,0 +1,306 @@
+
+[2018-05-22 11:36:59] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 11:36:59] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 11:36:59] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 11:37:03] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:37:03] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:37:07] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:37:07] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:38:41] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:38:41] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:38:41] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:38:44] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 11:38:44] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:38:46] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:38:46] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:38:46] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:40:32] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:40:32] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:48:29] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 11:48:29] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:29] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 11:48:29] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 11:48:30] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:30] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:48:32] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:32] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:48:32] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:48:34] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:48:35] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 11:48:35] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:35] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 11:48:35] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 11:48:37] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:37] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:48:39] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:48:39] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:48:39] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:48:41] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 11:49:08] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:49:08] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:49:10] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:49:10] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 11:49:11] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 11:49:11] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:02:01] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:01] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:02:02] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:02] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:02:05] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:05] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:02:07] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 12:02:07] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:07] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 12:02:07] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 12:02:10] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:10] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:02:44] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:02:46] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:02:46] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:02:46] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:04:49] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:04:49] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:04:54] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:04:54] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:04:57] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:04:57] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:00] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:00] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:01] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:01] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:03] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 12:05:03] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:03] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 12:05:03] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 12:05:04] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:04] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:06] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:06] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:05:06] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:07] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:05:09] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 12:05:09] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:09] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 12:05:09] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 12:05:11] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:11] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:14] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:14] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:05:14] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 12:05:15] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 12:05:21] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 12:05:21] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 13:50:47] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 13:50:47] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 13:50:47] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 13:50:53] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 13:50:53] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 13:50:55] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 13:50:55] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:00:42] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 14:00:42] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:00:45] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%`%' and delete_flag like '%0%' ) T
+[2018-05-22 14:00:45] [ERROR] select * from groups where 1=1 and group_name like '%`%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:00:47] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 14:00:47] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:00:47] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 14:00:47] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:05:14] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 14:05:14] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:05:20] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 14:05:20] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:05:22] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 14:05:22] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:05:25] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 14:05:25] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 14:05:27] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 14:05:27] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:02:05] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 15:02:05] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 15:02:05] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:02:11] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:02:11] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:03:12] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 15:03:12] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 15:03:12] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:03:15] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:03:15] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:14:48] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:19:31] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:20:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:20:30] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:20:45] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:21:00] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:26:13] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:31:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:31:51] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:38:58] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 15:38:58] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 15:38:58] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 15:44:25] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:25] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:44:28] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:28] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:44:29] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 15:44:29] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:29] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 15:44:29] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 15:44:30] [ERROR] select count(*) as count from ( select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:30] [ERROR] select * from groups where 1=1 and group_name like '%%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:44:32] [ERROR] select count(*) as count from ( select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:32] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 15:44:32] [ERROR] select * from role where 1=1 and role_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:44:34] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-22 15:44:37] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:37] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:44:38] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:44:38] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:46:15] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:46:15] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:46:17] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:46:17] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:46:18] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:46:18] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 15:46:21] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 15:46:21] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-22 16:16:15] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 16:16:15] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 16:16:15] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:16:20] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 16:16:20] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 16:16:20] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 16:16:20] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 16:17:23] [ERROR] select count(*) as count from ( select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' ) T
+[2018-05-22 16:17:23] [ERROR] select count(*) as count from ( select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-22 16:17:23] [ERROR] select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '1' and u.delete_flag = '0' limit 0,10
+[2018-05-22 16:17:23] [ERROR] select * from role where 1=1 and group_id like '%1%' and delete_flag like '%0%'  limit 0,5
+[2018-05-22 16:17:23] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:17:29] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 16:17:29] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 16:17:29] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:18:12] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:22:56] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:23:13] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:23:26] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:23:43] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:24:06] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:24:56] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:25:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:30:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:30:43] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:31:18] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:31:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:31:51] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:33:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:35:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:50:42] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-22 16:50:42] [ERROR] update users set login_time = '2018-05-22',version = '0.0.2' where username = 'admin'
+[2018-05-22 16:50:42] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:51:15] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:52:14] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:55:54] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:57:22] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:57:42] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-22 16:57:52] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 09:26:11] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 09:26:11] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 09:26:11] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 09:38:26] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 09:41:02] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 09:41:19] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 09:41:42] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:27:37] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 10:27:37] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 10:27:37] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:27:47] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 10:27:47] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 10:27:49] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 10:27:49] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 10:27:51] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 10:27:51] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 10:27:53] [ERROR] select count(*) as count from ( select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 10:27:53] [ERROR] select * from hospitals where 1=1 and hospital_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 10:27:54] [ERROR] select count(*) as count from ( select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%' ) T
+[2018-05-23 10:27:54] [ERROR] select * from contacts where 1=1 and contacts_name like '%%' and group_id like '%1%' and delete_flag like '%0%'  limit 0,10
+[2018-05-23 10:39:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:40:32] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:40:47] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:41:03] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:41:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:41:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:49:18] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:49:54] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:50:08] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:50:21] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:50:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:52:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:52:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:53:05] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:53:55] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:55:00] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:55:22] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:55:40] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:57:08] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:58:18] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 10:58:18] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 10:58:18] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 10:59:11] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 11:00:21] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 11:01:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 11:59:43] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 11:59:43] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 11:59:43] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:46:38] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 13:46:38] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 13:46:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:46:45] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:47:05] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:57:21] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:57:37] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:59:05] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 13:59:44] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:00:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:01:01] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:02:09] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:02:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:04:03] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:27:06] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 14:27:06] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 14:27:07] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:30:25] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:30:56] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:31:42] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:35:55] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:48:20] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:49:55] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:51:24] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:52:45] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:54:13] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 14:55:45] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:02:37] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 15:02:37] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 15:02:37] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:05:34] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:05:57] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:06:25] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:07:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:07:51] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:08:37] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:17:00] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-23 15:17:10] [ERROR] insert into authority set `authority_name` = '权限', `authority_describe` = '', `authority_code` = '', `authority_path` = '/', `authority_type` = '1', `button_type` = '1', `authority_open` = '1', `authority_parent_id` = '17'
+[2018-05-23 15:17:13] [ERROR] insert into authority set `authority_name` = '权限', `authority_describe` = '', `authority_code` = '', `authority_path` = '/', `authority_type` = '1', `button_type` = '1', `authority_open` = '1', `authority_parent_id` = '17'
+[2018-05-23 15:17:14] [ERROR] insert into authority set `authority_name` = '权限', `authority_describe` = '', `authority_code` = '', `authority_path` = '/', `authority_type` = '1', `button_type` = '1', `authority_open` = '1', `authority_parent_id` = '17'
+[2018-05-23 15:17:14] [ERROR] insert into authority set `authority_name` = '权限', `authority_describe` = '', `authority_code` = '', `authority_path` = '/', `authority_type` = '1', `button_type` = '1', `authority_open` = '1', `authority_parent_id` = '17'
+[2018-05-23 15:17:46] [ERROR] update  authority set `authority_name` = '查询', `authority_describe` = '查询', `authority_code` = '4014', `authority_path` = '/', `authority_type` = '3', `button_type` = '6', `authority_open` = '1', `authority_parent_id` = '17', `authority_id` = '56' where authority_id='56'
+[2018-05-23 15:18:06] [ERROR] update  authority set `authority_name` = '修改', `authority_describe` = '修改', `authority_code` = '4013', `authority_path` = '/', `authority_type` = '3', `button_type` = '3', `authority_open` = '1', `authority_parent_id` = '17', `authority_id` = '57' where authority_id='57'
+[2018-05-23 15:18:22] [ERROR] update  authority set `authority_name` = '删除', `authority_describe` = '删除', `authority_code` = '4012', `authority_path` = '/', `authority_type` = '3', `button_type` = '2', `authority_open` = '1', `authority_parent_id` = '17', `authority_id` = '58' where authority_id='58'
+[2018-05-23 15:18:37] [ERROR] update  authority set `authority_name` = '新增', `authority_describe` = '新增', `authority_code` = '4011', `authority_path` = '/', `authority_type` = '3', `button_type` = '1', `authority_open` = '1', `authority_parent_id` = '17', `authority_id` = '59' where authority_id='59'
+[2018-05-23 15:18:39] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-05-23 15:18:39] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:38:50] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-05-23 15:38:50] [ERROR] update users set login_time = '2018-05-23',version = '0.0.2' where username = 'admin'
+[2018-05-23 15:38:51] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:39:15] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:43:33] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:43:48] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc
+[2018-05-23 15:43:59] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,17,36,38,49,42,41,40,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18) order by authority_code desc

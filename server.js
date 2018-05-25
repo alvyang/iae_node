@@ -37,6 +37,7 @@ app.all('/*', function(req,res,next){
   var url = req.url.split("/");
   var keyWords = url[url.length-1].split("?")[0];
   if(keyWords == "captcha" || keyWords == "login" || req.session.user){
+    req.session.user = req.session.user;
     next();
   }else{
     res.json({"code":"111111",message:"请先登陆"});
