@@ -22,5 +22,6 @@ module.exports = {
 					'contacts_id',
 					'group_id',
 					'product_return_explain',
-					'remark']
+					'remark',
+					'buyer']
 };

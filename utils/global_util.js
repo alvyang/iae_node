@@ -1,5 +1,23 @@
-var wechat = require('../utils/wechat_util.js');
+// var wechat = require('../utils/wechat_util.js');
 var crypto = require('crypto');
+
+/*
+ *将数据库查询的结果，格式化成要的形式  excel-export 要求的形式
+ header:数据库字段名数组   data 要格式化的数据
+ */
+exports.formatExcel = function(header,data){
+  var fData=[];
+  for(var i = 0 ; i < data.length ;i++){
+    var temp = [];
+    for(var j = 0 ; j < header.length ; j++){
+      var v = data[i][header[j]]?data[i][header[j]].toString():"";
+      temp.push(v);
+    }
+    fData.push(temp);
+  }
+  return fData;
+}
+
 /*
  * 生成随机字符串
  */
@@ -47,5 +65,5 @@ function raw(args){
     	str += '&' + k + '=' + newArgs[k];
     }
     str = str.substr(1);
-    return str; 
+    return str;
 };

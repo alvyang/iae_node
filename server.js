@@ -25,7 +25,7 @@ app.use(bodyParser.xml({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(session({secret:'lvyang',cookie:{maxAge: 60000*30 },saveUninitialized:true,resave:true}));
+app.use(session({secret:'lvyang',rolling: true,resave:true,cookie:{maxAge: 60000*30 },saveUninitialized:true,resave:true}));
 
 global.logger=require("./utils/logger.js");
 global.moment = require('moment');//日期函数全局访问
@@ -37,7 +37,6 @@ app.all('/*', function(req,res,next){
   var url = req.url.split("/");
   var keyWords = url[url.length-1].split("?")[0];
   if(keyWords == "captcha" || keyWords == "login" || req.session.user){
-    req.session.user = req.session.user;
     next();
   }else{
     res.json({"code":"111111",message:"请先登陆"});

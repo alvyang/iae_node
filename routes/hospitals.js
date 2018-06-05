@@ -46,4 +46,14 @@ router.post("/getHospitals",function(req,res){
     res.json({"code":"000000",message:result});
   });
 });
+//获取全部医院列表
+router.post("/getAllHospitals",function(req,res){
+  var hospitals = DB.get("Hospitals");
+  hospitals.where({
+    group_id:req.session.user[0].group_id,
+    delete_flag:0
+  },function(err,result){
+    res.json({"code":"000000",message:result});
+  });
+});
 module.exports = router;
