@@ -43,7 +43,7 @@ router.post("/getContacts",function(req,res){
   var contacts = DB.get("Contacts");
   var sql = "select * from contacts c where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.data.contacts_name){
-    sql += " and d.contacts_name like '%"+req.body.data.contacts_name+"%'";
+    sql += " and c.contacts_name like '%"+req.body.data.contacts_name+"%'";
   }
   contacts.countBySql(sql,function(err,result){
     req.body.page.totalCount = result;

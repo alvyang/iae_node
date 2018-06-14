@@ -23,5 +23,7 @@ module.exports = {
 					'group_id',
 					'product_return_explain',
 					'remark',
-					'buyer']
+					'buyer',
+					'product_name_pinyin',
+					'product_business']
 };

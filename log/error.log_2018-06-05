@@ -566,3 +566,597 @@
 [2018-06-05 16:32:36] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-06-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
 [2018-06-05 16:32:36] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-06-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
 [2018-06-05 16:32:36] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-06-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 16:34:29] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 16:34:29] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 16:34:29] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 16:34:30] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 16:34:30] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 16:34:30] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 16:34:30] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 16:34:34] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 16:34:34] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 16:34:34] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 10,10
+[2018-06-05 16:34:36] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 16:34:36] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 16:34:36] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:30:46] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 17:30:46] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 17:30:46] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:30:48] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:30:48] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:30:48] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:30:59] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_common_name like '%羟乙基淀粉%' ) T
+[2018-06-05 17:30:59] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_common_name like '%羟乙基淀粉%' order by d.product_id desc limit 0,10
+[2018-06-05 17:32:11] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:11] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:32:15] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 17:32:15] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:15] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 17:32:15] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:32:22] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:22] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:22] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:32:24] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 17:32:24] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:24] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 17:32:24] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:32:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:28] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:32:32] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 17:32:32] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:32] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 17:32:32] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:32:41] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 17:32:41] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:41] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 17:32:41] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:32:47] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:47] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:32:47] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:32:55] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:55] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 10,10
+[2018-06-05 17:32:56] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:56] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 20,10
+[2018-06-05 17:32:57] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:32:57] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:35:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:35:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,5
+[2018-06-05 17:36:24] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:24] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 5,5
+[2018-06-05 17:36:25] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:25] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 10,5
+[2018-06-05 17:36:25] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:25] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 15,5
+[2018-06-05 17:36:26] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:26] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 20,5
+[2018-06-05 17:36:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 215,5
+[2018-06-05 17:36:29] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:36:29] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,5
+[2018-06-05 17:38:17] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:38:17] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:38:17] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:38:17] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:38:24] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:38:24] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:39:12] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 17:39:12] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 17:39:12] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:39:14] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:39:14] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:39:14] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:39:19] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:39:19] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:39:33] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 17:39:33] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 17:39:33] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:39:35] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 17:39:35] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:39:35] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 17:39:35] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 17:39:37] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:39:37] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:39:37] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:39:41] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_code = 'BME001078CSX1' ) T
+[2018-06-05 17:39:41] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_code = 'BME001078CSX1' order by d.product_id desc limit 0,10
+[2018-06-05 17:39:42] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:39:42] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:40:19] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:40:19] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:40:19] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:40:19] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:41:08] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:41:08] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:41:09] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 17:41:11] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:41:11] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:41:11] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:42:08] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:42:08] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:42:08] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:42:08] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:42:43] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:42:43] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:42:43] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:42:43] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:42:59] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:42:59] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:42:59] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:42:59] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 17:43:31] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 17:43:31] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 17:43:31] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 17:43:31] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 19:45:38] [ERROR] select * from drugs
+[2018-06-05 19:47:44] [ERROR] select * from drugs
+[2018-06-05 19:47:56] [ERROR] select * from drugs
+[2018-06-05 19:48:33] [ERROR] select * from drugs
+[2018-06-05 19:49:38] [ERROR] select * from drugs
+[2018-06-05 19:52:58] [ERROR] select * from drugs
+[2018-06-05 19:53:11] [ERROR] select * from drugs
+[2018-06-05 19:54:23] [ERROR] select * from drugs
+[2018-06-05 19:55:47] [ERROR] select * from drugs
+[2018-06-05 19:56:02] [ERROR] select * from drugs
+[2018-06-05 20:01:51] [ERROR] select * from drugs
+[2018-06-05 20:02:24] [ERROR] select * from drugs
+[2018-06-05 20:03:01] [ERROR] select * from drugs
+[2018-06-05 20:05:30] [ERROR] select * from drugs
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttzsy(sp)' where product_id = 10
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sgszsy' where product_id = 1
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsytbptnsbtn' where product_id = 2
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dsmslsnzsy' where product_id = 3
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xrmzsy' where product_id = 4
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xsstkzs(fzt)' where product_id = 5
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lscxqlhnzsy(jlp)j)' where product_id = 6
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xfteydp' where product_id = 7
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysnmfzsy(sn)' where product_id = 8
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsy1zfhwss' where product_id = 9
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'amlzcrjn' where product_id = 11
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lsm' where product_id = 12
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBp' where product_id = 13
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nlhnzsy' where product_id = 14
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ccxtlhnzsy(jls)' where product_id = 15
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xmtdzsy' where product_id = 16
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dmp' where product_id = 18
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jprxkl' where product_id = 17
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'chzsy' where product_id = 20
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'csgp' where product_id = 21
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttzsy(sp)' where product_id = 22
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'hxw' where product_id = 23
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lhnzsy(sp)' where product_id = 24
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttzsy(sp)' where product_id = 25
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tsqnp' where product_id = 19
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysldqyzsy' where product_id = 27
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysnltzsy' where product_id = 26
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sqgjslhjp(slk)' where product_id = 28
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lfdyhsp(swp)' where product_id = 29
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttzsy(sp)' where product_id = 30
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qyjdf1lhnzsy(rd)' where product_id = 31
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'mrzpw' where product_id = 32
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'fsmp' where product_id = 33
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'bwsnp' where product_id = 35
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jzrmyqdb(' where product_id = 34
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBp' where product_id = 37
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qkldp' where product_id = 38
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jxzlhnzsy' where product_id = 39
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysssxszsy' where product_id = 40
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBp' where product_id = 41
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyyjtym(yk)' where product_id = 42
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'mjzsys' where product_id = 36
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysejsgp' where product_id = 44
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dgfmtxy(rsy-' where product_id = 43
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'mgfkp' where product_id = 45
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyxst(dg)' where product_id = 46
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ndbsjwp' where product_id = 47
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsydcdfsy' where product_id = 48
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysplptp' where product_id = 49
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'kfbyyⅢ' where product_id = 50
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nkdep' where product_id = 51
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsylgdt(ms)' where product_id = 53
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lgdtzsy(sml)' where product_id = 52
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'rsfttgjn' where product_id = 54
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsygt' where product_id = 55
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ydlfzsy' where product_id = 56
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttzsy(sp)' where product_id = 57
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysbhlmzsy' where product_id = 58
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'blfhsjn(hsf)' where product_id = 59
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'hmsrg' where product_id = 61
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pqnzp' where product_id = 60
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ksl(hgy)' where product_id = 63
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'hflnp' where product_id = 64
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dgxp' where product_id = 65
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'crkl' where product_id = 66
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'axzfsp(tf)' where product_id = 67
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nglnp(df)' where product_id = 68
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssArjn' where product_id = 62
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'asamlzcrjn(lms)' where product_id = 70
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jssmtlehsp(txek)' where product_id = 69
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lnzp' where product_id = 71
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysybqzsy' where product_id = 72
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsybbbtn' where product_id = 73
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysybqp' where product_id = 74
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBzsy' where product_id = 75
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qbsgszsy' where product_id = 76
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsymdbm' where product_id = 78
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'cfxkl' where product_id = 77
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysaltdjn' where product_id = 80
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyzrxwss(' where product_id = 81
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'etqwjn' where product_id = 82
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'mdasjzsy' where product_id = 83
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysejsghsp(mklx)' where product_id = 84
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsylstbtl(brp)' where product_id = 85
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ccahsjn(abl)' where product_id = 79
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyjwfsxnm(sl)' where product_id = 87
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'hyw' where product_id = 86
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lssdacwhxrry' where product_id = 88
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyasamlzn' where product_id = 89
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysp' where product_id = 90
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pfttgfsp' where product_id = 91
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'fpsdmlqxp' where product_id = 92
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zzrlxbcjyzzsy(rb)' where product_id = 93
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'rxbdb' where product_id = 95
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xgdtzsy' where product_id = 94
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xekstj' where product_id = 97
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysdfndp' where product_id = 98
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsysrxwss' where product_id = 99
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'plxtlhnzsy(kr)' where product_id = 100
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xsyslzp' where product_id = 101
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ffgckfry' where product_id = 102
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jysjkl' where product_id = 96
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qlstjn' where product_id = 104
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lbwlzsy' where product_id = 103
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ffljdhsy' where product_id = 105
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jdbzzrydshhzsy(gsl4bx)' where product_id = 106
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = '3hhzzrydszsy(gsl3bx)' where product_id = 107
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zzrydszsy(gslRbx)' where product_id = 108
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jdbzzrydszsy(gslN' where product_id = 109
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'slsxgenzsy' where product_id = 110
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dgfmtxy(rsy-' where product_id = 112
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyysxjx(fz)' where product_id = 111
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nmdpp' where product_id = 114
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyslsxgen' where product_id = 115
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsytbptnsbtn(' where product_id = 116
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pttsgzsy' where product_id = 117
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qyjdf4lhnzsy' where product_id = 118
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'aqbtjn(bx)' where product_id = 119
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nqdpp' where product_id = 113
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'axtlkfry(ytj)' where product_id = 121
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsydxsyslz' where product_id = 120
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ldjn' where product_id = 122
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'rsfttgp' where product_id = 123
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysnqdplhnzsy' where product_id = 124
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tbkwkl(sfs)' where product_id = 125
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'flkhj' where product_id = 126
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysaslezsy(al)' where product_id = 127
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ffalbbtzsy' where product_id = 129
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'rgtkfry' where product_id = 128
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lxjp' where product_id = 131
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ffdcp' where product_id = 132
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dxsyslzp' where product_id = 133
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysaxszsy' where product_id = 134
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ystlzqp' where product_id = 135
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'bldjnjn(skl)' where product_id = 136
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xecqqrkl(wt)' where product_id = 137
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pskl(wt)' where product_id = 130
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'bzttzsy' where product_id = 138
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'anpcrrjn(qn)' where product_id = 139
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zxjn' where product_id = 140
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tsqnzsy(sp)' where product_id = 141
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBzsy' where product_id = 142
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lhnzsy' where product_id = 143
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'bzttzsy' where product_id = 144
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysnfpzsy' where product_id = 146
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBzsy' where product_id = 145
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xgdtzsy' where product_id = 148
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssCzsy' where product_id = 149
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yszyfsxlhnzsy(hlj)' where product_id = 150
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yszxtlqp' where product_id = 151
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'httzsy' where product_id = 152
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsyxpn' where product_id = 153
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xsgyzsy' where product_id = 147
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ydlfzsy' where product_id = 155
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'mdasjmzsy' where product_id = 154
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yxyjn' where product_id = 156
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'kfyjn' where product_id = 157
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'pdlxykfy' where product_id = 158
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sxbhj' where product_id = 159
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lscxqlhnzsy(jlp)j)' where product_id = 160
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsy1zfhwss' where product_id = 161
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ffajszsy(' where product_id = 163
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'fpsdmlqxp' where product_id = 162
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dwtkfry' where product_id = 165
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ydzykfry' where product_id = 166
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsydcdfsy' where product_id = 167
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qlppl(wt)' where product_id = 168
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sjstkfry(wt)' where product_id = 169
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dgsnzsy' where product_id = 170
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tsqnzsy' where product_id = 164
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'httjn(ymx)' where product_id = 172
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysejsgcrp(jsdx)' where product_id = 171
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qlsqp' where product_id = 173
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysjylpazsy' where product_id = 174
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lsqlpglp' where product_id = 175
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sxbkl' where product_id = 176
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lsnykfry' where product_id = 177
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'dzhsdw' where product_id = 178
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'glmnp(wsp)' where product_id = 180
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zzrlxbcjyzzsy(rb)' where product_id = 179
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysajpttp' where product_id = 182
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xjp' where product_id = 183
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'jtgjbghxj(hnf)' where product_id = 184
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qbhsgjn(ky)' where product_id = 185
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'csgjn' where product_id = 186
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'gsnzsy' where product_id = 187
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zttzsy' where product_id = 181
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsytbtd' where product_id = 189
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xfttp(jbsx)' where product_id = 188
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysdbazsy' where product_id = 190
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'nkdep' where product_id = 191
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sgszsy' where product_id = 192
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBzsy' where product_id = 193
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'rxbdb' where product_id = 194
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssBzsy' where product_id = 195
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lhnzsy(rd)' where product_id = 197
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qlsqp' where product_id = 196
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsytlsm(zt)' where product_id = 199
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'sgszjn' where product_id = 200
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'epxkl' where product_id = 202
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tbbxkl' where product_id = 203
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'tbkwkl' where product_id = 204
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'qyjdf1lhnzsy(rd)' where product_id = 205
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yxblfs(tza)' where product_id = 198
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'zsytbqsn' where product_id = 207
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lgdtzsy(sml)' where product_id = 206
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yhkl' where product_id = 208
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'fpldzsy' where product_id = 209
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'bykp' where product_id = 210
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'xyldp' where product_id = 211
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'plxtzsy' where product_id = 212
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'lmsdyy' where product_id = 213
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'fsmzsy' where product_id = 215
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'yxyp(tbn)' where product_id = 214
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'gmqrkl' where product_id = 217
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'axlwp' where product_id = 218
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'wssKzsy' where product_id = 219
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ydpap(sbs)' where product_id = 220
+[2018-06-05 20:05:31] [ERROR] update drugs set product_name_pinyin = 'ysaxsfsp' where product_id = 216
+[2018-06-05 20:06:28] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:06:50] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:06:50] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:06:50] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:06:52] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:06:52] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:06:52] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:08:47] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:15:57] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:15:57] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:19:13] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:19:13] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:20:42] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:20:42] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:20:44] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:20:44] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:20:44] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:20:45] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:20:55] [ERROR] select * from drugs where 1=1 and product_code='BME001078CSX1' and group_id=1 and delete_flag='0'
+[2018-06-05 20:22:00] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:22:00] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:22:01] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:22:01] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:22:01] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:22:02] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:22:04] [ERROR] update  drugs set `product_id` = '220', `product_common_name` = '吲达帕胺片(寿比山)', `product_code` = 'BME001078CSX1', `product_specifications` = '2.5mg*10s*3板 糖衣', `product_unit` = '盒', `product_price` = '17', `product_makesmakers` = '天津力生制药股份有限公司', `product_supplier` = '天津力生制药股份有限公司', `product_packing` = '300', `delete_flag` = '0', `product_mack_price` = '17', `product_discount` = '100.00', `product_medical_type` = '', `product_type` = '其它', `product_return_money` = '', `product_return_discount` = '', `product_floor_price` = '', `product_high_discount` = '', `group_id` = '1', `product_return_explain` = '', `remark` = '', `buyer` = '张晓虹', `product_name_pinyin` = 'ydpap(sbs)1' where product_id='220'
+[2018-06-05 20:22:06] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:22:06] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:22:06] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:22:08] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:22:11] [ERROR] update  drugs set `product_id` = '220', `product_common_name` = '吲达帕胺片(寿比山)', `product_code` = 'BME001078CSX1', `product_specifications` = '2.5mg*10s*3板 糖衣', `product_unit` = '盒', `product_price` = '17', `product_makesmakers` = '天津力生制药股份有限公司', `product_supplier` = '天津力生制药股份有限公司', `product_packing` = '300', `delete_flag` = '0', `product_mack_price` = '17', `product_discount` = '100.00', `product_medical_type` = '', `product_type` = '其它', `product_return_money` = '', `product_return_discount` = '', `product_floor_price` = '', `product_high_discount` = '', `group_id` = '1', `product_return_explain` = '', `remark` = '', `buyer` = '张晓虹', `product_name_pinyin` = 'ydpap(sbs)' where product_id='220'
+[2018-06-05 20:22:14] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:22:14] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:22:14] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:22:16] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:22:18] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:22:18] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:22:18] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:48:53] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:48:53] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:48:53] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:48:54] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:48:54] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:48:54] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:48:56] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:49:56] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-05 20:49:56] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:50:29] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:50:29] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:50:29] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:51:48] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:51:48] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:51:48] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:51:50] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:51:50] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:51:50] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:51:53] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%ydlf%' || d.product_name_pinyin like '%ydlf%' ) ) T
+[2018-06-05 20:51:53] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%ydlf%' || d.product_name_pinyin like '%ydlf%' ) order by d.product_id desc limit 0,10
+[2018-06-05 20:51:56] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:51:56] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:52:00] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' || d.product_name_pinyin like '%wss%' ) ) T
+[2018-06-05 20:52:00] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' || d.product_name_pinyin like '%wss%' ) order by d.product_id desc limit 0,10
+[2018-06-05 20:52:02] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:52:02] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:52:14] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%吲达帕胺片%' || d.product_name_pinyin like '%吲达帕胺片%' ) ) T
+[2018-06-05 20:52:14] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%吲达帕胺片%' || d.product_name_pinyin like '%吲达帕胺片%' ) order by d.product_id desc limit 0,10
+[2018-06-05 20:52:17] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:52:17] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:53:27] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:53:27] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:53:27] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:53:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:53:28] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:53:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:53:31] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') ) T
+[2018-06-05 20:53:31] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') order by d.product_id desc limit 0,10
+[2018-06-05 20:53:34] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:53:34] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:53:51] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:53:51] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:53:51] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:53:52] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:53:52] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:53:52] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:53:54] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') ) T
+[2018-06-05 20:53:54] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and （d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') order by d.product_id desc limit 0,10
+[2018-06-05 20:57:18] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 20:57:18] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 20:57:18] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:57:20] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:57:20] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:57:20] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:57:22] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') ) T
+[2018-06-05 20:57:22] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%wss%' or d.product_name_pinyin like '%wss%') order by d.product_id desc limit 0,10
+[2018-06-05 20:57:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') ) T
+[2018-06-05 20:57:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') order by d.product_id desc limit 0,10
+[2018-06-05 20:57:31] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:57:31] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:57:38] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 20:57:38] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:57:38] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 20:57:38] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 20:57:58] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:57:58] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:57:58] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:59:23] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:59:23] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:59:23] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:59:23] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:59:50] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-05 20:59:50] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:59:50] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-05 20:59:50] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 20:59:56] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 20:59:56] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 20:59:56] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 20:59:56] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 21:01:39] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-05 21:01:39] [ERROR] update users set login_time = '2018-06-05',version = '0.0.2' where username = 'admin'
+[2018-06-05 21:01:39] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-05 21:01:41] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 21:01:41] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-05 21:01:41] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 21:01:41] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 21:01:46] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 21:01:46] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 21:01:46] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-05 21:01:52] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) T
+[2018-06-05 21:01:52] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' ) num
+[2018-06-05 21:01:52] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-05' order by s.sale_id desc limit 0,10
+[2018-06-06 09:00:09] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-06 09:00:09] [ERROR] update users set login_time = '2018-06-06',version = '0.0.2' where username = 'admin'
+[2018-06-06 09:00:10] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 09:00:13] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 09:00:13] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 09:00:13] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 09:00:30] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%xgdt%' or d.product_name_pinyin like '%xgdt%') ) T
+[2018-06-06 09:00:30] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%xgdt%' or d.product_name_pinyin like '%xgdt%') order by d.product_id desc limit 0,10
+[2018-06-06 09:00:36] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-06 09:00:44] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%xgdt%' or d.product_name_pinyin like '%xgdt%') ) T
+[2018-06-06 09:00:44] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 09:00:44] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%xgdt%' or d.product_name_pinyin like '%xgdt%') order by d.product_id desc limit 0,10
+[2018-06-06 09:02:11] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) T
+[2018-06-06 09:02:11] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 09:02:11] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) num
+[2018-06-06 09:02:11] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' order by s.sale_id desc limit 0,10
+[2018-06-06 09:02:15] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) T
+[2018-06-06 09:02:15] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) num
+[2018-06-06 09:02:15] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' order by s.sale_id desc limit 430,10
+[2018-06-06 09:02:16] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) T
+[2018-06-06 09:02:16] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) num
+[2018-06-06 09:02:16] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' order by s.sale_id desc limit 0,10
+[2018-06-06 09:42:04] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-06 09:42:04] [ERROR] update users set login_time = '2018-06-06',version = '0.0.2' where username = 'admin'
+[2018-06-06 09:42:04] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 09:42:06] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 09:42:06] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 09:42:06] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 09:54:03] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 09:54:03] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 09:54:06] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('佣金') ) T
+[2018-06-06 09:54:06] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('佣金') order by d.product_id desc limit 0,10
+[2018-06-06 09:54:17] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('高打(底价)') ) T
+[2018-06-06 09:54:17] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('高打(底价)') order by d.product_id desc limit 0,10
+[2018-06-06 09:55:00] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 09:55:00] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 09:55:08] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%badt%' or d.product_name_pinyin like '%badt%') ) T
+[2018-06-06 09:55:08] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%badt%' or d.product_name_pinyin like '%badt%') order by d.product_id desc limit 0,10
+[2018-06-06 09:55:10] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%batt%' or d.product_name_pinyin like '%batt%') ) T
+[2018-06-06 09:55:10] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%batt%' or d.product_name_pinyin like '%batt%') order by d.product_id desc limit 0,10
+[2018-06-06 09:55:12] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%bztt%' or d.product_name_pinyin like '%bztt%') ) T
+[2018-06-06 09:55:12] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%bztt%' or d.product_name_pinyin like '%bztt%') order by d.product_id desc limit 0,10
+[2018-06-06 09:56:32] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 09:56:32] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 09:58:48] [ERROR] select count(*) as count from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) T
+[2018-06-06 09:58:48] [ERROR] select * from hospitals where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 09:58:48] [ERROR] select sum(num.sale_money) as saleMoney from ( select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' ) num
+[2018-06-06 09:58:48] [ERROR] select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing from (select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '1' ) s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '1'  and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '2018-01-01' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '2018-06-06' order by s.sale_id desc limit 0,10
+[2018-06-06 10:00:12] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:06:12] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-06-06 10:06:25] [ERROR] update  authority set `authority_id` = '61', `authority_name` = '备货管理', `authority_describe` = '报货管理', `authority_code` = '501', `authority_path` = '/main/purchase', `authority_parent_id` = '0', `delete_flag` = '0', `authority_open` = '1', `authority_type` = '2', `button_type` = '1' where authority_id='61'
+[2018-06-06 10:06:28] [ERROR] select * from authority where 1=1 and delete_flag=0 order by authority_code desc
+[2018-06-06 10:06:28] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:07:01] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:08:13] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:08:13] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:08:13] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:08:16] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%kmjd%' or d.product_name_pinyin like '%kmjd%') ) T
+[2018-06-06 10:08:16] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%kmjd%' or d.product_name_pinyin like '%kmjd%') order by d.product_id desc limit 0,10
+[2018-06-06 10:08:20] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') ) T
+[2018-06-06 10:08:20] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') order by d.product_id desc limit 0,10
+[2018-06-06 10:08:26] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-06 10:09:06] [ERROR] update  drugs set `product_id` = '155', `product_common_name` = '依达拉奉注射液', `product_code` = 'AMZ004015C', `product_specifications` = '20ml:30mg', `product_unit` = '支', `product_price` = '31', `product_makesmakers` = '昆明积大制药股份有限公司', `product_supplier` = '昆明积大药品销售有限公司', `product_packing` = '200', `delete_flag` = '0', `product_mack_price` = '27.28', `product_discount` = '88', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '14.65', `product_return_discount` = '47.26', `product_floor_price` = '', `product_high_discount` = '', `contacts_id` = '15', `group_id` = '1', `product_return_explain` = '打款后25天左右', `remark` = '', `buyer` = '程屹楠', `product_name_pinyin` = 'ydlfzsy' where product_id='155'
+[2018-06-06 10:09:07] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') ) T
+[2018-06-06 10:09:07] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:09:07] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ydlf%' or d.product_name_pinyin like '%ydlf%') order by d.product_id desc limit 0,10
+[2018-06-06 10:09:28] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%cm%' or d.product_name_pinyin like '%cm%') ) T
+[2018-06-06 10:09:28] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%cm%' or d.product_name_pinyin like '%cm%') order by d.product_id desc limit 0,10
+[2018-06-06 10:10:09] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%glmn%' or d.product_name_pinyin like '%glmn%') ) T
+[2018-06-06 10:10:09] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%glmn%' or d.product_name_pinyin like '%glmn%') order by d.product_id desc limit 0,10
+[2018-06-06 10:10:11] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-06 10:10:30] [ERROR] update  drugs set `product_id` = '180', `product_common_name` = '格列美脲片(万苏平)', `product_code` = 'BID011081C', `product_specifications` = '2mg*30s', `product_unit` = '瓶', `product_price` = '32.53', `product_makesmakers` = '江苏万邦生化医药集团有限责任公司', `product_supplier` = '江苏万邦医药营销有限公司', `product_packing` = '100', `delete_flag` = '0', `product_mack_price` = '29.28', `product_discount` = '90', `product_medical_type` = '', `product_type` = '佣金', `product_return_money` = '5.72', `product_return_discount` = '17.58', `product_floor_price` = '', `product_high_discount` = '', `contacts_id` = '41', `group_id` = '1', `product_return_explain` = '', `remark` = '', `buyer` = '程屹楠', `product_name_pinyin` = 'glmnp(wsp)' where product_id='180'
+[2018-06-06 10:10:31] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%glmn%' or d.product_name_pinyin like '%glmn%') ) T
+[2018-06-06 10:10:31] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:10:31] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%glmn%' or d.product_name_pinyin like '%glmn%') order by d.product_id desc limit 0,10
+[2018-06-06 10:10:46] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ld%' or d.product_name_pinyin like '%ld%') ) T
+[2018-06-06 10:10:46] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ld%' or d.product_name_pinyin like '%ld%') order by d.product_id desc limit 0,10
+[2018-06-06 10:10:49] [ERROR] select d.product_makesmakers,d.product_supplier from drugs d where d.group_id = '1' group by d.product_makesmakers,d.product_supplier
+[2018-06-06 10:11:01] [ERROR] update  drugs set `product_id` = '122', `product_common_name` = '龙灯胶囊', `product_code` = 'CBL363001G', `product_specifications` = '0.25g*12s*1板', `product_unit` = '盒', `product_price` = '41.74', `product_makesmakers` = '云南盘龙云海药业有限公司', `product_supplier` = '云南盘龙云海药品经营有限公司', `product_packing` = '320', `delete_flag` = '0', `product_mack_price` = '37.57', `product_discount` = '90', `product_medical_type` = '', `product_type` = '高打', `product_return_money` = '19.2', `product_return_discount` = '46.00', `product_floor_price` = '', `product_high_discount` = '', `contacts_id` = '16', `group_id` = '1', `product_return_explain` = '', `remark` = '', `buyer` = '程屹楠', `product_name_pinyin` = 'ldjn' where product_id='122'
+[2018-06-06 10:11:02] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ld%' or d.product_name_pinyin like '%ld%') ) T
+[2018-06-06 10:11:02] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:11:02] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and (d.product_common_name like '%ld%' or d.product_name_pinyin like '%ld%') order by d.product_id desc limit 0,10
+[2018-06-06 10:13:33] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:14:38] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-06 10:14:38] [ERROR] update users set login_time = '2018-06-06',version = '0.0.2' where username = 'admin'
+[2018-06-06 10:14:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:15:38] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:35:06] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:35:06] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:35:06] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:35:55] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:35:55] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:35:55] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:36:00] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('高打','高打(底价)') ) T
+[2018-06-06 10:36:00] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' and d.product_type in ('高打','高打(底价)') order by d.product_id desc limit 0,10
+[2018-06-06 10:36:09] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:36:09] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:36:16] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:36:16] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 10,10
+[2018-06-06 10:36:19] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:36:19] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:37:36] [ERROR] select * from users u ,groups g,role r where username='admin' and password = 'lueSGJZetyySpUndWjMBEg==' and u.group_id = g.group_id and u.role_id = r.role_id
+[2018-06-06 10:37:36] [ERROR] update users set login_time = '2018-06-06',version = '0.0.2' where username = 'admin'
+[2018-06-06 10:37:36] [ERROR] select * from authority a where a.delete_flag = '0' and a.authority_id in (0,63,62,70,65,66,67,68,61,17,56,57,58,59,64,39,50,45,44,43,37,51,48,47,46,2,16,52,34,27,26,22,28,53,31,30,29,4,54,35,25,24,21,3,55,23,19,18,36) order by authority_code desc
+[2018-06-06 10:37:38] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:37:38] [ERROR] select * from contacts where 1=1 and group_id=1 and delete_flag=0
+[2018-06-06 10:37:38] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10
+[2018-06-06 10:37:41] [ERROR] select count(*) as count from ( select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' ) T
+[2018-06-06 10:37:41] [ERROR] select d.*,c.contacts_name from drugs d left join contacts c on d.contacts_id = c.contacts_id where d.delete_flag = '0' and d.group_id = '1' order by d.product_id desc limit 0,10

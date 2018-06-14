@@ -118,9 +118,9 @@ router.post("/getSales",function(req,res){
     var numSql = "select sum(num.sale_money) as saleMoney from ( " + sql + " ) num";
     sales.executeSql(numSql,function(err,saleMoney){
       req.body.page.totalCount = result;
-      req.body.page.saleMoney = saleMoney.length>0?saleMoney[0].saleMoney.toFixed(2):0;
+      req.body.page.saleMoney = saleMoney[0].saleMoney?saleMoney[0].saleMoney.toFixed(2):0;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by s.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by s.bill_date desc,s.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       sales.executeSql(sql,function(err,result){
         req.body.page.data = result;
         res.json({"code":"000000",message:req.body.page});
@@ -130,10 +130,10 @@ router.post("/getSales",function(req,res){
 });
 function getQuerySql(req){
   var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' ";
-  var sql = "select s.*,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
+  var sql = "select s.*,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
             " from ("+sh+") s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.productCommonName){
-    sql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%'";
+    sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
   if(req.body.data.productType){
     var type = req.body.data.productType;
@@ -146,6 +146,9 @@ function getQuerySql(req){
   }
   if(req.body.data.hospitalsId){
     sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.salesTime){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");
