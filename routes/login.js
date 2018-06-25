@@ -34,9 +34,10 @@ router.post("/login",function(req,res){
 		var machineCode = req.body.machineCode;
     var version = req.body.version;
     var sql = "select * from users u ,groups g,role r where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id and u.role_id = r.role_id";
-		user.executeSql(sql,function(err,result){
+    sql += " and g.group_code = '"+req.body.groupCode+"'"
+    user.executeSql(sql,function(err,result){
       if(result.length == 0){
-				res.json({"code":"100000",message:"用户名或密码错误！"});
+				res.json({"code":"100000",message:"组编码或用户名或密码错误！"});
         return ;
 			}
 			var startTime = new Date(result[0].start_time);
@@ -68,8 +69,11 @@ router.post("/login",function(req,res){
 });
 router.post("/password",function(req,res){
 	var user = DB.get("Users");
+  var md5 = crypto.createHash('md5');
   delete req.body.code;
-  var modifyPass = req.body.pass;
+  var modifyPass = md5.update(req.body.pass).digest('base64');
+  var md5pa = crypto.createHash('md5');
+  req.body.password = md5pa.update(req.body.password).digest('base64');
   delete req.body.pass;
   delete req.body.checkPass;
   user.where(req.body,null,function(err,result){
@@ -77,7 +81,7 @@ router.post("/password",function(req,res){
       res.json({"code":"100000",message:"旧密码错误！"});
       return;
     }
-    var sqlCode = "update users set password = '"+modifyPass+"' where username = '"+req.body.username+"'";
+    var sqlCode = "update users set password = '"+modifyPass+"' where username = '"+req.session.user[0].username+"'";
     user.executeSql(sqlCode);
     res.json({"code":"000000",message:"修改成功！"});
   });

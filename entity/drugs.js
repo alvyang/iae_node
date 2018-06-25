@@ -25,5 +25,6 @@ module.exports = {
 					'remark',
 					'buyer',
 					'product_name_pinyin',
-					'product_business']
+					'product_business',
+					'stock']
 };

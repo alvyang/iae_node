@@ -26,11 +26,22 @@ router.post("/savePurchases",function(req,res){
   }else{
     delete req.body.make_money_time;
   }
+  var stock = parseInt(req.body.stock);
+  delete req.body.stock;
   var purchase = DB.get("Purchase");
   req.body.group_id = req.session.user[0].group_id;
   purchase.insertIncrement(req.body,function(err,result){
     res.json({"code":"000000",message:result});
   });
+
+  if(req.body.storage_time){//入库更新库存
+    var drugsStock = {
+      product_id:req.body.drug_id,
+      stock:stock+parseInt(req.body.purchase_number)
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //编辑菜单
 router.post("/editPurchase",function(req,res){
@@ -69,6 +80,15 @@ router.post("/editPurchase",function(req,res){
     console.log(err);
     res.json({"code":"000000",message:null});
   });
+
+  if(req.body.storage_time){//入库更新库存
+    var drugsStock = {
+      product_id:req.body.product_id,
+      stock:req.body.stock-parseInt(req.body.purchase_number_temp)+parseInt(req.body.purchase_number)
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //删除菜单
 router.post("/deletePurchases",function(req,res){
@@ -76,11 +96,28 @@ router.post("/deletePurchases",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
+  var stock = parseInt(req.body.stock);
+  var productId = req.body.product_id;
+  var purchaseNumber = parseInt(req.body.purchase_number);
+  var storageTime = req.body.storage_time;
+  delete req.body.stock;
+  delete req.body.product_id;
+  delete req.body.purchase_number;
+  delete req.body.storage_time;
   var purchase = DB.get("Purchase");
   req.body.delete_flag = 1;
   purchase.update(req.body,'purchase_id',function(err,result){
     res.json({"code":"000000",message:null});
   });
+
+  if(storageTime){//入库更新库存
+    var drugsStock = {
+      product_id:productId,
+      stock:stock-purchaseNumber
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //导出备货列表
 router.get("/exportPurchases",function(req,res){
@@ -97,7 +134,6 @@ router.get("/exportPurchases",function(req,res){
     status:req.query.status,
     remark:req.query.remark
   };
-  console.log(req.body.data);
   var sql = getPurchasesSql(req);
   purchase.executeSql(sql,function(err,result){
     var conf ={};
@@ -125,7 +161,6 @@ router.get("/exportPurchases",function(req,res){
       }
     }];
     var header = ['time', 'product_supplier', 'product_common_name', 'product_specifications', 'product_makesmakers','product_unit','product_packing','purchase_number','purchase_mack_price','purchase_money','purchase_price','puchase_gross_rate'];
-    console.log(result);
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -156,8 +191,8 @@ router.post("/getPurchases",function(req,res){
   });
 });
 function getPurchasesSql(req){
-  var sql = "select p.*,d.product_code,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+
-            " from purchase p left join drugs d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
+  var sql = "select p.*,d.product_id,d.stock,d.product_code,d.contacts_name,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+
+            " from purchase p left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }

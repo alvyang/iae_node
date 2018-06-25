@@ -15,5 +15,6 @@ module.exports = {
 					'bill_date',
 					'operator',
 					'operation_time',
-					'hospital_id']
+					'hospital_id',
+					'sale_type']
 };

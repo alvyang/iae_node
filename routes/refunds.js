@@ -80,7 +80,7 @@ function getPurchasesSql(req){
   if(req.body.data.returnTime){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
-    prsql += " and ((DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"') || r.refunds_should_time is null)";
+    prsql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
   var sql = "select p.*,d.product_code,d.product_floor_price,d.product_high_discount,d.contacts_name,d.product_return_explain,d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+
             " from ("+prsql+") p left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
@@ -151,7 +151,7 @@ function getQuerySql(req){
   if(req.body.data.returnTime){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
-    sql += " and ((DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+end+"') || s.refunds_should_time is null)";
+    sql += " and (DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
   return sql;
 }

@@ -32,16 +32,14 @@ router.get("/exportSales",function(req,res){
     },{caption:'产品编码',type:'string'
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
     },{caption:'单位',type:'string'
-    },{caption:'中标价',type:'number'
     },{caption:'计划数量',type:'number'
+    },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
-    },{caption:'品种类型',type:'string'
-    },{caption:'采购员',type:'string'
     }];
-    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_unit','sale_price','sale_num','sale_money','product_type','buyer'];
+    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','sale_price','sale_money'];
     conf.rows = util.formatExcel(header,result);
-    console.log(conf.rows);
     var result = nodeExcel.execute(conf);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
@@ -65,9 +63,24 @@ router.post("/saveSales",function(req,res){
   var sales = DB.get("Sales");
   req.body.group_id = req.session.user[0].group_id;
   req.body.bill_date = new Date(req.body.bill_date).format('yyyy-MM-dd');
+  var productType = req.body.product_type;
+  var stock = req.body.stock;
+  var productId = req.body.product_id;
+  delete req.body.product_type;
+  delete req.body.stock;
+  delete req.body.product_id;
   sales.insertIncrement(req.body,function(err,result){
     res.json({"code":"000000",message:result});
   });
+  //添加完销售记录后，更新库存。
+  if(productType == '高打' || productType== '高打(底价)'){
+    var drugsStock = {
+      product_id:productId,
+      stock:stock-req.body.sale_num
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //编辑销售记录
 router.post("/editSales",function(req,res){
@@ -89,10 +102,21 @@ router.post("/editSales",function(req,res){
 	  group_id:req.body.group_id,
 		bill_date:req.body.bill_date,
 		hospital_id:req.body.hospital_id,
+    sale_type:req.body.sale_type
   }
   sales.update(params,'sale_id',function(err,result){
     res.json({"code":"000000",message:null});
   });
+
+  //添加完销售记录后，更新库存。
+  if(req.body.product_type == '高打' || req.body.product_type == '高打(底价)'){
+    var drugsStock = {
+      product_id:req.body.product_id,
+      stock:req.body.stock-req.body.sale_num + parseInt(req.body.sale_num_temp)
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //删除联系人
 router.post("/deleteSales",function(req,res){
@@ -102,9 +126,27 @@ router.post("/deleteSales",function(req,res){
   }
   var sales = DB.get("Sales");
   req.body.delete_flag = 1;
+  var productType = req.body.product_type;
+  var stock = parseInt(req.body.stock);
+  var productId = req.body.product_id;
+  var saleNum = parseInt(req.body.sale_num);
+  delete req.body.product_type;
+  delete req.body.stock;
+  delete req.body.product_id;
+  delete req.body.sale_num;
   sales.update(req.body,'sale_id',function(err,result){
     res.json({"code":"000000",message:null});
   });
+
+  //删除完销售记录后，更新库存。
+  if(productType == '高打' || productType == '高打(底价)'){
+    var drugsStock = {
+      product_id:productId,
+      stock:stock+saleNum
+    }
+    var drugs = DB.get("Drugs");
+    drugs.update(drugsStock,'product_id',function(err,result){});
+  }
 });
 //获取联系人列表
 router.post("/getSales",function(req,res){
@@ -130,7 +172,7 @@ router.post("/getSales",function(req,res){
 });
 function getQuerySql(req){
   var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' ";
-  var sql = "select s.*,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
+  var sql = "select s.*,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
             " from ("+sh+") s left join drugs d on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
@@ -149,6 +191,9 @@ function getQuerySql(req){
   }
   if(req.body.data.business){
     sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
+  if(req.body.data.sale_type){
+    sql += " and s.sale_type = '"+req.body.data.sale_type+"'"
   }
   if(req.body.data.salesTime){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");
