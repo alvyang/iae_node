@@ -1,12 +1,13 @@
 var express = require("express");
 var nodeExcel = require('excel-export');
+var logger = require('../utils/logger');
 var fs = require('fs');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
 //新增采购记录
 router.post("/savePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("73") < 0){
+  if(req.session.user[0].authority_code.indexOf("53") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -31,6 +32,9 @@ router.post("/savePurchases",function(req,res){
   var purchase = DB.get("Purchase");
   req.body.group_id = req.session.user[0].group_id;
   purchase.insertIncrement(req.body,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "新增采购记录出错" + err);
+    }
     res.json({"code":"000000",message:result});
   });
 
@@ -40,12 +44,16 @@ router.post("/savePurchases",function(req,res){
       stock:stock+parseInt(req.body.purchase_number)
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增采购记录，更新库存出错" + err);
+      }
+    });
   }
 });
 //编辑菜单
 router.post("/editPurchase",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("75") < 0){
+  if(req.session.user[0].authority_code.indexOf("54") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -77,22 +85,36 @@ router.post("/editPurchase",function(req,res){
 		remark:req.body.remark
   }
   purchase.update(params,'purchase_id',function(err,result){
-    console.log(err);
+    if(err){
+      logger.error(req.session.user[0].realname + "修改采购记录出错" + err);
+    }
     res.json({"code":"000000",message:null});
   });
 
-  if(req.body.storage_time){//入库更新库存
+  if(req.body.storage_time || req.body.storage_time_temp){//入库更新库存
+    var stock = 0;
+    if(req.body.storage_time_temp && req.body.storage_time){
+      stock = parseInt(req.body.stock)-parseInt(req.body.purchase_number_temp)+parseInt(req.body.purchase_number);
+    }else if(req.body.storage_time_temp && !req.body.storage_time){
+      stock = parseInt(req.body.stock)-parseInt(req.body.purchase_number);
+    }else if(!req.body.storage_time_temp && req.body.storage_time){
+      stock = parseInt(req.body.stock)+parseInt(req.body.purchase_number);
+    }
     var drugsStock = {
       product_id:req.body.product_id,
-      stock:req.body.stock-parseInt(req.body.purchase_number_temp)+parseInt(req.body.purchase_number)
+      stock:stock
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改采购记录，更新库存出错" + err);
+      }
+    });
   }
 });
 //删除菜单
 router.post("/deletePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("74") < 0){
+  if(req.session.user[0].authority_code.indexOf("55") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -107,6 +129,9 @@ router.post("/deletePurchases",function(req,res){
   var purchase = DB.get("Purchase");
   req.body.delete_flag = 1;
   purchase.update(req.body,'purchase_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "删除采购记录出错" + err);
+    }
     res.json({"code":"000000",message:null});
   });
 
@@ -116,12 +141,16 @@ router.post("/deletePurchases",function(req,res){
       stock:stock-purchaseNumber
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "删除采购记录，更新库存出错" + err);
+      }
+    });
   }
 });
 //导出备货列表
 router.get("/exportPurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("77") < 0){
+  if(req.session.user[0].authority_code.indexOf("57") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -136,6 +165,9 @@ router.get("/exportPurchases",function(req,res){
   };
   var sql = getPurchasesSql(req);
   purchase.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出采购记录出错" + err);
+    }
     var conf ={};
     conf.stylesXmlFile = "./utils/styles.xml";
     conf.name = "mysheet";
@@ -170,20 +202,29 @@ router.get("/exportPurchases",function(req,res){
 });
 //获取备货列表
 router.post("/getPurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("76") < 0){
+  if(req.session.user[0].authority_code.indexOf("56") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
   var purchase = DB.get("Purchase");
   var sql = getPurchasesSql(req);
   purchase.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询采购记录，查询总数出错" + err);
+    }
     var numSql = "select sum(num.purchase_money) as purchaseMoney from ( " + sql + " ) num";
     purchase.executeSql(numSql,function(err,purchaseMoney){
-      req.body.page.purchaseMoney = purchaseMoney[0].purchaseMoney?purchaseMoney[0].purchaseMoney.toFixed(2):0;
+      if(err){
+        logger.error(req.session.user[0].realname + "查询采购记录，统计金额出错" + err);
+      }
+      req.body.page.purchaseMoney = purchaseMoney && purchaseMoney[0].purchaseMoney?purchaseMoney[0].purchaseMoney.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
       sql += " order by p.time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       purchase.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "查询采购记录出错" + err);
+        }
         req.body.page.data = result;
         res.json({"code":"000000",message:req.body.page});
       });
@@ -234,6 +275,9 @@ router.post("/getPurchaseRemarks",function(req,res){
   var purchase = DB.get("Purchase");
   var sql = "select p.remark from purchase p where p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' and p.remark is not null and p.remark !='' group by p.remark"
   purchase.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询采购记录，分组查询备注出错" + err);
+    }
     res.json({"code":"000000",message:result});
   });
 });

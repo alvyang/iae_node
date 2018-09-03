@@ -26,5 +26,8 @@ module.exports = {
 					'buyer',
 					'product_name_pinyin',
 					'product_business',
-					'stock']
+					'stock',
+					'accounting_cost',
+					'gross_interest_rate',
+					'product_return_statistics']
 };

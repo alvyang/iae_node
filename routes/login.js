@@ -1,4 +1,5 @@
 var express = require("express");
+var logger = require('../utils/logger');
 var svgCaptcha = require('svg-captcha');
 var crypto = require('crypto');
 var router = express.Router();
@@ -36,6 +37,9 @@ router.post("/login",function(req,res){
     var sql = "select * from users u ,groups g,role r where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id and u.role_id = r.role_id";
     sql += " and g.group_code = '"+req.body.groupCode+"'"
     user.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "登陆，查询用户出错" + err);
+      }
       if(result.length == 0){
 				res.json({"code":"100000",message:"组编码或用户名或密码错误！"});
         return ;

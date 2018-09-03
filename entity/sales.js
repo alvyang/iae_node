@@ -16,5 +16,6 @@ module.exports = {
 					'operator',
 					'operation_time',
 					'hospital_id',
-					'sale_type']
+					'sale_type',
+					'sale_return_flag']
 };

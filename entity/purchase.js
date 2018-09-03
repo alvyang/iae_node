@@ -14,5 +14,6 @@ module.exports = {
 					'purchase_price',
 					'purchase_mack_price',
 					'puchase_gross_rate',
-					'remark']
+					'remark',
+					'purchase_return_flag']
 };

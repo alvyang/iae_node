@@ -1,15 +1,16 @@
 var express = require("express");
 var nodeExcel = require('excel-export');
+var logger = require('../utils/logger');
 var fs = require('fs');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
-//新增采购记录
+//新增调货记录
 router.post("/saveAllot",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("73") < 0){
-  //   res.json({"code":"111112",message:"无权限"});
-  //   return ;
-  // }
+  if(req.session.user[0].authority_code.indexOf("58") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   req.body.allot_time = new Date(req.body.allot_time).format("yyyy-MM-dd");
   if(req.body.allot_return_time){
     req.body.allot_return_time = new Date(req.body.allot_return_time).format("yyyy-MM-dd");
@@ -24,6 +25,9 @@ router.post("/saveAllot",function(req,res){
   var allot = DB.get("Allot");
   req.body.allot_group_id = req.session.user[0].group_id;
   allot.insertIncrement(req.body,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "新增调货记录出错" + err);
+    }
     res.json({"code":"000000",message:result});
   });
 
@@ -34,15 +38,19 @@ router.post("/saveAllot",function(req,res){
       stock:stock-req.body.allot_number
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增调货,更新库存出错" + err);
+      }
+    });
   }
 });
-//编辑菜单
+//编辑调货记录
 router.post("/editAllot",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("75") < 0){
-  //   res.json({"code":"111112",message:"无权限"});
-  //   return ;
-  // }
+  if(req.session.user[0].authority_code.indexOf("59") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var allot = DB.get("Allot");
   req.body.allot_time = new Date(req.body.allot_time).format("yyyy-MM-dd");
   if(req.body.allot_return_time){
@@ -62,7 +70,9 @@ router.post("/editAllot",function(req,res){
 		allot_return_flag:req.body.allot_return_flag
   }
   allot.update(params,'allot_id',function(err,result){
-    console.log(err);
+    if(err){
+      logger.error(req.session.user[0].realname + "修改调货记录出错" + err);
+    }
     res.json({"code":"000000",message:null});
   });
 
@@ -73,15 +83,19 @@ router.post("/editAllot",function(req,res){
       stock:req.body.stock-req.body.allot_number + parseInt(req.body.allot_number_temp)
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改调货记录，更新库存出错" + err);
+      }
+    });
   }
 });
 //删除菜单
 router.post("/deleteAllot",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("74") < 0){
-  //   res.json({"code":"111112",message:"无权限"});
-  //   return ;
-  // }
+  if(req.session.user[0].authority_code.indexOf("60") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var allot = DB.get("Allot");
   req.body.allot_delete_flag = 1;
   var productType = req.body.product_type;
@@ -102,26 +116,38 @@ router.post("/deleteAllot",function(req,res){
       stock:stock+allotNumber
     }
     var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){});
+    drugs.update(drugsStock,'product_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "删除调货记录出错" + err);
+      }
+    });
   }
 });
-//获取备货列表
+//获取调货列表
 router.post("/getAllot",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("76") < 0){
-  //   res.json({"code":"111112",message:"无权限"});
-  //   return ;
-  // }
+  if(req.session.user[0].authority_code.indexOf("61") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
   var allot = DB.get("Allot");
   var sql = getAllotSql(req);
-  allot.countBySql(sql,function(err,result){
-
+  allot.countBySql(sql,function(err,result){//查询调货总数
+    if(err){
+      logger.error(req.session.user[0].realname + "查询调货列表，查询调货总数出错" + err);
+    }
     var numSql = "select sum(num.allot_return_money) as returnMoney from ( " + sql + " ) num";
-    allot.executeSql(numSql,function(err,returnMoney){
-      req.body.page.returnMoney = returnMoney[0].returnMoney?returnMoney[0].returnMoney.toFixed(2):0;
+    allot.executeSql(numSql,function(err,returnMoney){//查询调货应返金额
+      if(err){
+        logger.error(req.session.user[0].realname + "查询调货列表，计算返款金额出错" + err);
+      }
+      req.body.page.returnMoney = returnMoney && returnMoney[0].returnMoney?returnMoney[0].returnMoney.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
       sql += " order by a.allot_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       allot.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
+        }
         req.body.page.data = result;
         res.json({"code":"000000",message:req.body.page});
       });
@@ -156,6 +182,9 @@ router.post("/getHospitals",function(req,res){
   var allot = DB.get("Allot");
   var sql = "select a.allot_hospital from allot a where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' and a.allot_hospital is not null and a.allot_hospital !='' group by a.allot_hospital"
   allot.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "分组查询医院出错" + err);
+    }
     res.json({"code":"000000",message:result});
   });
 });

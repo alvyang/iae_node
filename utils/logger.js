@@ -12,16 +12,15 @@ path+="_"+moment(new Date()).format('YYYY-MM-DD');
 */
 exports.error=function(err){
 	if(err){
-        console.log(err);
-				var errorLogfile = fs.createWriteStream(path, {flags: 'a',encoding:'utf8'});
-        // errorLogfile.open();
-        if(err instanceof  Error){
-            var meta = '\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err.stack ;
-            errorLogfile.write(meta);
-        }else{
-            errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err);
-        }
-        errorLogfile.close();
+			var errorLogfile = fs.createWriteStream(path, {flags: 'a',encoding:'utf8'});
+      // errorLogfile.open();
+      if(err instanceof  Error){
+          var meta = '\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err.stack ;
+          errorLogfile.write(meta);
+      }else{
+          errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err);
+      }
+      errorLogfile.close();
 	}
 }
 exports.debug=function(obj){
@@ -29,7 +28,7 @@ exports.debug=function(obj){
 		var errorLogfile = fs.createWriteStream(path, {flags: 'a',encoding:'utf8'});
 		// errorLogfile.open();
 		//console.log("\n["+moment(new Date()).format('YYYY-MM-DD HH:mm:ss')+"][DEBUG] "+obj);
-		errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +obj);
+		errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [DEBUG] ' +obj);
 		errorLogfile.close();
 	}
 }

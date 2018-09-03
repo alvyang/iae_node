@@ -1,6 +1,30 @@
 // var wechat = require('../utils/wechat_util.js');
 var crypto = require('crypto');
 var pinyin = require('node-pinyin');
+
+
+exports.getSixMonth = function(){
+  //创建现在的时间
+  var data=new Date();
+  //获取年
+  var year=data.getFullYear();
+  //获取月
+  var mon=data.getMonth()+1;
+  var arry=new Array();
+  for(var i=0;i<6;i++){
+      var temp = mon - i;
+      if(temp<=0){
+          year=year-1;
+          temp=temp+12;
+      }
+      if(temp<10){
+          temp="0"+temp;
+      }
+
+      arry[i]=year+"-"+temp;
+  }
+  return arry;
+}
 /*
  * 获取拼音首字母
  */
