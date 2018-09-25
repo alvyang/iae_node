@@ -29,5 +29,6 @@ module.exports = {
 					'stock',
 					'accounting_cost',
 					'gross_interest_rate',
-					'product_return_statistics']
+					'product_return_statistics',
+					'product_tax_rate']
 };

@@ -220,7 +220,7 @@ router.post("/getPurchases",function(req,res){
       req.body.page.purchaseMoney = purchaseMoney && purchaseMoney[0].purchaseMoney?purchaseMoney[0].purchaseMoney.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by p.time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by p.time desc,p.purchase_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       purchase.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询采购记录出错" + err);
@@ -232,8 +232,11 @@ router.post("/getPurchases",function(req,res){
   });
 });
 function getPurchasesSql(req){
-  var sql = "select p.*,d.product_id,d.stock,d.product_code,d.contacts_name,d.product_type,d.buyer,d.product_common_name,d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+
-            " from purchase p left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
+  var sql = "select dbus.*,bus.business_name from drugs dbus left join business bus on dbus.product_business = bus.business_id ";
+      sql = "select p.*,d.product_id,d.stock,d.product_code,d.contacts_name,d.product_type,d.buyer,d.product_common_name,"+
+            "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.business_name"+
+            " from purchase p left join (select dd.*,c.contacts_name from ("+sql+") dd left join contacts c "+
+            "on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
@@ -242,6 +245,9 @@ function getPurchasesSql(req){
   }
   if(req.body.data.product_code){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.status){
     switch (req.body.data.status) {

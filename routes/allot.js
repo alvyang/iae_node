@@ -20,6 +20,11 @@ router.post("/saveAllot",function(req,res){
   var productType = req.body.product_type;
   var stock = req.body.stock;
   var productId = req.body.allot_drug_id;
+  var accountDetail = req.body.account_detail;
+  delete req.body.account_detail;
+  if(!req.body.allot_account_id){
+      delete req.body.allot_account_id;
+  }
   delete req.body.product_type;
   delete req.body.stock;
   var allot = DB.get("Allot");
@@ -29,6 +34,7 @@ router.post("/saveAllot",function(req,res){
       logger.error(req.session.user[0].realname + "新增调货记录出错" + err);
     }
     res.json({"code":"000000",message:result});
+    saveAllotAccountDetail(req,result.insertId,accountDetail);
   });
 
   //添加完调货记录后，更新库存。
@@ -44,7 +50,29 @@ router.post("/saveAllot",function(req,res){
       }
     });
   }
+
 });
+//添加调货，并直接返款，则添加流水账信息
+function saveAllotAccountDetail(req,allotId,accountDetail){
+  var bankaccountdetail={};
+  if(req.body.allot_return_flag == '是'){
+    bankaccountdetail.account_detail_deleta_flag = '0';
+    bankaccountdetail.account_id = req.body.allot_account_id;
+  }else{
+    bankaccountdetail.account_detail_deleta_flag = '1';
+  }
+  bankaccountdetail.account_detail_money = -req.body.allot_return_money;
+  bankaccountdetail.account_detail_time = req.body.allot_return_time;
+  bankaccountdetail.account_detail_mark = accountDetail;
+  bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
+  bankaccountdetail.flag_id = "allot_"+allotId;
+  var accountDetail = DB.get("AccountDetail");
+  accountDetail.insertIncrement(bankaccountdetail,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "添加返款新增流水出错" + err);
+    }
+  });
+}
 //编辑调货记录
 router.post("/editAllot",function(req,res){
   if(req.session.user[0].authority_code.indexOf("59") < 0){
@@ -69,6 +97,9 @@ router.post("/editAllot",function(req,res){
 		allot_return_time:req.body.allot_return_time,
 		allot_return_flag:req.body.allot_return_flag
   }
+  if(req.body.allot_account_id){
+    params.allot_account_id = req.body.allot_account_id;
+  }
   allot.update(params,'allot_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改调货记录出错" + err);
@@ -89,6 +120,24 @@ router.post("/editAllot",function(req,res){
       }
     });
   }
+  //修改调货流水信息
+  var bankaccountdetail={};
+  if(req.body.allot_return_flag == '是'){
+    bankaccountdetail.account_detail_deleta_flag = '0';
+    bankaccountdetail.account_id = req.body.allot_account_id;
+  }else{
+    bankaccountdetail.account_detail_deleta_flag = '1';
+  }
+  bankaccountdetail.account_detail_money = -req.body.allot_return_money;
+  bankaccountdetail.account_detail_time = req.body.allot_return_time;
+  bankaccountdetail.account_detail_mark = req.body.account_detail;
+  bankaccountdetail.flag_id = "allot_"+req.body.allot_id;
+  var accountDetail = DB.get("AccountDetail");
+  accountDetail.update(bankaccountdetail,'flag_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改返款修改流水出错" + err);
+    }
+  });
 });
 //删除菜单
 router.post("/deleteAllot",function(req,res){
@@ -156,7 +205,8 @@ router.post("/getAllot",function(req,res){
   });
 });
 function getAllotSql(req){
-  var sql = "select * from allot a left join drugs d on a.allot_drug_id = d.product_id where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
+  var sql = "select dbus.*,bus.business_name from drugs dbus left join business bus on dbus.product_business = bus.business_id";
+      sql = "select * from allot a left join ("+sql+") d on a.allot_drug_id = d.product_id where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
 
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
@@ -166,6 +216,9 @@ function getAllotSql(req){
   }
   if(req.body.data.product_code){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.allot_time){
     var start = new Date(req.body.data.allot_time[0]).format("yyyy-MM-dd");

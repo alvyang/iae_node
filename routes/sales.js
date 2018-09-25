@@ -189,15 +189,17 @@ router.post("/getSales",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "查询销售记录，统计总数出错" + err);
     }
-    var numSql = "select sum(num.sale_money) as saleMoney from ( " + sql + " ) num";
-    sales.executeSql(numSql,function(err,saleMoney){
+    var numSql = "select sum(num.sale_money) as saleMoney,sum(num.real_gross_profit) as realGrossProfit,sum(num.gross_profit) as grossProfit from ( " + sql + " ) num";
+    sales.executeSql(numSql,function(err,money){
       if(err){
         logger.error(req.session.user[0].realname + "查询销售记录，统计金额出错" + err);
       }
       req.body.page.totalCount = result;
-      req.body.page.saleMoney = saleMoney && saleMoney[0].saleMoney?saleMoney[0].saleMoney.toFixed(2):0;
+      req.body.page.saleMoney = money && money[0].saleMoney?money[0].saleMoney.toFixed(2):0;
+      req.body.page.realGrossProfit = money && money[0].realGrossProfit?money[0].realGrossProfit.toFixed(2):0;
+      req.body.page.grossProfit = money && money[0].grossProfit?money[0].grossProfit.toFixed(2):0;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by s.bill_date desc,s.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by shbus.bill_date desc,shbus.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       sales.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询销售记录" + err);
@@ -209,7 +211,9 @@ router.post("/getSales",function(req,res){
   });
 });
 function getQuerySql(req){
+  //连接查询医院名称
   var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' ";
+  //连接查询药品信息
   var sql = "select s.*,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
             " from ("+sh+") s left join drugs d on s.product_code = d.product_code where d.delete_flag = '0' and s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.productCommonName){
@@ -244,6 +248,8 @@ function getQuerySql(req){
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
   }
+  //连接查询商业名称
+  sql = "select shbus.*,bus.business_name from ("+sql+") shbus left join business bus on shbus.product_business = bus.business_id ";
   return sql;
 }
 //获取联系人列表

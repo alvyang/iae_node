@@ -17,5 +17,6 @@ module.exports = {
 					'operation_time',
 					'hospital_id',
 					'sale_type',
-					'sale_return_flag']
+					'sale_return_flag',
+					'sale_tax_rate']
 };

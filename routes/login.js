@@ -29,6 +29,10 @@ router.post("/login",function(req,res){
 	var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
   req.body.password = md5.update(req.body.password).digest('base64');
+  if(!req.session.captcha){
+    res.json({"code":"100001",message:"验证码失效"});
+    return;
+  }
 	if(req.session.captcha.toLowerCase() != req.body.code.toLowerCase()){
 		res.json({"code":"100001",message:"验证码错误"});
 	}else{

@@ -125,13 +125,14 @@ router.post("/getDrugs",function(req,res){
     t = t.substring(0,t.length-1);
     sql += " and d.product_type in ("+t+")"
   }
+  sql = "select sbus.*,bus.business_name from ("+sql+") sbus left join business bus on sbus.product_business = bus.business_id ";
   drugs.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询药品列表，查询总数出错" + err);
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by d.product_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by sbus.product_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     drugs.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
@@ -204,7 +205,7 @@ router.post("/getProductMakesmakers",function(req,res){
 //获取商业，分组查询
 router.post("/getProductBusiness",function(req,res){
   var drugs = DB.get("Drugs");
-  var sql = "select d.product_business from drugs d where d.group_id = '"+req.session.user[0].group_id+"' group by d.product_business";
+  var sql = "select d.product_business from drugs d where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' group by d.product_business";
   drugs.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "药品管理，分组查询商业出错" + err);

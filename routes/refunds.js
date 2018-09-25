@@ -119,7 +119,7 @@ router.post("/getPurchaseRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by p.time desc,p.purchase_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by rbus.time desc,rbus.purchase_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询高打返款列表" + err);
@@ -147,7 +147,7 @@ function getPurchasesSql(req){
   //连接查询收款账号信息
   prsql = "select prb.*,b.account_number,b.account_person from ("+prsql+") prb left join bank_account b on prb.receiver = b.account_id"
   //连接查询联系人、药品信息
-  var sql = "select p.*,d.product_code,d.product_floor_price,d.product_high_discount,d.contacts_name,d.product_return_explain,"+
+  var sql = "select p.*,d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.contacts_name,d.product_return_explain,"+
             "d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,"+
             "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+//药品属性
             " from ("+prsql+") p left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d "+
@@ -171,11 +171,15 @@ function getPurchasesSql(req){
   if(req.body.data.product_code){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
   if(req.body.data.time){
     var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.time,'%Y-%m-%d') <= '"+end+"'";
   }
+  sql = "select rbus.*,bus.business_name from ("+sql+") rbus left join business bus on rbus.product_business = bus.business_id ";
   return sql;
 }
 //获取返款
@@ -200,7 +204,7 @@ router.post("/getSaleRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by s.bill_date desc,s.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by rbus.bill_date desc,rbus.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询佣金返款列表" + err);
@@ -260,6 +264,8 @@ function getQuerySql(req){
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
+  //连接查询商业
+  sql = "select rbus.*,bus.business_name from ("+sql+") rbus left join business bus on rbus.product_business = bus.business_id ";
   return sql;
 }
 //获取返款人
