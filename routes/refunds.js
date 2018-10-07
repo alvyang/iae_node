@@ -19,7 +19,7 @@ router.post("/saveRefunds",function(req,res){
     delete req.body.refunds_id;
     var accountDetail = req.body.account_detail;
     delete req.body.account_detail;
-    refunds.insertIncrement(req.body,function(err,result){
+    refunds.insert(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "新增返款记录出错" + err);
       }
@@ -39,7 +39,7 @@ router.post("/saveRefunds",function(req,res){
     bankaccountdetail.flag_id = req.body.sales_id?"sale_"+req.body.sales_id:"purchase_"+req.body.purchases_id;
 
     var accountDetail = DB.get("AccountDetail");
-    accountDetail.insertIncrement(bankaccountdetail,function(err,result){
+    accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "添加返款新增流水出错" + err);
       }

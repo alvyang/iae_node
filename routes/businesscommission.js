@@ -21,7 +21,7 @@ router.post("/saveBunsinessCommission",function(req,res){
     });
   }else{
     delete req.body.commission_id;
-    businesscommission.insertIncrement(req.body,function(err,result){
+    businesscommission.insert(req.body,'commission_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "新增商业成本率出错" + err);
       }
@@ -113,28 +113,28 @@ function formatCommissionData(data){
     profitAccount:0
   };
   for(var i = l ; i >= 0 ;i--){
+    var temp = {};
     //四舍五入金额 销售额、真实毛利、真实毛利（不含税） 计算
-    data[i].sm = Math.round(data[i].sm*100)/100;
+    temp.sm = Math.round(data[i].sm*100)/100;
     //真实毛利
-    data[i].rgp = Math.round(data[i].rgp*100)/100;
+    temp.rgp = Math.round(data[i].rgp*100)/100;
     //真实毛利率
-    data[i].rgpPercent = Math.round(util.div(data[i].rgp,data[i].sm,4)*10000)/100;
+    temp.rgpPercent = Math.round(util.div(data[i].rgp,data[i].sm,4)*10000)/100;
     //真实毛利不含税
-    var rgptTemp = data[i].rgpt;
-    data[i].rgpt = Math.round(data[i].rgpt*100)/100;
+    temp.rgpt = Math.round(data[i].rgpt*100)/100;
     //真实毛利不含税率
-    data[i].rgptPercent = Math.round(util.div(data[i].rgpt,data[i].sm,4)*10000)/100;
-    data[i].hb_fixed_rate = data[i].commission_fixed_rate?data[i].commission_fixed_rate:data[i].hb_fixed_rate;
-    data[i].hb_floating_rate = data[i].commission_floating_rate?data[i].commission_floating_rate:data[i].hb_floating_rate;
+    temp.rgptPercent = Math.round(util.div(data[i].rgpt,data[i].sm,4)*10000)/100;
+    temp.hb_fixed_rate = data[i].commission_fixed_rate?data[i].commission_fixed_rate:data[i].hb_fixed_rate;
+    temp.hb_floating_rate = data[i].commission_floating_rate?data[i].commission_floating_rate:data[i].hb_floating_rate;
     //计算当月欠款金额
     var moneyKey = data[i].hospital_id+"-"+data[i].business_id;
     sumMoney[moneyKey] = sumMoney[moneyKey]?sumMoney[moneyKey]:data[i].hb_start_money;
     //累计
-    data[i].return_money = data[i].return_money?data[i].return_money:0;
-    data[i].ownMoney = util.sub(util.add(data[i].sm,sumMoney[moneyKey]),data[i].return_money,2);
-    sumMoney[moneyKey] = data[i].ownMoney;
-    //月末就收系统
-    data[i].mouthCoefficient = util.div(data[i].ownMoney,data[i].sm,2);
+    temp.return_money = data[i].return_money?data[i].return_money:0;
+    temp.ownMoney = util.sub(util.add(data[i].sm,sumMoney[moneyKey]),data[i].return_money,2);
+    sumMoney[moneyKey] = temp.ownMoney;
+    //月末就收系数
+    temp.mouthCoefficient = util.div(temp.ownMoney,data[i].sm,2);
     //商务提成
     var frontMonthOwnMonwy=0;
     if(mouthGap[moneyKey]){//如果某月没有销售，获取连续几个月没有销
@@ -142,11 +142,12 @@ function formatCommissionData(data){
       frontMonthOwnMonwy = mouthGap[moneyKey+"ownMoney"]*gap*data[i].hb_floating_rate/100;
     }
     mouthGap[moneyKey]=data[i].bd;
-    mouthGap[moneyKey+"ownMoney"]=data[i].ownMoney;
-    data[i].profit = rgptTemp - data[i].sm*data[i].hb_fixed_rate/100 - data[i].ownMoney*data[i].hb_floating_rate/100 - frontMonthOwnMonwy;
-    data[i].profit = Math.round(data[i].profit*100)/100;
+    mouthGap[moneyKey+"ownMoney"]=temp.ownMoney;
+    temp.profit = data[i].rgpt - data[i].sm*data[i].hb_fixed_rate/100 - temp.ownMoney*data[i].hb_floating_rate/100 - frontMonthOwnMonwy;
+    temp.profit = Math.round(temp.profit*100)/100;
     //商务提成系统
-    data[i].profitCoefficient = Math.round(data[i].profit/data[i].sm*10000)/100;
+    temp.profitCoefficient = Math.round(temp.profit/data[i].sm*10000)/100;
+    Object.assign(data[i],temp);
     account.smAccount+=data[i].sm;
     account.rgpAccount+=data[i].rgp;
     account.rgptAccount+=data[i].rgpt;

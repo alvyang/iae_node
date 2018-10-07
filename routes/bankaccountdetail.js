@@ -12,7 +12,7 @@ router.post("/saveAccountsDetail",function(req,res){
   delete req.body.account_number;
   req.body.account_detail_group_id = req.session.user[0].group_id;
   req.body.account_detail_time = new Date(req.body.account_detail_time).format('yyyy-MM-dd');
-  accountDetail.insertIncrement(req.body,function(err,result){
+  accountDetail.insert(req.body,'account_detail_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增流水出错" + err);
     }

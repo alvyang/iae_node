@@ -10,7 +10,7 @@ router.post("/saveHospitals",function(req,res){
   }
   var hospitals = DB.get("Hospitals");
   req.body.group_id = req.session.user[0].group_id;
-  hospitals.insertIncrement(req.body,function(err,result){
+  hospitals.insert(req.body,'hospital_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询医院出错" + err);
     }

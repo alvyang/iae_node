@@ -22,8 +22,7 @@ router.post("/saveGroups",function(req,res){
   var group = DB.get("Groups");
   req.body.start_time = new Date(req.body.start_time).format('yyyy-MM-dd');
   req.body.end_time = new Date(req.body.end_time).format('yyyy-MM-dd');
-  var sql = "insert into groups set `group_code`='"+req.body.group_code+"',`group_name` = '"+req.body.group_name+"', `start_time` = '"+req.body.start_time+"', `end_time` = '"+req.body.end_time+"'";
-  group.executeSql(sql,function(err,result){
+  group.insert(req.body,'group_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户组出错" + err);
     }

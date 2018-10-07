@@ -10,7 +10,7 @@ router.post("/saveBusiness",function(req,res){
   }
   var business = DB.get("Business");
   req.body.business_group_id = req.session.user[0].group_id;
-  business.insertIncrement(req.body,function(err,result){
+  business.insert(req.body,'business_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增商业出错" + err);
     }

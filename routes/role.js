@@ -10,7 +10,7 @@ router.post("/saveRoles",function(req,res){
   }
   var role = DB.get("Role");
   req.body.group_id = req.session.user[0].group_id;
-  role.insertIncrement(req.body,function(err,result){
+  role.insert(req.body,'role_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增角色出错" + err);
     }

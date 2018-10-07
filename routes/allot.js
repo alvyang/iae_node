@@ -29,7 +29,7 @@ router.post("/saveAllot",function(req,res){
   delete req.body.stock;
   var allot = DB.get("Allot");
   req.body.allot_group_id = req.session.user[0].group_id;
-  allot.insertIncrement(req.body,function(err,result){
+  allot.insert(req.body,'allot_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增调货记录出错" + err);
     }
@@ -67,7 +67,7 @@ function saveAllotAccountDetail(req,allotId,accountDetail){
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
   bankaccountdetail.flag_id = "allot_"+allotId;
   var accountDetail = DB.get("AccountDetail");
-  accountDetail.insertIncrement(bankaccountdetail,function(err,result){
+  accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "添加返款新增流水出错" + err);
     }

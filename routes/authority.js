@@ -10,7 +10,7 @@ router.post("/saveAuthoritys",function(req,res){
   }
   var authority = DB.get("Authority");
 	delete req.body.label;
-  authority.insertIncrement(req.body,function(err,result){
+  authority.insert(req.body,'authority_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增权限出错" + err);
       res.json({"code":"100000",message:"查询菜单出错"});

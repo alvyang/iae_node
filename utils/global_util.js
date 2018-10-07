@@ -2,6 +2,20 @@
 var crypto = require('crypto');
 var pinyin = require('node-pinyin');
 
+exports.getArrayDuplicateRemoval=function(array1,array2){
+  //临时数组存放
+  var tempArray1 = [];//临时数组1
+  var tempArray2 = [];//临时数组2
+  for(var i=0;i<array2.length;i++){
+    tempArray1[array2[i]]=true;//将数array2 中的元素值作为tempArray1 中的键，值为true；
+  }
+  for(var i=0;i<array1.length;i++){
+    if(!tempArray1[array1[i]]){
+      tempArray2.push(array1[i]);//过滤array1 中与array2 相同的元素；
+    }
+  }
+  return tempArray2;
+}
 exports.getIntervalMonth = function(d1, d2){
   var months;
   months = (d2.getFullYear() - d1.getFullYear()) * 12;

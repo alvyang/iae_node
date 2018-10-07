@@ -31,7 +31,7 @@ router.post("/savePurchases",function(req,res){
   delete req.body.stock;
   var purchase = DB.get("Purchase");
   req.body.group_id = req.session.user[0].group_id;
-  purchase.insertIncrement(req.body,function(err,result){
+  purchase.insert(req.body,'purchase_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增采购记录出错" + err);
     }

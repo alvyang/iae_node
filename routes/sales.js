@@ -19,7 +19,7 @@ router.get("/exportSales",function(req,res){
     productType:req.query.type
   };
   var sql = getQuerySql(req);
-  sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_id asc";
+  sql += " order by shbus.bill_date desc,shbus.hospital_id asc,shbus.sale_id asc";
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
@@ -77,14 +77,14 @@ router.post("/saveSales",function(req,res){
   delete req.body.product_type;
   delete req.body.stock;
   delete req.body.product_id;
-  sales.insertIncrement(req.body,function(err,result){
+  sales.insert(req.body,'sale_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增销售记录出错" + err);
     }
     res.json({"code":"000000",message:result});
   });
   //添加完销售记录后，更新库存。
-  if(productType == '高打' || productType== '高打(底价)'){
+  if(productType == '高打'){
     var drugsStock = {
       product_id:productId,
       stock:stock-req.body.sale_num
@@ -127,7 +127,7 @@ router.post("/editSales",function(req,res){
   });
 
   //添加完销售记录后，更新库存。
-  if(req.body.product_type == '高打' || req.body.product_type == '高打(底价)'){
+  if(req.body.product_type == '高打'){
     var drugsStock = {
       product_id:req.body.product_id,
       stock:req.body.stock-req.body.sale_num + parseInt(req.body.sale_num_temp)
@@ -164,7 +164,7 @@ router.post("/deleteSales",function(req,res){
   });
 
   //删除完销售记录后，更新库存。
-  if(productType == '高打' || productType == '高打(底价)'){
+  if(productType == '高打'){
     var drugsStock = {
       product_id:productId,
       stock:stock+saleNum

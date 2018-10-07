@@ -11,7 +11,7 @@ router.post("/saveAccounts",function(req,res){
   var account = DB.get("Account");
   delete req.body.money;
   req.body.account_group_id = req.session.user[0].group_id;
-  account.insertIncrement(req.body,function(err,result){
+  account.insert(req.body,'account_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增银行账号出错" + err);
     }

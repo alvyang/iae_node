@@ -9,17 +9,6 @@ var app = {
     logger_path: "./log/error.log",
     logger_level: 'debug' //debug | error
 };
-// var app = {
-//     email:'626183528@qq.com',
-//     appport: 3000,
-//     host: '139.129.238.114',
-//     port: '3306',
-//     user: 'root',
-//     password: 'lv705916',
-//     database: 'iae',
-//     logger_path: "./log/error.log",
-//     logger_level: 'debug' //debug | error
-// };
 
 global.Sys =new function(){
     var me=this;

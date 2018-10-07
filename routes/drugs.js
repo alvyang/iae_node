@@ -37,14 +37,47 @@ router.post("/saveDrugs",function(req,res){
   req.body.group_id = req.session.user[0].group_id;
   delete req.body.product_id;
   delete req.body.readonly;
+  //判断tag_ids和tag_ids_temp  取出新增和删除的标签id。用于修改引用次数
+  var tagIds = req.body.tag_ids.split(",");
+  var tagIdsTemp = req.body.tag_ids_temp.split(",");
+  delete req.body.tag_ids_temp;
+  delete req.body.tag_ids;
   deleteParams(req.body);
-  drugs.insertIncrement(req.body,function(err,result){
+  drugs.insert(req.body,'product_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增药品出错" + err);
+    }else{
+      updateQuoteNum(tagIds,tagIdsTemp,req,result.insertId);
     }
     res.json({"code":"000000",message:result});
   });
 });
+//修改标签引用交数
+function updateQuoteNum(data1,data2,req,drugId){
+  var addTags = util.getArrayDuplicateRemoval(data1,data2);
+  var deleteTags = util.getArrayDuplicateRemoval(data2,data1).join(",");
+  var deleteSql = "update tag_drug set tag_drug_deleta_flag='1' where drug_id = '"+drugId+"' and tag_id in ("+deleteTags+")";
+  var tag = DB.get("Tag");
+  tag.executeSql(deleteSql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "药品删除标签出错" + err);
+    }
+  });
+  for(var i = 0 ; i < addTags.length ;i++){
+    var p = {
+      drug_id:drugId,
+      tag_id:addTags[i],
+      tag_drug_group_id:req.session.user[0].group_id
+    }
+    var tagDrug = DB.get("TagDrug");
+    tagDrug.insert(p,'tag_drug_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "药品添加标签出错" + err);
+      }
+    });
+  }
+
+}
 //编辑药品
 router.post("/editDrugs",function(req,res){
   if(req.session.user[0].authority_code.indexOf("63") < 0){
@@ -58,10 +91,17 @@ router.post("/editDrugs",function(req,res){
   var flag = req.body.product_return_statistics_update;
   delete req.body.product_return_statistics_update;
   delete req.body.readonly;
+  //判断tag_ids和tag_ids_temp  取出新增和删除的标签id。用于修改引用次数
+  var tagIds = req.body.tag_ids.split(",");
+  var tagIdsTemp = req.body.tag_ids_temp.split(",");
+  delete req.body.tag_ids_temp;
+  delete req.body.tag_ids;
   var drugs = DB.get("Drugs");
   drugs.update(req.body,'product_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改药品出错" + err);
+    }else{
+      updateQuoteNum(tagIds,tagIdsTemp,req,req.body.product_id);
     }
     res.json({"code":"000000",message:null});
   });
@@ -125,6 +165,11 @@ router.post("/getDrugs",function(req,res){
     t = t.substring(0,t.length-1);
     sql += " and d.product_type in ("+t+")"
   }
+  //连接查询标签
+  var tagSql = "select td.drug_id,concat(GROUP_CONCAT(td.tag_id),',') tag_ids from tag_drug td "+
+               "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+
+               "group by td.drug_id";
+  sql = "select sbust.*,tag.tag_ids from ("+sql+") sbust left join ("+tagSql+") tag on sbust.product_id = tag.drug_id"
   sql = "select sbus.*,bus.business_name from ("+sql+") sbus left join business bus on sbus.product_business = bus.business_id ";
   drugs.countBySql(sql,function(err,result){
     if(err){

@@ -25,7 +25,7 @@ router.post("/saveUsers",function(req,res){
   var md5 = crypto.createHash('md5');
   req.body.group_id = req.session.user[0].group_id;
   req.body.password = md5.update(req.body.password).digest('base64');
-  user.insertIncrement(req.body,function(err,result){
+  user.insert(req.body,'id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户出错" + err);
     }

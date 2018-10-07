@@ -10,7 +10,7 @@ router.post("/saveContacts",function(req,res){
   }
   var contacts = DB.get("Contacts");
   req.body.group_id = req.session.user[0].group_id;
-  contacts.insertIncrement(req.body,function(err,result){
+  contacts.insert(req.body,'contacts_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增联系人出错" + err);
     }

@@ -85,21 +85,21 @@ Table.prototype.insertIncrement = function(values, callback) {
     }
 };
 //save
-Table.prototype.insert = function(values, callback) {
+Table.prototype.insert = function(values, id,callback) {
     if(!callback){
         callback=function(){};
     }
     var me=this;
     if (this.clearTable(values)) {
-        if(typeof values["id"]=='underfined'||values["id"]==null || values["id"]===""){
-            values["id"]=uuid.v1();
+        if(typeof values[id]=='underfined'||values[id]==null || values[id]===""){
+            values[id]=uuid.v1();
         }
         this.getConnection(function(connection) {
             var query = connection.query("insert into " + me.tablename + " set ?", values, function(err, result) {
                 if (err) {
                     callback(err,null);
                 }else{
-                    callback(null,values["id"]);//TODO　返回生成ＩＤ
+                    callback(null,values[id]);//TODO　返回生成ＩＤ
                 }
                 connection.release(); //release
             });

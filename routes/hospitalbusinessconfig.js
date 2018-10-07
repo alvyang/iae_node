@@ -18,7 +18,7 @@ router.post("/editBuninessConfig",function(req,res){
       });
     }else{
       delete req.body.hb_config_id;
-      config.insertIncrement(req.body,function(err,result){
+      config.insert(req.body,'hb_config_id',function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "新增商业配置出错" + err);
         }

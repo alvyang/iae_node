@@ -10,5 +10,6 @@ module.exports = {
           'receiver',
           'sales_id',
           'purchases_id',
-					'service_charge']
+					'service_charge',
+					'refunds_remark']
 };

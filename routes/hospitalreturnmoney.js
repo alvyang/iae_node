@@ -11,7 +11,7 @@ router.post("/saveReturnMoney",function(req,res){
   var hospitalReturnMoney = DB.get("HospitalReturnMoney");
   req.body.return_money_group_id = req.session.user[0].group_id;
   req.body.return_money_time = new Date(req.body.return_money_time).format("yyyy-MM-dd");
-  hospitalReturnMoney.insertIncrement(req.body,function(err,result){
+  hospitalReturnMoney.insert(req.body,'return_money_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增医院回款出错" + err);
     }
