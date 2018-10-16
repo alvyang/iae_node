@@ -22,6 +22,7 @@ router.post("/saveTag",function(req,res){
   }
   var tag = DB.get("Tag");
   req.body.tag_group_id = req.session.user[0].group_id;
+  req.body.tag_create_time = new Date();
   tag.insert(req.body,'tag_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增标签出错" + err);
@@ -37,6 +38,7 @@ router.post("/editTag",function(req,res){
   }
   var tag = DB.get("Tag");
   req.body.tag_group_id = req.session.user[0].group_id;
+  delete req.body.tag_create_time;
   tag.update(req.body,'tag_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改标签出错" + err);
@@ -80,7 +82,7 @@ router.post("/getTags",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by tn.tag_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by tn.tag_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     tag.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询标签人出错" + err);

@@ -25,6 +25,7 @@ router.post("/saveUsers",function(req,res){
   var md5 = crypto.createHash('md5');
   req.body.group_id = req.session.user[0].group_id;
   req.body.password = md5.update(req.body.password).digest('base64');
+  req.body.user_create_time = new Date();
   user.insert(req.body,'id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户出错" + err);
@@ -47,6 +48,7 @@ router.post("/editUsers",function(req,res){
   delete req.body.login_time;
   delete req.body.role_id;
   delete req.body.role_name;
+  delete req.body.user_create_time;
   user.update(req.body,'id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改用户出错" + err);
@@ -101,7 +103,7 @@ router.post("/getUsers",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by u.user_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     user.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询用户列表出错" + err);

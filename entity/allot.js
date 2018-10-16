@@ -15,5 +15,6 @@ module.exports = {
 					'allot_return_flag',
 					'allot_return_price',
 					'allot_drug_id',
-					'allot_account_id']
+					'allot_account_id',
+					'allot_create_time']
 };

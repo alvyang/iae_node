@@ -12,6 +12,7 @@ router.post("/saveAccountsDetail",function(req,res){
   delete req.body.account_number;
   req.body.account_detail_group_id = req.session.user[0].group_id;
   req.body.account_detail_time = new Date(req.body.account_detail_time).format('yyyy-MM-dd');
+  req.body.account_detail_create_time = new Date();
   accountDetail.insert(req.body,'account_detail_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增流水出错" + err);
@@ -22,12 +23,12 @@ router.post("/saveAccountsDetail",function(req,res){
 //编辑联系人
 router.post("/editAccountsDetail",function(req,res){
   if(req.session.user[0].authority_code.indexOf("74") > -1){
-    console.log(req.body);
     var accountDetail = DB.get("AccountDetail");
   	req.body.account_detail_group_id = req.session.user[0].group_id;
     req.body.account_detail_time = new Date(req.body.account_detail_time).format('yyyy-MM-dd');
     delete req.body.account_number;
     delete req.body.flag_id;
+    delete req.body.account_detail_create_time;
     accountDetail.update(req.body,'account_detail_id',function(err,result){
       console.log(err);
       if(err){
@@ -71,7 +72,7 @@ router.post("/getAccountsDetails",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by b.account_detail_time desc,b.account_detail_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by b.account_detail_time desc,b.account_detail_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     accountDetail.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询银行流水出错" + err);

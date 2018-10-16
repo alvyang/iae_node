@@ -10,6 +10,7 @@ router.post("/saveHospitals",function(req,res){
   }
   var hospitals = DB.get("Hospitals");
   req.body.group_id = req.session.user[0].group_id;
+  req.body.hospital_create_time = new Date();
   hospitals.insert(req.body,'hospital_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询医院出错" + err);
@@ -22,6 +23,7 @@ router.post("/editHospitals",function(req,res){
   if(req.session.user[0].authority_code.indexOf("29") > -1){
     var hospitals = DB.get("Hospitals");
   	req.body.group_id = req.session.user[0].group_id;
+    delete req.body.hospital_create_time;
     hospitals.update(req.body,'hospital_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改医院出错" + err);
@@ -54,13 +56,27 @@ router.post("/getHospitals",function(req,res){
     return ;
   }
   var hospitals = DB.get("Hospitals");
-  req.body.data.group_id = req.session.user[0].group_id;
-  req.body.data.delete_flag = 0;
-  hospitals.queryPage(req.body.page,req.body.data,function(err,result){
+  var sql = "select * from hospitals h where h.delete_flag = '0' and h.group_id = '"+req.session.user[0].group_id+"'";
+  if(req.body.data.hospital_name){
+    sql += " and h.hospital_name like '%"+req.body.data.hospital_name+"%'";
+  }
+  if(req.body.data.hospital_type){
+    sql += " and h.hospital_type like '%"+req.body.data.hospital_type+"%'";
+  }
+  hospitals.countBySql(sql,function(err,result){
     if(err){
-      logger.error(req.session.user[0].realname + "查询医院列表，分页查询出错" + err);
+      logger.error(req.session.user[0].realname + "查询医院列表，查询总数出错" + err);
     }
-    res.json({"code":"000000",message:result});
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by h.hospital_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    hospitals.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询医院列表出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
   });
 });
 //获取全部医院列表
@@ -68,7 +84,8 @@ router.post("/getAllHospitals",function(req,res){
   var hospitals = DB.get("Hospitals");
   hospitals.where({
     group_id:req.session.user[0].group_id,
-    delete_flag:0
+    delete_flag:0,
+    hospital_type:req.body.hospital_type
   },function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询全部医院出错" + err);

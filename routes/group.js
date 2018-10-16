@@ -22,6 +22,7 @@ router.post("/saveGroups",function(req,res){
   var group = DB.get("Groups");
   req.body.start_time = new Date(req.body.start_time).format('yyyy-MM-dd');
   req.body.end_time = new Date(req.body.end_time).format('yyyy-MM-dd');
+  req.body.group_create_time = new Date();
   group.insert(req.body,'group_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户组出错" + err);
@@ -35,6 +36,7 @@ router.post("/editGroups",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
+  delete req.body.group_create_time;
   var group = DB.get("Groups");
   req.body.start_time = new Date(req.body.start_time).format('yyyy-MM-dd');
   req.body.end_time = new Date(req.body.end_time).format('yyyy-MM-dd');
@@ -69,12 +71,24 @@ router.post("/getGroups",function(req,res){
     return ;
   }
   var group = DB.get("Groups");
-  req.body.data.delete_flag = 0;
-  group.queryPage(req.body.page,req.body.data,function(err,result){
+  var sql = "select * from groups g where g.delete_flag = '0' ";
+  if(req.body.data.group_name){
+    sql+="and g.group_name like '%"+req.body.data.group_name+"%'"
+  }
+  group.countBySql(sql,function(err,result){
     if(err){
-      logger.error(req.session.user[0].realname + "查询用户组出错" + err);
+      logger.error(req.session.user[0].realname + "查询用户组列表，统计总数出错" + err);
     }
-    res.json({"code":"000000",message:result});
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by g.group_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    group.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询用户组列表出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
   });
 });
 module.exports = router;

@@ -19,6 +19,7 @@ router.post("/saveRefunds",function(req,res){
     delete req.body.refunds_id;
     var accountDetail = req.body.account_detail;
     delete req.body.account_detail;
+    req.body.refund_create_time = new Date();
     refunds.insert(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "新增返款记录出错" + err);
@@ -37,7 +38,7 @@ router.post("/saveRefunds",function(req,res){
     bankaccountdetail.account_detail_mark = accountDetail;
     bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
     bankaccountdetail.flag_id = req.body.sales_id?"sale_"+req.body.sales_id:"purchase_"+req.body.purchases_id;
-
+    bankaccountdetail.account_detail_create_time = new Date();
     var accountDetail = DB.get("AccountDetail");
     accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
       if(err){
@@ -65,6 +66,7 @@ router.post("/editRefunds",function(req,res){
     }
     var accountDetail = req.body.account_detail;
     delete req.body.account_detail;
+    delete req.body.refund_create_time;
     refunds.update(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改返款记录出错" + err);
@@ -119,7 +121,7 @@ router.post("/getPurchaseRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by rbus.time desc,rbus.purchase_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by rbus.time desc,rbus.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询高打返款列表" + err);
@@ -204,7 +206,7 @@ router.post("/getSaleRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by rbus.bill_date desc,rbus.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by rbus.bill_date desc,rbus.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询佣金返款列表" + err);

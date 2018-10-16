@@ -11,5 +11,6 @@ module.exports = {
           'sales_id',
           'purchases_id',
 					'service_charge',
-					'refunds_remark']
+					'refunds_remark',
+					'refund_create_time']
 };

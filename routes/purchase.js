@@ -31,6 +31,7 @@ router.post("/savePurchases",function(req,res){
   delete req.body.stock;
   var purchase = DB.get("Purchase");
   req.body.group_id = req.session.user[0].group_id;
+  req.body.purchase_create_time = new Date();
   purchase.insert(req.body,'purchase_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增采购记录出错" + err);
@@ -220,7 +221,7 @@ router.post("/getPurchases",function(req,res){
       req.body.page.purchaseMoney = purchaseMoney && purchaseMoney[0].purchaseMoney?purchaseMoney[0].purchaseMoney.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by p.time desc,p.purchase_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by p.time desc,p.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       purchase.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询采购记录出错" + err);

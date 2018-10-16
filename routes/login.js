@@ -38,11 +38,14 @@ router.post("/login",function(req,res){
 	}else{
 		var machineCode = req.body.machineCode;
     var version = req.body.version;
-    var sql = "select * from users u ,groups g,role r where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id and u.role_id = r.role_id";
-    sql += " and g.group_code = '"+req.body.groupCode+"'"
+    var sql = "select u.*,g.start_time,g.end_time from users u,groups g where username='"+req.body.username+"' and password = '"+req.body.password+"' and u.group_id = g.group_id ";
+    sql += " and g.group_code = '"+req.body.groupCode+"'";
+
+    sql = "select ug.*,concat(GROUP_CONCAT(ra.authority_id),',') authority_code from ("+sql+") ug left join role_authority ra on ug.role_id = ra.role_id "+
+          "where ra.role_authority_delete_flag = '0' group by ug.id ";
     user.executeSql(sql,function(err,result){
       if(err){
-        logger.error(req.session.user[0].realname + "登陆，查询用户出错" + err);
+        logger.error(req.body.username + "登陆，查询用户出错" + err);
       }
       if(result.length == 0){
 				res.json({"code":"100000",message:"组编码或用户名或密码错误！"});

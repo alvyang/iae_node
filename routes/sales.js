@@ -19,7 +19,7 @@ router.get("/exportSales",function(req,res){
     productType:req.query.type
   };
   var sql = getQuerySql(req);
-  sql += " order by shbus.bill_date desc,shbus.hospital_id asc,shbus.sale_id asc";
+  sql += " order by shbus.bill_date desc,shbus.hospital_id asc,shbus.sale_create_time asc";
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
@@ -62,7 +62,7 @@ router.post("/getAllSales",function(req,res){
     res.json({"code":"000000",message:result});
   });
 });
-//新增联系人
+//新增销售
 router.post("/saveSales",function(req,res){
   if(req.session.user[0].authority_code.indexOf("48") < 0){
     res.json({"code":"111112",message:"无权限"});
@@ -77,6 +77,7 @@ router.post("/saveSales",function(req,res){
   delete req.body.product_type;
   delete req.body.stock;
   delete req.body.product_id;
+  req.body.sale_create_time = new Date();
   sales.insert(req.body,'sale_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增销售记录出错" + err);
@@ -199,7 +200,7 @@ router.post("/getSales",function(req,res){
       req.body.page.realGrossProfit = money && money[0].realGrossProfit?money[0].realGrossProfit.toFixed(2):0;
       req.body.page.grossProfit = money && money[0].grossProfit?money[0].grossProfit.toFixed(2):0;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by shbus.bill_date desc,shbus.sale_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by shbus.bill_date desc,shbus.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       sales.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询销售记录" + err);
@@ -212,10 +213,10 @@ router.post("/getSales",function(req,res){
 });
 function getQuerySql(req){
   //连接查询医院名称
-  var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' ";
+  var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.delete_flag = '0' and sh.group_id = '"+req.session.user[0].group_id+"' ";
   //连接查询药品信息
   var sql = "select s.*,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,d.product_packing"+
-            " from ("+sh+") s left join drugs d on s.product_code = d.product_code where d.delete_flag = '0' and s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+            " from ("+sh+") s left join drugs d on s.product_code = d.product_code where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
@@ -247,6 +248,17 @@ function getQuerySql(req){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
+  }
+  if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
+    sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
+  }
+  //连接查询标签
+  var tagSql = "select td.drug_id,concat(GROUP_CONCAT(td.tag_id),',') tag_ids from tag_drug td "+
+               "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+
+               "group by td.drug_id ";
+  sql = "select sbust.* from ("+sql+") sbust left join ("+tagSql+") tag on sbust.product_id = tag.drug_id ";
+  if(req.body.data.tag){
+     sql += "where tag.tag_ids like '%"+req.body.data.tag+",%'";
   }
   //连接查询商业名称
   sql = "select shbus.*,bus.business_name from ("+sql+") shbus left join business bus on shbus.product_business = bus.business_id ";

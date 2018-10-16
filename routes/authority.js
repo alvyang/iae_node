@@ -92,7 +92,8 @@ router.post("/getOpenAuthoritys",function(req,res){
 //获取权限列表
 router.post("/getAuthoritysList",function(req,res){
   var authority = DB.get("Authority");
-  var sql = "select * from authority a where a.delete_flag = '0' and a.authority_id in ("+"1,"+req.body.authority_code+") order by authority_code desc";
+  var code = req.body.authority_code.replace(/,/g,"','");
+  var sql = "select * from authority a where a.delete_flag = '0' and a.authority_id in ("+"'1','"+code+"') order by authority_code desc";
   authority.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询权限出错" + err);

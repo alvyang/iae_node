@@ -18,5 +18,6 @@ module.exports = {
 					'hospital_id',
 					'sale_type',
 					'sale_return_flag',
-					'sale_tax_rate']
+					'sale_tax_rate',
+					'sale_create_time']
 };

@@ -10,6 +10,7 @@ router.post("/saveBusiness",function(req,res){
   }
   var business = DB.get("Business");
   req.body.business_group_id = req.session.user[0].group_id;
+  req.body.business_create_time = new Date();
   business.insert(req.body,'business_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增商业出错" + err);
@@ -22,6 +23,7 @@ router.post("/editBusiness",function(req,res){
   if(req.session.user[0].authority_code.indexOf("91") > -1){
     var business = DB.get("Business");
   	req.body.business_group_id = req.session.user[0].group_id;
+    delete req.body.business_create_time;
     business.update(req.body,'business_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改商业出错" + err);
@@ -64,7 +66,7 @@ router.post("/getBusiness",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by b.business_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by b.business_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     business.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询商业出错" + err);

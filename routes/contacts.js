@@ -10,6 +10,8 @@ router.post("/saveContacts",function(req,res){
   }
   var contacts = DB.get("Contacts");
   req.body.group_id = req.session.user[0].group_id;
+  req.body.contact_type = req.body.contact_type.join(",");
+  req.body.contact_create_time = new Date();
   contacts.insert(req.body,'contacts_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增联系人出错" + err);
@@ -22,6 +24,9 @@ router.post("/editContacts",function(req,res){
   if(req.session.user[0].authority_code.indexOf("33") > -1){
     var contacts = DB.get("Contacts");
   	req.body.group_id = req.session.user[0].group_id;
+    req.body.contact_type = req.body.contact_type.join(",");
+    delete req.body.contact_create_time;
+    delete req.body.contact_create_time;
     contacts.update(req.body,'contacts_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改联系人出错" + err);
@@ -58,13 +63,16 @@ router.post("/getContacts",function(req,res){
   if(req.body.data.contacts_name){
     sql += " and c.contacts_name like '%"+req.body.data.contacts_name+"%'";
   }
+  if(req.body.data.contact_type){
+    sql += " and c.contact_type like '%"+req.body.data.contact_type+"%'";
+  }
   contacts.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询联系人，查询总数出错" + err);
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by c.contacts_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by c.contact_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     contacts.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询联系人出错" + err);
@@ -79,7 +87,16 @@ router.post("/getAllContacts",function(req,res){
   var contacts = DB.get("Contacts");
   req.body.group_id = req.session.user[0].group_id;
   req.body.delete_flag = 0;
-  contacts.where(req.body,function(err,result){
+  var sql = "select * from contacts c where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' ";
+  var type="(";
+  if(req.body.contact_type){
+    for(var i = 0 ; i < req.body.contact_type.length ;i++){
+      type+=" c.contact_type like '%"+req.body.contact_type[i]+"%' ||";
+    }
+    type = type.substring(0,type.length-2)+")";
+  }
+  sql += " and "+type +" order by c.contact_create_time";
+  contacts.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询联系人，查询所有联系出错" + err);
     }

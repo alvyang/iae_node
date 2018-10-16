@@ -11,6 +11,7 @@ router.post("/saveReturnMoney",function(req,res){
   var hospitalReturnMoney = DB.get("HospitalReturnMoney");
   req.body.return_money_group_id = req.session.user[0].group_id;
   req.body.return_money_time = new Date(req.body.return_money_time).format("yyyy-MM-dd");
+  req.body.return_money_create_time = new Date();
   hospitalReturnMoney.insert(req.body,'return_money_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增医院回款出错" + err);
@@ -24,6 +25,7 @@ router.post("/editReturnMoney",function(req,res){
     var hospitalReturnMoney = DB.get("HospitalReturnMoney");
     delete req.body.business_name;
     delete req.body.hospital_name;
+    delete req.body.return_money_create_time;
   	req.body.return_money_group_id = req.session.user[0].group_id;
     req.body.return_money_time = new Date(req.body.return_money_time).format("yyyy-MM-dd");
     hospitalReturnMoney.update(req.body,'return_money_id',function(err,result){
@@ -83,7 +85,7 @@ router.post("/getReturnMoney",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by hrm.return_money_time desc,hrm.return_money_id limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by hrm.return_money_time desc,hrm.return_money_create_time limit " + req.body.page.start + "," + req.body.page.limit + "";
     hospitalReturnMoney.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询医院回款出错" + err);

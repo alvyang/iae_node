@@ -11,6 +11,7 @@ router.post("/saveAccounts",function(req,res){
   var account = DB.get("Account");
   delete req.body.money;
   req.body.account_group_id = req.session.user[0].group_id;
+  req.body.bank_create_time = new Date();
   account.insert(req.body,'account_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增银行账号出错" + err);
@@ -23,6 +24,7 @@ router.post("/editAccounts",function(req,res){
   if(req.session.user[0].authority_code.indexOf("70") > -1){
     var account = DB.get("Account");
     delete req.body.money;
+    delete req.body.bank_create_time;
   	req.body.account_group_id = req.session.user[0].group_id;
     account.update(req.body,'account_id',function(err,result){
       if(err){
@@ -69,7 +71,7 @@ router.post("/getAccounts",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by b.account_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    sql += " order by b.bank_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     account.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询银行账号出错" + err);
