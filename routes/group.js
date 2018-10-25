@@ -23,6 +23,7 @@ router.post("/saveGroups",function(req,res){
   req.body.start_time = new Date(req.body.start_time).format('yyyy-MM-dd');
   req.body.end_time = new Date(req.body.end_time).format('yyyy-MM-dd');
   req.body.group_create_time = new Date();
+  req.body.group_create_userid = req.session.user[0].id;
   group.insert(req.body,'group_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户组出错" + err);

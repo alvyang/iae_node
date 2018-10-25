@@ -10,6 +10,7 @@ router.post("/saveBusiness",function(req,res){
   }
   var business = DB.get("Business");
   req.body.business_group_id = req.session.user[0].group_id;
+  req.body.business_create_userid = req.session.user[0].id;
   req.body.business_create_time = new Date();
   business.insert(req.body,'business_id',function(err,result){
     if(err){

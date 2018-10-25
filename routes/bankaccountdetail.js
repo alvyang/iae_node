@@ -11,6 +11,7 @@ router.post("/saveAccountsDetail",function(req,res){
   var accountDetail = DB.get("AccountDetail");
   delete req.body.account_number;
   req.body.account_detail_group_id = req.session.user[0].group_id;
+  req.body.account_detail_create_userid = req.session.user[0].id;
   req.body.account_detail_time = new Date(req.body.account_detail_time).format('yyyy-MM-dd');
   req.body.account_detail_create_time = new Date();
   accountDetail.insert(req.body,'account_detail_id',function(err,result){

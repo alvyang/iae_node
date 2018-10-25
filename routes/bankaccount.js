@@ -11,6 +11,7 @@ router.post("/saveAccounts",function(req,res){
   var account = DB.get("Account");
   delete req.body.money;
   req.body.account_group_id = req.session.user[0].group_id;
+  req.body.bank_create_userid = req.session.user[0].id;
   req.body.bank_create_time = new Date();
   account.insert(req.body,'account_id',function(err,result){
     if(err){

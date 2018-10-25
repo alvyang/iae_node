@@ -16,5 +16,6 @@ module.exports = {
 					'puchase_gross_rate',
 					'remark',
 					'purchase_return_flag',
-					'purchase_create_time']
+					'purchase_create_time',
+					'purchase_create_userid']
 };

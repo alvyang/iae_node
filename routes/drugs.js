@@ -1,6 +1,7 @@
 var express = require("express");
 var pinyin = require("node-pinyin");
 var logger = require('../utils/logger');
+var nodeExcel = require('excel-export');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
@@ -44,6 +45,7 @@ router.post("/saveDrugs",function(req,res){
   delete req.body.tag_ids;
   deleteParams(req.body);
   req.body.product_create_time = new Date();
+  req.body.product_create_userid = req.session.user[0].id;
   drugs.insert(req.body,'product_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增药品出错" + err);
@@ -133,6 +135,60 @@ router.post("/deleteDrugs",function(req,res){
     res.json({"code":"000000",message:null});
   });
 });
+//导出药品表
+router.post("/exportDrugs",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("0f32a940-d803-11e8-a19c-cf0f6be47d2e") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  req.body.data = req.body;
+  var drugs = DB.get("Drugs");
+  var sql = getDrugsSql(req);
+  sql += " order by sbus.product_create_time asc ";
+  drugs.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出药品出错" + err);
+    }
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'产品编码',type:'string'
+    },{caption:'产品名称',type:'string'
+    },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
+    },{caption:'单位',type:'string'
+    },{caption:'包装',type:'string'
+    },{caption:'中标价',type:'number'
+    },{caption:'商业',type:'string'
+    },{caption:'采购员',type:'string'
+    },{caption:'返费金额',type:'number'
+    },{caption:'联系人',type:'string'
+    },{caption:'医保类型',type:'string'
+    },{caption:'采购方式',type:'string'
+    },{caption:'是否基药',type:'string'
+    },{
+      caption:'标签',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return cellData.substring(0,cellData.length-1);
+        }else{
+          return "";
+        }
+      }
+    },{caption:'核算成本',type:'string'
+    },{caption:'毛利率',type:'string'
+    }];
+    var header = ['product_code', 'product_common_name', 'product_specifications',
+                  'product_makesmakers','product_unit','product_packing','product_price','business_name','buyer',
+                  'product_return_money','contacts_name','product_medical_type','product_purchase_mode',
+                  'product_basic_medicine','tag_names','accounting_cost','gross_interest_rate'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
 //获取药品列表
 router.post("/getDrugs",function(req,res){
   if(req.session.user[0].authority_code.indexOf("65") < 0){
@@ -140,6 +196,24 @@ router.post("/getDrugs",function(req,res){
     return ;
   }
   var drugs = DB.get("Drugs");
+  var sql = getDrugsSql(req);
+  drugs.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询药品列表，查询总数出错" + err);
+    }
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by sbus.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    drugs.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
+  });
+});
+function getDrugsSql(req){
   var salesSql = "select * from drugs ds left join (select distinct s.product_code as readonly from sales s where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"') sr "+
                  "on ds.product_code = sr.readonly where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
   var sql = "select d.*,c.contacts_name from ("+salesSql+") d left join contacts c on d.contacts_id = c.contacts_id where 1=1";
@@ -163,8 +237,12 @@ router.post("/getDrugs",function(req,res){
   }
   if(req.body.data.product_type){
     var type = req.body.data.product_type;
-    var t = type.join(",").replace(/,/g,"','");
-    sql += " and d.product_type in ('"+t+"')"
+    if(typeof type == 'object'){
+      var t = type.join(",").replace(/,/g,"','");
+      sql += " and d.product_type in ('"+t+"')"
+    }else{
+      sql += " and d.product_type in ('"+type+"')"
+    }
   }
   //连接查询标签
   // sql = "select sbust.*,concat(GROUP_CONCAT(tag.tag_id),',') tag_ids from ("+sql+") sbust left join tag_drug tag on sbust.product_id = tag.drug_id "+
@@ -185,22 +263,8 @@ router.post("/getDrugs",function(req,res){
      sql += "where tag.tag_ids like '%"+req.body.data.tag+",%'";
   }
   sql = "select sbus.*,bus.business_name from ("+sql+") sbus left join business bus on sbus.product_business = bus.business_id ";
-  drugs.countBySql(sql,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "查询药品列表，查询总数出错" + err);
-    }
-    req.body.page.totalCount = result;
-    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by sbus.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
-    drugs.executeSql(sql,function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
-      }
-      req.body.page.data = result;
-      res.json({"code":"000000",message:req.body.page});
-    });
-  });
-});
+  return sql;
+}
 //获取库存统计
 router.post("/getStockNum",function(req,res){
   if(req.session.user[0].authority_code.indexOf("65") < 0){

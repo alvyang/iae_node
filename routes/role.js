@@ -10,6 +10,7 @@ router.post("/saveRoles",function(req,res){
   }
   var role = DB.get("Role");
   req.body.group_id = req.session.user[0].group_id;
+  req.body.role_create_userid = req.session.user[0].id;
   req.body.role_create_time = new Date();
   role.insert(req.body,'role_id',function(err,result){
     if(err){

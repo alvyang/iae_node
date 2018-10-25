@@ -12,6 +12,7 @@ router.post("/saveContacts",function(req,res){
   req.body.group_id = req.session.user[0].group_id;
   req.body.contact_type = req.body.contact_type.join(",");
   req.body.contact_create_time = new Date();
+  req.body.contact_create_userid = req.session.user[0].id;
   contacts.insert(req.body,'contacts_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增联系人出错" + err);

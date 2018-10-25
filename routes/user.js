@@ -24,6 +24,7 @@ router.post("/saveUsers",function(req,res){
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
   req.body.group_id = req.session.user[0].group_id;
+  req.body.user_create_userid = req.session.user[0].id;
   req.body.password = md5.update(req.body.password).digest('base64');
   req.body.user_create_time = new Date();
   user.insert(req.body,'id',function(err,result){

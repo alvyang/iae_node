@@ -22,6 +22,7 @@ router.post("/saveTag",function(req,res){
   }
   var tag = DB.get("Tag");
   req.body.tag_group_id = req.session.user[0].group_id;
+  req.body.tag_create_userid = req.session.user[0].id;
   req.body.tag_create_time = new Date();
   tag.insert(req.body,'tag_id',function(err,result){
     if(err){

@@ -10,6 +10,7 @@ router.post("/saveHospitals",function(req,res){
   }
   var hospitals = DB.get("Hospitals");
   req.body.group_id = req.session.user[0].group_id;
+  req.body.hospital_create_userid = req.session.user[0].id;
   req.body.hospital_create_time = new Date();
   hospitals.insert(req.body,'hospital_id',function(err,result){
     if(err){

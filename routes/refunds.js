@@ -20,6 +20,7 @@ router.post("/saveRefunds",function(req,res){
     var accountDetail = req.body.account_detail;
     delete req.body.account_detail;
     req.body.refund_create_time = new Date();
+    req.body.refund_create_userid = req.session.user[0].id;
     refunds.insert(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "新增返款记录出错" + err);
@@ -39,6 +40,7 @@ router.post("/saveRefunds",function(req,res){
     bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
     bankaccountdetail.flag_id = req.body.sales_id?"sale_"+req.body.sales_id:"purchase_"+req.body.purchases_id;
     bankaccountdetail.account_detail_create_time = new Date();
+    bankaccountdetail.account_detail_create_userid = req.session.user[0].id;
     var accountDetail = DB.get("AccountDetail");
     accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
       if(err){
@@ -136,7 +138,11 @@ router.post("/getPurchaseRefunds",function(req,res){
 function getPurchasesSql(req){
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用采购记录，左连接返款记录
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
-  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null";
+  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null ";
+  //数据权限
+  if(req.session.user[0].data_authority == "2"){
+    sql += " and pr.purchase_create_userid = '"+req.session.user[0].id+"' ";
+  }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     prsql += " and "+s;
@@ -235,6 +241,10 @@ function getQuerySql(req){
             "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount"+
             " from ("+sh+") s left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d "+
             "on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+  //数据权限
+  if(req.session.user[0].data_authority == "2"){
+    sql += " and s.sale_create_userid = '"+req.session.user[0].id+"' ";
+  }
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }

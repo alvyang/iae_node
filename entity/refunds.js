@@ -12,5 +12,6 @@ module.exports = {
           'purchases_id',
 					'service_charge',
 					'refunds_remark',
-					'refund_create_time']
+					'refund_create_time',
+					'refund_create_userid']
 };

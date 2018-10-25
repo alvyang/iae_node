@@ -10,6 +10,7 @@ router.post("/saveReturnMoney",function(req,res){
   }
   var hospitalReturnMoney = DB.get("HospitalReturnMoney");
   req.body.return_money_group_id = req.session.user[0].group_id;
+  req.body.return_money_create_userid = req.session.user[0].id;
   req.body.return_money_time = new Date(req.body.return_money_time).format("yyyy-MM-dd");
   req.body.return_money_create_time = new Date();
   hospitalReturnMoney.insert(req.body,'return_money_id',function(err,result){
@@ -65,6 +66,10 @@ router.post("/getReturnMoney",function(req,res){
             "where hrmb.return_money_group_id = '"+req.session.user[0].group_id+"' and hrmb.return_money_delete_flag = '0'";
 
       sql ="select hrm.*,h.hospital_name from ("+sql+") hrm left join hospitals h on hrm.return_money_hospital = h.hospital_id where 1=1";
+  //数据权限
+  if(req.session.user[0].data_authority == "2"){
+    sql += "and hrm.return_money_create_userid = '"+req.session.user[0].id+"'";
+  }
   if(req.body.data.hospitalsId){
     sql += " and hrm.return_money_business like '%"+req.body.data.hospitalsId+"%'";
   }
