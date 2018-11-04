@@ -143,6 +143,9 @@ function getPurchasesSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += " and pr.purchase_create_userid = '"+req.session.user[0].id+"' ";
   }
+  if(req.body.data.overdue){
+    req.body.data.status="未返";
+  }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     prsql += " and "+s;
@@ -151,6 +154,10 @@ function getPurchasesSql(req){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
     prsql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
+  }
+  if(req.body.data.overdue){//查询逾期未返款
+    var nowDate = new Date().format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
   //连接查询收款账号信息
   prsql = "select prb.*,b.account_number,b.account_person from ("+prsql+") prb left join bank_account b on prb.receiver = b.account_id"
@@ -229,6 +236,9 @@ function getQuerySql(req){
   var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' and sh.sale_return_flag = '1' ";
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用销售记录，左连接返款记录
   sh = "select * from ("+sh+") sr left join refunds r on sr.sale_id = r.sales_id where 1=1";
+  if(req.body.data.overdue){
+    req.body.data.status="未返";
+  }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     sh += " and "+s;
@@ -275,6 +285,10 @@ function getQuerySql(req){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
+  }
+  if(req.body.data.overdue){//查询逾期未返款
+    var nowDate = new Date().format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
   //连接查询商业
   sql = "select rbus.*,bus.business_name from ("+sql+") rbus left join business bus on rbus.product_business = bus.business_id ";

@@ -34,12 +34,17 @@ router.post("/savePurchases",function(req,res){
   req.body.group_id = req.session.user[0].group_id;
   req.body.purchase_create_userid = req.session.user[0].id;
   req.body.purchase_create_time = new Date();
+  var returnTime={
+    product_return_time_type:req.body.product_return_time_type,
+    product_return_time_day:req.body.product_return_time_day,
+    product_return_time_day_num:req.body.product_return_time_day_num
+  }
   purchase.insert(req.body,'purchase_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增采购记录出错" + err);
     }
     //新增高打返款记录
-    saveRefundsPurchase(req,productReturnMoney,result);
+    saveRefundsPurchase(req,productReturnMoney,result,returnTime);
     res.json({"code":"000000",message:result});
   });
 
@@ -57,12 +62,16 @@ router.post("/savePurchases",function(req,res){
   }
 });
 //新增 返款记录
-function saveRefundsPurchase(req,productReturnMoney,id){
+function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
   //新增返款记录  并保存应返金额
   var m = {
     refund_create_time:new Date(),
     refund_create_userid:req.session.user[0].id,
     purchases_id:id,
+  }
+  if(req.body.make_money_time){
+    var rst = util.getReturnTime(new Date(req.body.make_money_time),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
+    m.refunds_should_time = rst.format("yyyy-MM-dd");
   }
   if(productReturnMoney){
     m.refunds_should_money = util.mul(productReturnMoney,req.body.purchase_number,2);
@@ -71,6 +80,20 @@ function saveRefundsPurchase(req,productReturnMoney,id){
   refunds.insert(m,'refunds_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "采购记录，新增返款记录出错" + err);
+    }
+  });
+
+  //保存返款流水，如果保存时，还没有返款或者没有添加收款信息，则标识为删除
+  var bankaccountdetail={};
+  bankaccountdetail.account_detail_deleta_flag = '1';
+  bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
+  bankaccountdetail.flag_id = "purchase_"+id;
+  bankaccountdetail.account_detail_create_time = new Date();
+  bankaccountdetail.account_detail_create_userid = req.session.user[0].id;
+  var accountDetail = DB.get("AccountDetail");
+  accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "添加返款新增流水出错" + err);
     }
   });
 }
@@ -139,9 +162,18 @@ router.post("/editPurchase",function(req,res){
 });
 //更新返款金额
 function updateRefundsPurchase(req){
+  var returnTime={
+    product_return_time_type:req.body.product_return_time_type,
+    product_return_time_day:req.body.product_return_time_day,
+    product_return_time_day_num:req.body.product_return_time_day_num
+  }
   //新增返款记录  并保存应返金额
   var m = {
     purchases_id:req.body.purchase_id,
+  }
+  if(req.body.make_money_time){
+    var rst = util.getReturnTime(new Date(req.body.make_money_time),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
+    m.refunds_should_time = rst.format("yyyy-MM-dd");
   }
   if(req.body.product_return_money){
     m.refunds_should_money = util.mul(req.body.product_return_money,req.body.purchase_number,2);
@@ -198,6 +230,7 @@ router.post("/exportPurchases",function(req,res){
   var purchase = DB.get("Purchase");
   req.body.data = req.body;
   var sql = getPurchasesSql(req);
+  sql += " order by p.time desc,p.purchase_create_time asc";
   purchase.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出采购记录出错" + err);
@@ -268,7 +301,8 @@ router.post("/getPurchases",function(req,res){
 function getPurchasesSql(req){
   var sql = "select dbus.*,bus.business_name from drugs dbus left join business bus on dbus.product_business = bus.business_id ";
       sql = "select p.*,d.product_id,d.stock,d.product_code,d.contacts_name,d.product_type,d.buyer,d.product_common_name,"+
-            "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.business_name,d.product_return_money "+
+            "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.business_name,d.product_return_money,"+
+            "d.product_return_time_type,d.product_return_time_day,d.product_return_time_day_num "+
             " from purchase p left join (select dd.*,c.contacts_name from ("+sql+") dd left join contacts c "+
             "on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   //数据权限
@@ -280,6 +314,9 @@ function getPurchasesSql(req){
   }
   if(req.body.data.contactId){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
   if(req.body.data.product_code){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"

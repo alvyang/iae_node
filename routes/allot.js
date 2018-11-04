@@ -3,9 +3,278 @@ var nodeExcel = require('excel-export');
 var logger = require('../utils/logger');
 var fs = require('fs');
 var util= require('../utils/global_util.js');
+var uuid=require("node-uuid");
+var parse = require('csv-parse');
+var XLSX = require("xlsx");
 var router = express.Router();
 
+//下载错误数据
+router.get("/downloadErrorAllots",function(req,res){
+  var conf ={};
+  conf.stylesXmlFile = "./utils/styles.xml";
+  conf.name = "mysheet";
+  conf.cols = [{caption:'调货日期',type:'string'
+  },{caption:'产品编号',type:'string'
+  },{caption:'调货单价',type:'string'
+  },{caption:'调货数量',type:'string'
+  },{caption:'调货单位',type:'string'
+  },{caption:'错误信息',type:'string'
+  }];
+  var header = ['allot_time','product_code','allot_price','allot_number','hospital_name','errorMessage'];
+  var d = JSON.parse(req.session.errorAllotsData);
+  conf.rows = util.formatExcel(header,d);
+  var result = nodeExcel.execute(conf);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+  res.setHeader("Content-Disposition", "attachment; filename=" + "error.xlsx");
+  res.end(result, 'binary');
+});
+//导入销售记录
+router.post("/importAllots",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("101") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  if(!(req.files.file.path.split(".")[1] == "xls" || req.files.file.path.split(".")[1] == "xlsx")){
+    res.json({"code":"111112",message:"<a style='color:red;'>文件格式错误</a>"});
+    return ;
+  }
+  var workbook = XLSX.readFile(req.files.file.path);
+  workbook.SheetNames.forEach(function (sheetName) {//excel工作表
+    var csvdatas = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);//获取单元格
+    parse(csvdatas, function (err, output) {//解释成行数据
+      if (err){
+        return;
+      }
+      getAllotsData(req,output).then(allotsDrugsData=>{
+        var allotsData= verData(req,allotsDrugsData);
+        req.session.errorAllotsData = JSON.stringify(allotsData.errData);//错误的数据
+        var sData = allotsData.correctData;//正确的数据
+        var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+allotsData.errData.length+"</a>条；"
+        if(sData.length<1){
+          res.json({"code":"000000",message:importMessage});
+          return;
+        }
+        //指插入调货记录
+        var insertAllotSql = "insert allot (allot_id,allot_time,allot_price,allot_number,allot_hospital,allot_drug_id,allot_money,"+
+                             "allot_group_id,allot_create_userid,allot_create_time,allot_return_price,allot_return_money,allot_mack_price) values";
+        //更新库存sql
+        var updateStockSql = "update drugs d set d.stock = CASE d.product_id ";
+        var updateProductId = "";
+        //新增返款流水
+        var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
+                            "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
+        for(var i = 0 ; i < sData.length;i++){
+          //批量插入调货记录
+          var allotId = uuid.v1();
+          insertAllotSql+="('"+allotId+"','"+sData[i].allot_time+"','"+sData[i].allot_price+"','"+sData[i].allot_number+"',"+
+                          "'"+sData[i].allot_hospital+"','"+sData[i].allot_drug_id+"','"+sData[i].allot_money+"',"+
+                          "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+sData[i].allot_create_time+"',"+
+                          "'"+sData[i].allot_return_price+"','"+sData[i].allot_return_money+"','"+sData[i].allot_mack_price+"'),";
+          //更新库存sql
+          var tempStock = sData[i].stock-sData[i].allot_number;
+          updateProductId += "\""+sData[i].allot_drug_id+"\",";
+          updateStockSql+=" when "+sData[i].allot_drug_id+" then '"+tempStock+"' ";
+          //批量插入返款流水
+          bankDetailSql+="('"+uuid.v1()+"','1','"+sData[i].allot_group_id+"','allot_"+allotId+"','"+sData[i].allot_create_time+"','"+sData[i].allot_create_userid+"'),";
+        };
+        //批量插入调货记录sql
+        insertAllotSql = insertAllotSql.substring(0,insertAllotSql.length-1);
+        //批量更新库存sql
+        updateProductId=updateProductId.substring(0,updateProductId.length-1);
+        updateStockSql += "end where d.product_id in ("+updateProductId+")";
+        //批量更新返款流水sql
+        bankDetailSql = bankDetailSql.substring(0,bankDetailSql.length-1);
 
+        var allot = DB.get("Allot");
+        allot.executeSql(insertAllotSql,function(err,result){//批量插入调货记录sql
+          if(err){
+            logger.error(req.session.user[0].realname + "批量插入调货记录出错" + err);
+          }
+          allot.executeSql(updateStockSql,function(err,result){//批量更新库存sql
+            if(err){
+              logger.error(req.session.user[0].realname + "批量插入调货记录,批量更新库存出错" + err);
+            }
+          });
+          allot.executeSql(bankDetailSql,function(err,result){//批量更新库存sql
+            if(err){
+              logger.error(req.session.user[0].realname + "批量插入调货记录,批量插入流水出错" + err);
+            }
+          });
+          res.json({"code":"000000",message:importMessage});
+        });
+      });
+    });
+  });
+});
+//检验格式是否正确
+function verData(req,sales){
+  var correctData=[];
+  var errData=[];
+  for(var i = 0 ;i < sales.length;i++){
+    //非空验证
+    var d = {};
+    d.allot_time = sales[i].allot_time;
+    d.allot_price = sales[i].allot_price;
+    d.allot_number = sales[i].allot_number;
+    d.hospital_name = sales[i].hospital_name;
+    d.product_code = sales[i].product_code;
+    d.allot_hospital = sales[i].hospital_id;
+    d.allot_drug_id = sales[i].product_id;
+    d.allot_policy_money = sales[i].allot_policy_money;
+    d.allot_policy_contact_id = sales[i].allot_policy_contact_id;
+    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code){
+      d.errorMessage = "调货日期、产品编号、调货单价、调货数量、调货单位为必填项";
+      errData.push(d);
+      continue;
+    }
+    //验证价格
+    var moneyReg = /^(([1-9]\d+(.[0-9]{1,})?|\d(.[0-9]{1,})?)|([-]([1-9]\d+(.[0-9]{1,})?|\d(.[0-9]{1,})?)))$/;
+    if(!moneyReg.test(d.allot_price)){
+      d.errorMessage = "调货单价填写错误";
+      errData.push(d);
+      continue;
+    }
+    //验证价格是否为正确的数字
+    var moneyReg = /^(0|[1-9][0-9]*|-[1-9][0-9]*)$/;
+    if(!moneyReg.test(d.allot_number)){
+      d.errorMessage = "调货数量填写错误";
+      errData.push(d);
+      continue;
+    }
+    //验证编码是否存在
+    if(!d.allot_hospital){
+      d.errorMessage = "调货单位不存在";
+      errData.push(d);
+      continue;
+    }
+    //验证编码是否存在
+    if(!d.allot_drug_id){
+      d.errorMessage = "产品编码不存在";
+      errData.push(d);
+      continue;
+    }
+    d.allot_mack_price = sales[i].product_mack_price;
+    d.product_type = sales[i].product_type;
+    d.stock = sales[i].stock;
+    d.allot_money = util.mul(d.allot_number,d.allot_price,2);
+    d.allot_policy_contact_id = sales[i].allot_policy_contact_id?sales[i].allot_policy_contact_id:"";
+    d.allot_return_price = sales[i].allot_policy_money?sales[i].allot_policy_money:"";
+    d.allot_group_id = req.session.user[0].group_id;
+    d.allot_create_userid = req.session.user[0].id;
+    d.allot_return_money = d.allot_return_price?util.mul(d.allot_number,d.allot_return_price,2):"";
+    d.allot_create_time = new Date().format('yyyy-MM-dd');
+    d.allot_time = new Date(d.allot_time).format('yyyy-MM-dd');
+    correctData.push(d);
+  }
+  return {
+    correctData:correctData,
+    errData:errData
+  };
+}
+//根据上传的药品编码，查询药品信息。根据上传的销售单位名称，查询销售单位id
+function getAllotsData(req,allots){
+  //去空格处理
+  var pdCode = "";
+  for(var i = 1 ; i < allots.length;i++){
+    pdCode+="\'"+allots[i][1]+"\',"
+    for(var j = 0 ;j<allots[i].length ;j++){
+      allots[i][j] = allots[i][j].trim();
+    }
+  }
+  pdCode = pdCode.substring(0,pdCode.length-1);
+  //拼接上传的产品编码，查询所有编码的药品
+  var drugsSql = "select * from drugs d where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+                 "and d.product_code in ("+pdCode+") and d.product_type = '高打'";
+  var drugs = DB.get("Drugs");
+  return new Promise((resolve, reject) => {//查询所有药品编码
+    drugs.executeSql(drugsSql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "导入调货记录，查询药品出错" + err);
+         reject(err);
+      }else{
+        //将上传的数据，封闭成对象
+        var allotsDrugsData=[];
+        for(var i = 1 ;i < allots.length;i++){
+          var d = arrayToObject(allots[i]);
+          for(var j = 0 ; j<result.length;j++){
+            if(d.product_code == result[j].product_code){
+              result[j].allot_time=d.allot_time;
+              result[j].allot_price=d.allot_price;
+              result[j].allot_number=d.allot_number;
+              result[j].hospital_name=d.hospital_name;
+              var temp = JSON.stringify(result[j]);
+              allotsDrugsData.push(JSON.parse(temp));
+            }
+          }
+
+        }
+        resolve(allotsDrugsData);
+      }
+    });
+  }).then(allotsDrugsData => {//查询调货医院
+    return new Promise((resolve, reject) => {
+      var hospitals = DB.get("Hospitals");
+      hospitals.where({//查询医院id
+        group_id:req.session.user[0].group_id,
+        delete_flag:0,
+        hospital_type:'调货医院'
+      },function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "导入调货数据，查询调货医院出错" + err);
+          reject(err);
+        }else{
+          var hospitalId = "";
+          for(var i = 0 ; i < allotsDrugsData.length;i++){
+            for(var j = 0 ;j < result.length;j++){
+              if(allotsDrugsData[i].hospital_name == result[j].hospital_name){
+                allotsDrugsData[i].hospital_id = result[j].hospital_id;
+                hospitalId+="\'"+result[j].hospital_id+"\',";
+              }
+            }
+          }
+          resolve({allotsDrugsData:allotsDrugsData,hospitalId:hospitalId});
+        }
+      });
+    });
+  }).then(data=>{//查询调货政策
+    if(data.hospitalId){
+      return new Promise((resolve, reject) => {
+        var allotPolicy = DB.get("AllotPolicy");
+        data.hospitalId=data.hospitalId.substring(0,data.hospitalId.length-1);
+        var sql = "select * from allot_policy ap where ap.allot_hospital_id in ("+data.hospitalId+")";
+        allotPolicy.executeSql(sql,function(err,result){
+          if(err){
+            logger.error(req.session.user[0].realname + "导入调货数据，查询调货政策出错" + err);
+            reject(err);
+          }else{
+            for(var i = 0 ; i < data.allotsDrugsData.length;i++){
+              for(var j = 0 ;j < result.length;j++){
+                if(data.allotsDrugsData[i].hospital_id == result[j].allot_hospital_id &&
+                   data.allotsDrugsData[i].product_id == result[j].allot_drug_id){
+                   data.allotsDrugsData[i].allot_policy_money = result[j].allot_policy_money;
+                   data.allotsDrugsData[i].allot_policy_contact_id = result[j].allot_policy_contact_id;
+                }
+              }
+            }
+            resolve(data.allotsDrugsData);
+          }
+        });
+      });
+    }else{
+      resolve(data.allotsDrugsData);
+    }
+  });
+}
+//将数组转成对象
+function arrayToObject(sales){
+  return {
+    allot_time:sales[0],
+    product_code:sales[1],
+    allot_price:sales[2],
+    allot_number:sales[3],
+    hospital_name:sales[4]
+  }
+}
 //新增调货记录
 router.post("/saveAllot",function(req,res){
   if(req.session.user[0].authority_code.indexOf("58") < 0){
@@ -352,6 +621,9 @@ function getAllotSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and a.allot_create_userid = '"+req.session.user[0].id+"'";
   }
+  if(req.body.data.product_makesmakers){
+    sql += "and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'";
+  }
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
@@ -370,7 +642,7 @@ function getAllotSql(req){
     sql += " and DATE_FORMAT(a.allot_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_time,'%Y-%m-%d') <= '"+end+"'";
   }
   if(req.body.data.allot_return_flag){
-    sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_money !='' and a.allot_return_time is not null":" and a.allot_return_money ='' and a.allot_return_time is null";
+    sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
   //连接查询调货 药品对应调货单位的政策信息
   sql = "select adp.*,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id from ("+sql+") adp left join allot_policy ap on adp.allot_drug_id = ap.allot_drug_id and adp.allot_hospital = ap.allot_hospital_id"

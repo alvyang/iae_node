@@ -5,7 +5,33 @@ var logger = require('../utils/logger');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
-
+//复制销售政策
+router.post("/copySalesPolicy",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var salePolicy = DB.get("SalePolicy");
+  //查询所有选择的销售政策
+  var sql = "select * from sale_policy sp where sp.sale_hospital_id = '"+req.body.hospital_id+"'";
+  salePolicy.executeSql(sql,function(err,d){
+    if(err){
+      logger.error(req.session.user[0].realname + "复制销售政策，查询已选择销售出错" + err);
+    }
+    var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id) values ";
+    for(var i = 0 ; i < d.length ;i++){
+      copySql += "('"+req.body.hospital_id_copy+"','"+d[i].sale_drug_id+"','"+d[i].sale_policy_money+"','"+d[i].sale_policy_remark+"','"+d[i].sale_policy_contact_id+"'),";
+    }
+    copySql = copySql.substring(0,copySql.length-1);
+    copySql += " ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+    salePolicy.executeSql(copySql,function(err,d){
+      if(err){
+        logger.error(req.session.user[0].realname + "复制销售政策，复制销售出错" + err);
+      }
+      res.json({"code":"000000",message:""});
+    });
+  });
+});
 //修改销售政策
 router.post("/editSalesPolicy",function(req,res){
   if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
@@ -49,9 +75,12 @@ router.post("/exportSalesPolicy",function(req,res){
     },{caption:'中标价',type:'number'
     },{caption:'厂家返利',type:'string'
     },{caption:'销售政策',type:'string'
+    },{caption:'政策备注',type:'string'
+    },{caption:'业务员',type:'string'
     }];
     var header = ['product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','business_name','product_price','product_return_money','allot_policy_money'];
+                  'product_makesmakers','product_unit','business_name','product_price','product_return_money','allot_policy_money',
+                  'sale_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -95,6 +124,8 @@ function getSalesPolicySql(req){
   if(req.body.data.sale_contact_id){
     sql += " and sp.sale_policy_contact_id = '"+req.body.data.sale_contact_id+"'";
   }
+  //连接业务员
+  sql = "select dsc.*,c.contacts_name from ("+sql+") dsc left join contacts c on dsc.sale_policy_contact_id = c.contacts_id";
   //连接商业
   sql = "select * from ("+sql+") dsp left join business b on dsp.product_business = b.business_id";
   return sql;

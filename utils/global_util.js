@@ -2,6 +2,42 @@
 var crypto = require('crypto');
 var pinyin = require('node-pinyin');
 
+//获取返款日期
+exports.getReturnTime=function(startDate,returnType,day,dayNum){
+  var month = startDate.getMonth();
+  day = parseInt(day);
+  if(returnType == '1'){
+    if(day && month == 1 && day > 28){
+      day = 28;
+    }else if(day && (month == 3||month == 5||month == 8|| month == 10) && day > 30){
+      day = 30;
+    }
+    startDate.setDate(day);
+  }else if(returnType == '2'){
+    month = month + 1;
+    var monthTemp = month%12;
+    if(day && monthTemp == 1 && day > 28){
+      day = 28;
+    }else if(day && (monthTemp == 3||monthTemp == 5||monthTemp == 8|| monthTemp == 10) && day > 30){
+      day = 30;
+    }
+    startDate.setMonth(month,day);
+  }else if(returnType == '3'){
+    month = month + 2;
+    var monthTemp = month%12;
+    if(day && monthTemp == 1 && day > 28){
+      day = 28;
+    }else if(day && (monthTemp == 3||monthTemp == 5||monthTemp == 8|| monthTemp == 10) && day > 30){
+      day = 30;
+    }
+    startDate.setMonth(month,day);
+  }else if(returnType == '4'){
+    dayNum = parseInt(dayNum);
+    var d = startDate.getDate()+dayNum;
+    startDate.setDate(d);
+  }
+  return startDate;
+}
 exports.getArrayDuplicateRemoval=function(array1,array2){
   //临时数组存放
   var tempArray1 = [];//临时数组1

@@ -43,7 +43,9 @@ router.post("/editUsers",function(req,res){
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
 	req.body.group_id = req.session.user[0].group_id;
-  if(req.body.username != req.session.user[0].username){
+  if(!req.body.password){
+    delete req.body.password;
+  }else{
     req.body.password = md5.update(req.body.password).digest('base64');
   }
   delete req.body.login_time;
