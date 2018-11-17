@@ -53,6 +53,35 @@ router.post("/saveRefunds",function(req,res){
   }
 });
 //编辑返款记录
+router.post("/deleteRefunds",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("103") > 0 || req.session.user[0].authority_code.indexOf("104") > 0){
+    var refunds = DB.get("Refunds");
+    if(!req.body.refunds_id){
+      saveRefund={
+        sales_id:req.body.sales_id,
+        purchases_id:req.body.purchases_id,
+        refund_delete_flag:"1",
+      }
+      refunds.insert(saveRefund,"refunds_id",function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "销售记录，新增返款记录，并标记为删除出错" + err);
+        }
+        res.json({"code":"000000",message:null});
+      });
+    }else{
+      refunds.update(req.body,'refunds_id',function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "删除返款记录出错" + err);
+        }
+        res.json({"code":"000000",message:null});
+      });
+    }
+  }else{
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+});
+//编辑返款记录
 router.post("/editRefunds",function(req,res){
   if(req.session.user[0].authority_code.indexOf("45") > 0 || req.session.user[0].authority_code.indexOf("47") > 0){
     var refunds = DB.get("Refunds");
@@ -138,10 +167,11 @@ router.post("/getPurchaseRefunds",function(req,res){
 function getPurchasesSql(req){
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用采购记录，左连接返款记录
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
-  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null ";
+  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null "+
+              "and r.refund_delete_flag = '0'";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
-    sql += " and pr.purchase_create_userid = '"+req.session.user[0].id+"' ";
+    prsql += " and pr.purchase_create_userid = '"+req.session.user[0].id+"' ";
   }
   if(req.body.data.overdue){
     req.body.data.status="未返";
@@ -157,7 +187,7 @@ function getPurchasesSql(req){
   }
   if(req.body.data.overdue){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
-    sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
+    prsql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
   //连接查询收款账号信息
   prsql = "select prb.*,b.account_number,b.account_person from ("+prsql+") prb left join bank_account b on prb.receiver = b.account_id"
@@ -235,7 +265,7 @@ function getQuerySql(req){
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
   var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' and sh.sale_return_flag = '1' ";
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用销售记录，左连接返款记录
-  sh = "select * from ("+sh+") sr left join refunds r on sr.sale_id = r.sales_id where 1=1";
+  sh = "select * from ("+sh+") sr left join refunds r on sr.sale_id = r.sales_id where (r.refund_delete_flag = '0' || r.refund_delete_flag is null ) ";
   if(req.body.data.overdue){
     req.body.data.status="未返";
   }

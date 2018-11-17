@@ -64,9 +64,11 @@ router.post("/importSales",function(req,res){
         //新增返款流水和医院销售回款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
                             "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
+        var bankDetailSqlValue="";
         //新增返款记录sql
         var refundSql = "insert into refunds(refunds_id,refund_create_time,refund_create_userid,sales_id,refunds_should_money,"+
                         "refunds_should_time) VALUES ";
+        var refundSqlValue = "";
         for(var i = 0 ; i < sData.length;i++){
           var groupId = req.session.user[0].group_id;
           var createTime = new Date().format('yyyy-MM-dd');
@@ -76,30 +78,30 @@ router.post("/importSales",function(req,res){
           sql+="('"+sData[i].sale_id+"','"+sData[i].bill_date+"','"+sData[i].sale_price+"','"+sData[i].sale_num+"','"+sData[i].product_code+"',"+
                "'"+sData[i].hospital_id+"','"+sData[i].gross_profit+"','"+sData[i].real_gross_profit+"','"+sData[i].accounting_cost+"',"+
                "'"+sData[i].cost_univalent+"','"+sData[i].sale_return_flag+"','"+sData[i].sale_tax_rate+"','"+sData[i].group_id+"',"+
-               "'"+sData[i].sale_create_time+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"'),";
+               "'"+createTime+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"'),";
           if(sData[i].product_type == '高打'){//更新库存，sql语句拼接
             var tempStock = sData[i].stock-sData[i].sale_num;
-            updateProductId += "\""+sData[i].product_id+"\",";
-            updateStockSql+=" when "+sData[i].product_id+" then '"+tempStock+"' ";
+            updateProductId += "'"+sData[i].product_id+"',";
+            updateStockSql+=" when '"+sData[i].product_id+"' then '"+tempStock+"' ";
           }
           if(sData[i].product_type == '佣金'){//添加佣金返款流水    返款记录
-            bankDetailSql+="('"+uuid.v1()+"','1','"+groupId+"','sale_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
+            bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
             var srm = "";
             if(sData[i].product_return_money){//应返金额
               srm = util.mul(sData[i].product_return_money,sData[i].sale_num,2);
             }
             var rst = util.getReturnTime(new Date(sData[i].bill_date),sData[i].product_return_time_type,sData[i].product_return_time_day,sData[i].product_return_time_day_num);
-            refundSql+="('"+uuid.v1()+"','"+createTime+"','"+createUserId+"','"+sData[i].sale_id+"','"+srm+"','"+rst.format("yyyy-MM-dd")+"'),";
+            refundSqlValue+="('"+uuid.v1()+"','"+createTime+"','"+createUserId+"','"+sData[i].sale_id+"','"+srm+"','"+rst.format("yyyy-MM-dd")+"'),";
           }
           if(sData[i].product_type == '佣金' || sData[i].product_type == '高打'){//添加销售医院流水
-            bankDetailSql+="('"+uuid.v1()+"','1','"+groupId+"','sale_hospital_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
+            bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_hospital_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
           }
         }
         updateProductId=updateProductId.substring(0,updateProductId.length-1);
         updateStockSql += "end where d.product_id in ("+updateProductId+")";
         sql = sql.substring(0,sql.length-1);//插入销售sql
-        bankDetailSql = bankDetailSql.substring(0,bankDetailSql.length-1);//插入流水账sql
-        refundSql = refundSql.substring(0,refundSql.length-1);//批量添加销售记录
+        bankDetailSql = bankDetailSql+bankDetailSqlValue.substring(0,bankDetailSql.length-1);//插入流水账sql
+        refundSql = refundSql+refundSqlValue.substring(0,refundSql.length-1);//批量添加销售记录
         var sales = DB.get("Sales");
         sales.executeSql(sql,function(err,result){//批量添加销售记录
           if(err){
@@ -112,16 +114,20 @@ router.post("/importSales",function(req,res){
               }
             });
           }
-          sales.executeSql(bankDetailSql,function(err,result){//插入流水账sql
-            if(err){
-              logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加流水账出错出错" + err);
-            }
-          });
-          sales.executeSql(refundSql,function(err,result){//插入返款记录
-            if(err){
-              logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加返款记录出错" + err);
-            }
-          });
+          if(bankDetailSqlValue){
+            sales.executeSql(bankDetailSql,function(err,result){//插入流水账sql
+              if(err){
+                logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加流水账出错出错" + err);
+              }
+            });
+          }
+          if(refundSqlValue){
+            sales.executeSql(refundSql,function(err,result){//插入返款记录
+              if(err){
+                logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加返款记录出错" + err);
+              }
+            });
+          }
           res.json({"code":"000000",message:importMessage});
         });
       });

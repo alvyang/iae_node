@@ -38,6 +38,10 @@ exports.getReturnTime=function(startDate,returnType,day,dayNum){
   }
   return startDate;
 }
+//获取某月最后一天日期
+exports.getLastDateOfMonth = function(year, month) {
+  return new Date(new Date(year, month + 1, 1).getTime() - 1000 * 60 * 60 * 24);
+}
 exports.getArrayDuplicateRemoval=function(array1,array2){
   //临时数组存放
   var tempArray1 = [];//临时数组1

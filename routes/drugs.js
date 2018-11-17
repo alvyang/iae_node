@@ -76,20 +76,21 @@ router.post("/importDrugs",function(req,res){
         }
         var sql = "insert into drugs(product_id,product_common_name,product_code,product_specifications,product_makesmakers,product_supplier,product_tax_rate,"+
                   "buyer,product_business,product_packing,product_unit,product_basic_medicine,product_price,product_mack_price,"+
-                  "accounting_cost,product_purchase_mode,product_basic_medicine,product_type,product_floor_price,product_high_discount,"+
-                  "product_return_money,product_return_explain,product_return_statistics,group_id,product_create_time,product_create_userid) VALUES ";
+                  "accounting_cost,product_purchase_mode,product_type,product_floor_price,product_high_discount,"+
+                  "product_return_money,product_return_explain,product_return_statistics,group_id,product_create_time,product_create_userid,"+
+                  "product_discount,gross_interest_rate) VALUES ";
         for(var i = 0 ; i < cData.length; i++){
           cData[i].product_id = uuid.v1();
-          cData[i].group_id = req.session.user[i].group_id;
-          cData[i].product_create_time = new Date();
-          cData[i].product_create_userid = req.session.user[i].id;
+          cData[i].group_id = req.session.user[0].group_id;
+          cData[i].product_create_time = new Date().format("yyyy-MM-dd");
+          cData[i].product_create_userid = req.session.user[0].id;
           sql += "('"+cData[i].product_id+"','"+cData[i].product_common_name+"','"+cData[i].product_code+"','"+cData[i].product_specifications+"',"+
                  "'"+cData[i].product_makesmakers+"','"+cData[i].product_supplier+"','"+cData[i].product_tax_rate+"','"+cData[i].buyer+"',"+
                  "'"+cData[i].product_business+"','"+cData[i].product_packing+"','"+cData[i].product_unit+"','"+cData[i].product_basic_medicine+"',"+
                  "'"+cData[i].product_price+"','"+cData[i].product_mack_price+"','"+cData[i].accounting_cost+"','"+cData[i].product_purchase_mode+"',"+
-                 "'"+cData[i].product_basic_medicine+"','"+cData[i].product_type+"','"+cData[i].product_floor_price+"','"+cData[i].product_high_discount+"',"+
+                 "'"+cData[i].product_type+"','"+cData[i].product_floor_price+"','"+cData[i].product_high_discount+"',"+
                  "'"+cData[i].product_return_money+"','"+cData[i].product_return_explain+"','"+cData[i].product_return_statistics+"',"+
-                 "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"'),";
+                 "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"','"+cData[i].product_discount+"','"+cData[i].gross_interest_rate+"'),";
         }
         sql = sql.substring(0,sql.length-1);
         var drugsSql = DB.get("Drugs");
@@ -182,8 +183,8 @@ function getDrugsData(drugs,code,business){
         continue;
       }
       //是否基药   基药/非基药
-      if(drugs[i][14] && !(drugs[i][14]=='基药'||drugs[i][14]=='基药')){
-        d.errorMessage = "是否基药请填写 基药/基药";
+      if(drugs[i][14] && !(drugs[i][14]=='基药'||drugs[i][14]=='非基药')){
+        d.errorMessage = "是否基药请填写 基药/非基药";
         errData.push(d);
         continue;
       }
@@ -323,13 +324,15 @@ router.post("/saveDrugs",function(req,res){
 function updateQuoteNum(data1,data2,req,drugId){
   var addTags = util.getArrayDuplicateRemoval(data1,data2);
   var deleteTags = util.getArrayDuplicateRemoval(data2,data1).join(",");
-  var deleteSql = "update tag_drug set tag_drug_deleta_flag='1' where drug_id = '"+drugId+"' and tag_id in ("+deleteTags+")";
-  var tag = DB.get("Tag");
-  tag.executeSql(deleteSql,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "药品删除标签出错" + err);
-    }
-  });
+  if(deleteTags){
+    var deleteSql = "update tag_drug set tag_drug_deleta_flag='1' where drug_id = '"+drugId+"' and tag_id in ("+deleteTags+")";
+    var tag = DB.get("Tag");
+    tag.executeSql(deleteSql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "药品删除标签出错" + err);
+      }
+    });
+  }
   for(var i = 0 ; i < addTags.length ;i++){
     var p = {
       drug_id:drugId,
@@ -343,7 +346,6 @@ function updateQuoteNum(data1,data2,req,drugId){
       }
     });
   }
-
 }
 //编辑药品
 router.post("/editDrugs",function(req,res){
@@ -509,8 +511,11 @@ function getDrugsSql(req){
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
+  if(req.body.data.product_makesmakers){
+    sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'";
+  }
   if(req.body.data.contactId){
-    sql += " and d.contacts_id = "+req.body.data.contactId+""
+    sql += " and d.contacts_id = '"+req.body.data.contactId+"'";
   }
   if(req.body.data.product_medical_type){
     sql += " and d.product_medical_type = '"+req.body.data.product_medical_type+"'"

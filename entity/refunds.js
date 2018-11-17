@@ -13,5 +13,6 @@ module.exports = {
 					'service_charge',
 					'refunds_remark',
 					'refund_create_time',
-					'refund_create_userid']
+					'refund_create_userid',
+					'refund_delete_flag']
 };

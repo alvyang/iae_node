@@ -66,16 +66,17 @@ router.post("/importAllots",function(req,res){
         for(var i = 0 ; i < sData.length;i++){
           //批量插入调货记录
           var allotId = uuid.v1();
+          var createTime = new Date().format('yyyy-MM-dd');
           insertAllotSql+="('"+allotId+"','"+sData[i].allot_time+"','"+sData[i].allot_price+"','"+sData[i].allot_number+"',"+
                           "'"+sData[i].allot_hospital+"','"+sData[i].allot_drug_id+"','"+sData[i].allot_money+"',"+
-                          "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+sData[i].allot_create_time+"',"+
+                          "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+createTime+"',"+
                           "'"+sData[i].allot_return_price+"','"+sData[i].allot_return_money+"','"+sData[i].allot_mack_price+"'),";
           //更新库存sql
           var tempStock = sData[i].stock-sData[i].allot_number;
-          updateProductId += "\""+sData[i].allot_drug_id+"\",";
-          updateStockSql+=" when "+sData[i].allot_drug_id+" then '"+tempStock+"' ";
+          updateProductId += "'"+sData[i].allot_drug_id+"',";
+          updateStockSql+=" when '"+sData[i].allot_drug_id+"' then '"+tempStock+"' ";
           //批量插入返款流水
-          bankDetailSql+="('"+uuid.v1()+"','1','"+sData[i].allot_group_id+"','allot_"+allotId+"','"+sData[i].allot_create_time+"','"+sData[i].allot_create_userid+"'),";
+          bankDetailSql+="('"+uuid.v1()+"','1','"+sData[i].allot_group_id+"','allot_"+allotId+"','"+createTime+"','"+sData[i].allot_create_userid+"'),";
         };
         //批量插入调货记录sql
         insertAllotSql = insertAllotSql.substring(0,insertAllotSql.length-1);
