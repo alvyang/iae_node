@@ -269,6 +269,7 @@ router.post("/exportPurchases",function(req,res){
 });
 //获取备货列表
 router.post("/getPurchases",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("56") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
@@ -293,18 +294,24 @@ router.post("/getPurchases",function(req,res){
           logger.error(req.session.user[0].realname + "查询采购记录出错" + err);
         }
         req.body.page.data = result;
+        logger.error(req.session.user[0].realname + "purchase-getPurchases运行时长" + noDate.getTime()-new Date().getTime());
         res.json({"code":"000000",message:req.body.page});
       });
     });
   });
 });
 function getPurchasesSql(req){
-  var sql = "select dbus.*,bus.business_name from drugs dbus left join business bus on dbus.product_business = bus.business_id ";
-      sql = "select p.*,d.product_id,d.stock,d.product_code,d.contacts_name,d.product_type,d.buyer,d.product_common_name,"+
-            "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.business_name,d.product_return_money,"+
+  var sql = "select p.purchase_id,p.time,p.purchase_number,p.purchase_money,p.purchase_mack_price,p.purchase_price,"+
+            "p.puchase_gross_rate,p.make_money_time,p.send_out_time,p.storage_time,p.remark,bus.business_name,c.contacts_name,"+
+            "d.product_id,d.stock,d.product_code,d.product_type,d.buyer,d.product_common_name,"+
+            "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,"+
             "d.product_return_time_type,d.product_return_time_day,d.product_return_time_day_num "+
-            " from purchase p left join (select dd.*,c.contacts_name from ("+sql+") dd left join contacts c "+
-            "on dd.contacts_id = c.contacts_id) d on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
+            "from purchase p "+
+            "left join drugs d on p.drug_id = d.product_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            "left join contacts c on d.contacts_id = c.contacts_id "+
+            "where p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and p.purchase_create_userid = '"+req.session.user[0].id+"'";

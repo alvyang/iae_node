@@ -132,6 +132,7 @@ router.post("/editRefunds",function(req,res){
 });
 //获取高打返款列表
 router.post("/getPurchaseRefunds",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("44") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
@@ -152,12 +153,13 @@ router.post("/getPurchaseRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by rbus.time desc,rbus.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by p.time desc,p.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询高打返款列表" + err);
         }
         req.body.page.data = result;
+        logger.error(req.session.user[0].realname + "refunds-getPurchaseRefunds运行时长" + noDate.getTime()-new Date().getTime());
         res.json({"code":"000000",message:req.body.page});
       });
     });
@@ -167,36 +169,40 @@ router.post("/getPurchaseRefunds",function(req,res){
 function getPurchasesSql(req){
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用采购记录，左连接返款记录
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
-  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null "+
-              "and r.refund_delete_flag = '0'";
+ var sql = "select p.purchase_id,p.purchase_price,p.purchase_number,p.purchase_money,p.time,p.make_money_time,p.send_out_time,"+
+           "b.account_number,b.account_person,c.contacts_name,bus.business_name,r.refunds_should_time,r.refunds_should_money,"+
+           "r.refunds_id,r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.refunds_remark,r.receiver,"+
+           "d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.product_return_explain,"+
+           "d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,"+
+           "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing "+//药品属性
+           "from purchase p "+
+           "left join refunds r on p.purchase_id = r.purchases_id "+
+           "left join bank_account b on r.receiver = b.account_id "+
+           "left join drugs d on p.drug_id = d.product_id "+
+           "left join contacts c on d.contacts_id = c.contacts_id "+
+           "left join business bus on d.product_business = bus.business_id "+
+           "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and r.refund_delete_flag = '0' "+
+           "and p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
-    prsql += " and pr.purchase_create_userid = '"+req.session.user[0].id+"' ";
+    sql += " and p.purchase_create_userid = '"+req.session.user[0].id+"' ";
   }
   if(req.body.data.overdue){
     req.body.data.status="未返";
   }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
-    prsql += " and "+s;
+    sql += " and "+s;
   }
   if(req.body.data.returnTime){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
-    prsql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
+    sql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
   if(req.body.data.overdue){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
-    prsql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
+    sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
-  //连接查询收款账号信息
-  prsql = "select prb.*,b.account_number,b.account_person from ("+prsql+") prb left join bank_account b on prb.receiver = b.account_id"
-  //连接查询联系人、药品信息
-  var sql = "select p.*,d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.contacts_name,d.product_return_explain,"+
-            "d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,"+
-            "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing"+//药品属性
-            " from ("+prsql+") p left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d "+
-            "on p.drug_id = d.product_id where p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
@@ -210,8 +216,8 @@ function getPurchasesSql(req){
         contactIdSql += "and cr.refundser = '"+req.body.data.refundser+"'";
     contactIdSql = "select cdc.contacts_id from ("+contactIdSql+") csr left join "+
                    "(select cd.product_id,cc.contacts_id from drugs cd left join contacts cc on cd.contacts_id = cc.contacts_id) cdc "+
-                   "on csr.drug_id = cdc.product_id ";
-    sql += " and d.contacts_id in ("+contactIdSql+")";
+                   "on csr.drug_id = cdc.product_id where d.contacts_id = cdc.contacts_id";
+    sql += " and exists("+contactIdSql+")";
   }
   if(req.body.data.product_code){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
@@ -224,11 +230,11 @@ function getPurchasesSql(req){
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.time,'%Y-%m-%d') <= '"+end+"'";
   }
-  sql = "select rbus.*,bus.business_name from ("+sql+") rbus left join business bus on rbus.product_business = bus.business_id ";
   return sql;
 }
 //获取返款
 router.post("/getSaleRefunds",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("46") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
@@ -249,12 +255,13 @@ router.post("/getSaleRefunds",function(req,res){
       req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-      sql += " order by rbus.bill_date desc,rbus.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
       refunds.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "查询佣金返款列表" + err);
         }
         req.body.page.data = result;
+        logger.error(req.session.user[0].realname + "refunds-getSaleRefunds运行时长" + noDate.getTime()-new Date().getTime());
         res.json({"code":"000000",message:req.body.page});
       });
     });
@@ -263,24 +270,29 @@ router.post("/getSaleRefunds",function(req,res){
 //销售返款sql
 function getQuerySql(req){
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
-  var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.group_id = '"+req.session.user[0].group_id+"' and sh.sale_return_flag = '1' ";
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用销售记录，左连接返款记录
-  sh = "select * from ("+sh+") sr left join refunds r on sr.sale_id = r.sales_id where (r.refund_delete_flag = '0' || r.refund_delete_flag is null ) ";
+  var sql = "select s.sale_id,s.sale_price,s.sale_num,s.sale_money,s.bill_date,r.refunds_id,r.refunds_should_time,r.refunds_should_money,"+
+            "r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.receiver,r.refunds_remark,bus.business_name,"+
+            "h.hospital_name,b.account_number,b.account_person,c.contacts_name,d.product_type,"+
+            "d.product_business,d.product_return_explain,d.product_return_money,d.product_code,"+
+            "d.product_return_discount,d.product_common_name,d.product_specifications,d.product_makesmakers,"+
+            "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount "+
+            "from sales s "+
+            "left join refunds r on s.sale_id = r.sales_id "+
+            "left join drugs d on s.product_code = d.product_code "+
+            "left join bank_account b on r.receiver = b.account_id "+
+            "left join hospitals h on s.hospital_id = h.hospital_id "+
+            "left join contacts c on d.contacts_id = c.contacts_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
+            "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.overdue){
     req.body.data.status="未返";
   }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
-    sh += " and "+s;
+    sql += " and "+s;
   }
-  //连接查询返款账号
-  sh = "select srb.*,b.account_number,b.account_person from ("+sh+") srb left join bank_account b on srb.receiver = b.account_id"
-  //连接查询联系人
-  var sql = "select s.*,d.product_type,d.contacts_name,d.product_business,d.product_return_explain,d.product_return_money,"+
-            "d.product_return_discount,d.product_common_name,d.product_specifications,d.product_makesmakers,"+
-            "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount"+
-            " from ("+sh+") s left join (select dd.*,c.contacts_name from drugs dd left join contacts c on dd.contacts_id = c.contacts_id) d "+
-            "on s.product_code = d.product_code where s.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += " and s.sale_create_userid = '"+req.session.user[0].id+"' ";
@@ -300,8 +312,8 @@ function getQuerySql(req){
         contactIdSql += "and cr.refundser = '"+req.body.data.refundser+"'";
     contactIdSql = "select cdc.contacts_id from ("+contactIdSql+") csr left join "+
                    "(select cd.product_code,cc.contacts_id from drugs cd left join contacts cc on cd.contacts_id = cc.contacts_id) cdc "+
-                   "on csr.product_code = cdc.product_code ";
-    sql += " and d.contacts_id in ("+contactIdSql+")";
+                   "on csr.product_code = cdc.product_code where d.contacts_id = cdc.contacts_id";
+    sql += " and exists("+contactIdSql+")";
   }
   if(req.body.data.business){
     sql += " and d.product_business = '"+req.body.data.business+"'"
@@ -314,14 +326,12 @@ function getQuerySql(req){
   if(req.body.data.returnTime){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
-    sql += " and (DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
+    sql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
   if(req.body.data.overdue){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
-    sql += " and DATE_FORMAT(s.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
+    sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
-  //连接查询商业
-  sql = "select rbus.*,bus.business_name from ("+sql+") rbus left join business bus on rbus.product_business = bus.business_id ";
   return sql;
 }
 //获取返款人

@@ -347,6 +347,20 @@ function updateQuoteNum(data1,data2,req,drugId){
     });
   }
 }
+//标记为是否配送
+router.post("/distributionFlag",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("63") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var drugs = DB.get("Drugs");
+  drugs.update(req.body,'product_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "标记药品是否配送出错" + err);
+    }
+    res.json({"code":"000000",message:null});
+  });
+});
 //编辑药品
 router.post("/editDrugs",function(req,res){
   if(req.session.user[0].authority_code.indexOf("63") < 0){
@@ -458,6 +472,7 @@ router.post("/exportDrugs",function(req,res){
 });
 //获取药品列表
 router.post("/getDrugs",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("65") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
@@ -476,6 +491,7 @@ router.post("/getDrugs",function(req,res){
         logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
       }
       req.body.page.data = result;
+      logger.error(req.session.user[0].realname + "drugs-getDrugs运行时长" + noDate.getTime()-new Date().getTime());
       res.json({"code":"000000",message:req.body.page});
     });
   });
@@ -517,6 +533,9 @@ function getDrugsSql(req){
   if(req.body.data.contactId){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'";
   }
+  if(req.body.data.product_distribution_flag){
+    sql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"'";
+  }
   if(req.body.data.product_medical_type){
     sql += " and d.product_medical_type = '"+req.body.data.product_medical_type+"'"
   }
@@ -538,16 +557,6 @@ function getDrugsSql(req){
       sql += " and d.product_type in ('"+type+"')"
     }
   }
-  //连接查询标签
-  // sql = "select sbust.*,concat(GROUP_CONCAT(tag.tag_id),',') tag_ids from ("+sql+") sbust left join tag_drug tag on sbust.product_id = tag.drug_id "+
-  //       "where (tag.tag_drug_deleta_flag = '0' or tag.tag_drug_deleta_flag is null ) and "+
-  //       "(tag.tag_drug_group_id = '"+req.session.user[0].group_id+"' or tag.tag_drug_group_id is null ) ";
-  // if(req.body.data.tag){
-  //    var tag = req.body.data.tag.join(",").replace(/,/g,"','");
-  //    sql += "and tag.tag_id in ('"+tag+"') ";
-  // }
-  // sql += "group by sbust.product_id";
-
   //连接查询标签
   var tagSql = "select td.drug_id,concat(GROUP_CONCAT(td.tag_id),',') tag_ids,concat(GROUP_CONCAT(tagd.tag_name),',') tag_names from tag_drug td left join tag tagd on td.tag_id = tagd.tag_id "+
                "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+

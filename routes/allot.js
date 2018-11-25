@@ -580,6 +580,7 @@ router.post("/exportAllot",function(req,res){
 });
 //获取调货列表
 router.post("/getAllot",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("61") > 0  || req.session.user[0].authority_code.indexOf("130627a0-cb9b-11e8-81ff-23b7b224f706") > 0){
     var allot = DB.get("Allot");
     var sql = getAllotSql(req);
@@ -596,12 +597,14 @@ router.post("/getAllot",function(req,res){
         req.body.page.allotMoney = m && m[0].allotMoney?m[0].allotMoney.toFixed(2):0;
         req.body.page.totalCount = result;
         req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-        sql += " order by adpc.allot_time desc,adpc.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+        sql += " order by a.allot_time desc,a.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
         allot.executeSql(sql,function(err,result){
           if(err){
             logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
           }
           req.body.page.data = result;
+          logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + noDate.getTime()-new Date().getTime());
+          console.log(noDate.getTime()-new Date().getTime());
           res.json({"code":"000000",message:req.body.page});
         });
       });
@@ -613,11 +616,18 @@ router.post("/getAllot",function(req,res){
 
 });
 function getAllotSql(req){
-  //连接查询药品和药品相关商业
-  var sql = "select dbus.*,bus.business_name from drugs dbus left join business bus on dbus.product_business = bus.business_id";
   //连接查询调货记录和医院信息
-  var allotHopitalSql = "select ah.*,h.hospital_name from allot ah left join hospitals h on ah.allot_hospital = h.hospital_id"
-  sql = "select * from ("+allotHopitalSql+") a left join ("+sql+") d on a.allot_drug_id = d.product_id where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
+  var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
+            "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
+            "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
+            "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id,c.contacts_name,bus.business_name "+
+            "from allot a "+
+            "left join drugs d on a.allot_drug_id = d.product_id "+
+            "left join allot_policy ap on a.allot_drug_id = ap.allot_drug_id and a.allot_hospital = ap.allot_hospital_id "+
+            "left join contacts c on ap.allot_policy_contact_id = c.contacts_id "+
+            "left join hospitals h on a.allot_hospital = h.hospital_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and a.allot_create_userid = '"+req.session.user[0].id+"'";
@@ -645,12 +655,9 @@ function getAllotSql(req){
   if(req.body.data.allot_return_flag){
     sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
-  //连接查询调货 药品对应调货单位的政策信息
-  sql = "select adp.*,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id from ("+sql+") adp left join allot_policy ap on adp.allot_drug_id = ap.allot_drug_id and adp.allot_hospital = ap.allot_hospital_id"
   if(req.body.data.contactId){
     sql+=" where ap.allot_policy_contact_id = '"+req.body.data.contactId+"'";
   }
-  sql = "select adpc.*,cont.contacts_name from ("+sql+") adpc left join contacts cont on adpc.allot_policy_contact_id = cont.contacts_id"
   return sql;
 }
 //分组查询，获取备注

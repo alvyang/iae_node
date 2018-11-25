@@ -93,16 +93,8 @@ function getBusinessCommissionSql(req){
         "from ("+sql+") sdhbc left join hospital_business_config hbc on "+
         "sdhbc.product_business = hbc.hb_business_id and sdhbc.hospital_id = hbc.hb_hospital_id "+
         "where DATE_FORMAT(sdhbc.bill_date,'%Y-%m-%d') >= DATE_FORMAT(hbc.hb_start_time,'%Y-%m-%d') "+
-        "and hbc.hb_fixed_rate is not null and hbc.hb_start_money is not null and hbc.hb_floating_rate is not null ";
-  sql += "group by DATE_FORMAT(sdhbc.bill_date,'%Y-%m'),sdhbc.hospital_id,sdhbc.product_business";
-    //分组查询返款表
-  var hrmSql = "select hrm.return_money_hospital,hrm.return_money_business,DATE_FORMAT(hrm.return_money_time,'%Y-%m') return_money_time,"+
-               "sum(hrm.return_money) return_money from hospital_return_money hrm "+
-               "group by DATE_FORMAT(hrm.return_money_time,'%Y-%m'),hrm.return_money_hospital,hrm.return_money_business";
-  //连接查询当月返款总额
-  sql = "select * from ("+sql+") sdhbch left join ("+hrmSql+") hrms on sdhbch.bd = hrms.return_money_time "+
-        "and sdhbch.hospital_id = hrms.return_money_hospital and sdhbch.product_business = hrms.return_money_business "
-
+        "and hbc.hb_fixed_rate is not null and hbc.hb_start_money is not null and hbc.hb_floating_rate is not null "+
+        "group by DATE_FORMAT(sdhbc.bill_date,'%Y-%m'),sdhbc.hospital_id,sdhbc.product_business";
   //连接查询商业提成表
   sql = "select * from ("+sql+") s left join business_commission bc on s.hospital_id = bc.commission_hospital_id and "+
         "s.product_business = bc.commission_business and s.bd = DATE_FORMAT(bc.commission_time,'%Y-%m') ";
@@ -161,6 +153,7 @@ function formatDayCommissionData(daySale,hospitalsReturn){
   }
   for(var i in dayCommission){
     var key = i.split("_");
+    var returnMoney = 0;
     for(var j = 0 ; j < hospitalsReturn.length ;j++){
       if(key[1] == hospitalsReturn[j].return_money_hospital &&
          key[2] == hospitalsReturn[j].return_money_business &&
@@ -172,10 +165,12 @@ function formatDayCommissionData(daySale,hospitalsReturn){
          if(lastDay.format("yyyy-MM-dd")==returnMoneyDate.format("yyyy-MM-dd")){//上一条代码，做的不好
            intDay--;
          }
-         var temp = util.mul(util.div(hospitalsReturn[j].return_money,billDateDay,6),intDay,4);//回填月均
+         returnMoney +=parseFloat(hospitalsReturn[j].return_money);
+         var temp = util.mul(util.div(hospitalsReturn[j].return_money,billDateDay,6),intDay,4);//回款月均
          dayCommission[i] = util.sub(dayCommission[i],temp,2);
       }
     }
+    dayCommission[i+"_return_money"]=returnMoney;
   }
   return dayCommission;
 }
@@ -211,8 +206,8 @@ function formatCommissionData(data,dayCommission){
     var dayKey = data[i].bd+"_"+data[i].hospital_id+"_"+data[i].product_business;//取月均值
     temp.day_avg = util.add(sumMoney[moneyKey],dayCommission[dayKey],2);
     //累计
-    temp.return_money = data[i].return_money?data[i].return_money:0;
-    temp.ownMoney = util.sub(util.add(data[i].sm,sumMoney[moneyKey]),data[i].return_money,2);
+    temp.return_money = dayCommission[dayKey+"_return_money"]?dayCommission[dayKey+"_return_money"]:0;
+    temp.ownMoney = util.sub(util.add(data[i].sm,sumMoney[moneyKey]),dayCommission[dayKey+"_return_money"],2);
     sumMoney[moneyKey] = temp.ownMoney;
     //月末就收系数
     temp.mouthCoefficient = util.div(temp.ownMoney,data[i].sm,2);

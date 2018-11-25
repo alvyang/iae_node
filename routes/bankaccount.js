@@ -59,14 +59,13 @@ router.post("/getAccounts",function(req,res){
     return ;
   }
   var account = DB.get("Account");
-  var sql = "select b.*,bbad.money from bank_account b "+
-            "left join (select round(sum(bad.account_detail_money),2) money,bad.account_id from bank_account_detail bad  "+
-            "where bad.account_detail_deleta_flag = '0' and bad.account_detail_group_id = '"+req.session.user[0].group_id+"' group by bad.account_id) bbad "+
-            "on bbad.account_id = b.account_id "+
-            "where b.account_delete_flag = '0' and b.account_group_id = '"+req.session.user[0].group_id+"'";
+  var sql = "select b.*,round(sum(bad.account_detail_money),2) money from bank_account b left join bank_account_detail bad on bad.account_id = b.account_id "+
+            "where b.account_delete_flag = '0' and b.account_group_id = '"+req.session.user[0].group_id+"' "+
+            "and bad.account_detail_deleta_flag = '0' and bad.account_detail_group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.account_number){
     sql += " and b.account_number like '%"+req.body.data.account_number+"%'";
   }
+  sql += " group by b.account_id"
   account.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询银行账号，查询总数出错" + err);

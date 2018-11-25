@@ -7,5 +7,5 @@ module.exports = {
 					'product_high_discount','contacts_id','group_id','product_return_explain','remark','buyer','product_name_pinyin',
 					'product_business','stock','accounting_cost','gross_interest_rate','product_return_statistics','product_tax_rate',
 					'product_purchase_mode','product_basic_medicine','product_create_time','product_create_userid',
-					'product_return_time_type','product_return_time_day','product_return_time_day_num']
+					'product_return_time_type','product_return_time_day','product_return_time_day_num','product_distribution_flag']
 };

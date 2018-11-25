@@ -168,29 +168,29 @@ router.post('/getTagAnalysis',function(req,res){
     return ;
   }
   var sales = DB.get("Sales");
-  //连接查询销售表和药品表，查出销售额和真实毛利额
-  var saleDrug = "select sd.sale_money,sd.real_gross_profit,d.product_id from sales sd left join drugs d on sd.product_code = d.product_code "+
-	               "where sd.delete_flag = '0' and sd.group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.salesTime && req.body.salesTime.length > 1){
-    var start = new Date(req.body.salesTime[0]).format("yyyy-MM-dd");
-    var end = new Date(req.body.salesTime[1]).format("yyyy-MM-dd");
-    saleDrug += " and DATE_FORMAT(sd.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(sd.bill_date,'%Y-%m-%d') <= '"+end+"'";
-  }
-  if(req.body.hospitalsId){
-    saleDrug+="and sd.hospital_id = '"+req.body.hospitalsId+"' "
-  }
-  if(req.body.business){
-    saleDrug+="and d.product_business = '"+req.body.business+"' "
-  }
   //连接查询标签和药品表，查出所有药品包含的所有标签
-  var tagDrug = "select td.drug_id,t.tag_name,t.tag_id from tag t left join tag_drug td on td.tag_id = t.tag_id "+
+  var sql = "select td.drug_id,t.tag_name,t.tag_id from tag t left join tag_drug td on td.tag_id = t.tag_id "+
                 "where (td.tag_drug_group_id = '"+req.session.user[0].group_id+"' or td.tag_drug_group_id is null) "+
                 "and (td.tag_drug_deleta_flag = '0' or td.tag_drug_deleta_flag is null) "+
                 "and t.tag_delete_flag = '0' and t.tag_group_id = '"+req.session.user[0].group_id+"'";
-  //统计数据
-  var sql = "select ifnull(sum(s.sale_money),0) sm,ifnull(sum(s.real_gross_profit),0) rgp ,tdt.tag_name from "+
-            "("+saleDrug+") s right join ("+tagDrug+") tdt on s.product_id = tdt.drug_id group by tdt.tag_id";
-
+  if(req.body.tag_type){
+    sql += " and t.tag_type = '"+req.body.tag_type+"'";
+  }
+  sql = "select tdt.tag_name,tdt.tag_id,d.product_code,d.product_business from ("+sql+") tdt left join drugs d on d.product_id = tdt.drug_id";
+  sql = "select ifnull(sum(s.sale_money),0) sm,ifnull(sum(s.real_gross_profit),0) rgp ,sd.tag_name  from ("+sql+") sd left join sales s "+
+        "on sd.product_code = s.product_code where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' ";
+  if(req.body.salesTime && req.body.salesTime.length > 1){
+    var start = new Date(req.body.salesTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.salesTime[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
+  }
+  if(req.body.hospitalsId){
+    sql+=" and s.hospital_id = '"+req.body.hospitalsId+"' "
+  }
+  if(req.body.business){
+    sql+=" and sd.product_business = '"+req.body.business+"' "
+  }
+  sql += " group by sd.tag_id";
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "报表查询销售统计出错" + err);

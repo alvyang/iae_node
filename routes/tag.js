@@ -73,6 +73,9 @@ router.post("/getTags",function(req,res){
   if(req.body.data.tag_name){
     sql += " and t.tag_name like '%"+req.body.data.tag_name+"%'";
   }
+  if(req.body.data.tag_type){
+    sql += " and t.tag_type = '"+req.body.data.tag_type+"'";
+  }
   var tagNumSql = "select td.tag_id,count(*) tqn from tag_drug td "+
                   "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+
                   "group by td.tag_id";

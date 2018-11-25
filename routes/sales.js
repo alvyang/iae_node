@@ -556,8 +556,6 @@ router.post("/editSales",function(req,res){
   		real_gross_profit:req.body.real_gross_profit,
   		accounting_cost:req.body.accounting_cost,
   		cost_univalent:req.body.cost_univalent,
-  		delete_flag:req.body.delete_flag,
-  	  group_id:req.body.group_id,
   		bill_date:req.body.bill_date,
   		hospital_id:req.body.hospital_id,
       sale_account_id:req.body.sale_account_id,
@@ -689,6 +687,7 @@ router.post("/deleteSales",function(req,res){
 });
 //查询销售记录
 router.post("/getSales",function(req,res){
+  var noDate = new Date();
   if(req.session.user[0].authority_code.indexOf("51") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b") > 0){
     var sales = DB.get("Sales");
     var sql = getQuerySql(req);
@@ -707,12 +706,13 @@ router.post("/getSales",function(req,res){
         req.body.page.grossProfit = money && money[0].grossProfit?money[0].grossProfit.toFixed(2):0;
         req.body.page.saleReturnMoney = money && money[0].saleReturnMoney?money[0].saleReturnMoney.toFixed(2):0;
         req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-        sql += " order by shbp.bill_date desc,shbp.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+        sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
         sales.executeSql(sql,function(err,result){
           if(err){
             logger.error(req.session.user[0].realname + "查询销售记录" + err);
           }
           req.body.page.data = result;
+          logger.error(req.session.user[0].realname + "sales-getSales运行时长" + noDate.getTime()-new Date().getTime());
           res.json({"code":"000000",message:req.body.page});
         });
       });
@@ -723,12 +723,21 @@ router.post("/getSales",function(req,res){
 });
 function getQuerySql(req){
   //连接查询医院名称
-  var sh = "select sh.*,h.hospital_name from sales sh left join hospitals h on sh.hospital_id = h.hospital_id where sh.delete_flag = '0' and sh.group_id = '"+req.session.user[0].group_id+"' ";
-  //连接查询药品信息
-  var sql = "select s.*,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,d.product_common_name,d.product_specifications,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money"+
-            " from ("+sh+") s left join drugs d on s.product_code = d.product_code where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
-
+  var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
+            "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
+            "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
+            "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code "+
+            "from sales s "+
+            "left join drugs d on s.product_code = d.product_code ";
+  if(req.body.data.tag){
+    sql+="left join tag_drug td on d.product_id = td.drug_id ";
+  }
+  sql +="left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id ";
+  sql +="left join business bus on d.product_business = bus.business_id "+
+        "left join hospitals h on s.hospital_id = h.hospital_id "+
+        "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
+        "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and s.sale_create_userid = '"+req.session.user[0].id+"'";
@@ -775,19 +784,11 @@ function getQuerySql(req){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }
   //连接查询标签
-  var tagSql = "select td.drug_id,concat(GROUP_CONCAT(td.tag_id),',') tag_ids from tag_drug td "+
-               "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+
-               "group by td.drug_id ";
-  sql = "select sbust.* from ("+sql+") sbust left join ("+tagSql+") tag on sbust.product_id = tag.drug_id ";
   if(req.body.data.tag){
-     sql += "where tag.tag_ids like '%"+req.body.data.tag+",%'";
+    sql += " and td.tag_id = '"+req.body.data.tag+"'";
   }
-  //连接查询商业名称
-  sql = "select shbus.*,bus.business_name from ("+sql+") shbus left join business bus on shbus.product_business = bus.business_id ";
-  //连接查询医院药品政策表
-  sql = "select * from ("+sql+") shbp left join sale_policy sp on shbp.hospital_id = sp.sale_hospital_id and shbp.product_id = sp.sale_drug_id ";
   if(req.body.data.salesReturnFlag){
-    sql += " where sp.sale_policy_money is not null and sp.sale_policy_money !=''";
+    sql += " and sp.sale_policy_money is not null and sp.sale_policy_money !=''";
   }
   return sql;
 }
