@@ -159,7 +159,7 @@ router.post("/getPurchaseRefunds",function(req,res){
           logger.error(req.session.user[0].realname + "查询高打返款列表" + err);
         }
         req.body.page.data = result;
-        logger.error(req.session.user[0].realname + "refunds-getPurchaseRefunds运行时长" + noDate.getTime()-new Date().getTime());
+        logger.error(req.session.user[0].realname + "refunds-getPurchaseRefunds运行时长" + (noDate.getTime()-new Date().getTime()));
         res.json({"code":"000000",message:req.body.page});
       });
     });
@@ -171,7 +171,7 @@ function getPurchasesSql(req){
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
  var sql = "select p.purchase_id,p.purchase_price,p.purchase_number,p.purchase_money,p.time,p.make_money_time,p.send_out_time,"+
            "b.account_number,b.account_person,c.contacts_name,bus.business_name,r.refunds_should_time,r.refunds_should_money,"+
-           "r.refunds_id,r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.refunds_remark,r.receiver,"+
+           "p.purchase_mack_price,r.refunds_id,r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.refunds_remark,r.receiver,"+
            "d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.product_return_explain,"+
            "d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,"+
            "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing "+//药品属性
@@ -261,7 +261,7 @@ router.post("/getSaleRefunds",function(req,res){
           logger.error(req.session.user[0].realname + "查询佣金返款列表" + err);
         }
         req.body.page.data = result;
-        logger.error(req.session.user[0].realname + "refunds-getSaleRefunds运行时长" + noDate.getTime()-new Date().getTime());
+        logger.error(req.session.user[0].realname + "refunds-getSaleRefunds运行时长" + (noDate.getTime()-new Date().getTime()));
         res.json({"code":"000000",message:req.body.page});
       });
     });
@@ -285,7 +285,7 @@ function getQuerySql(req){
             "left join contacts c on d.contacts_id = c.contacts_id "+
             "left join business bus on d.product_business = bus.business_id "+
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
-            "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+            "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.overdue){
     req.body.data.status="未返";
   }

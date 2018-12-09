@@ -216,8 +216,8 @@ function getDrugsData(drugs,code,business){
       //生成助记码
       d.product_name_pinyin = util.getFirstLetter(drugs[i][0]);
       //计算扣率和毛利率
-      d.product_discount =  util.div(drugs[i][11],drugs[i][10],2);
-      d.gross_interest_rate = util.div(drugs[i][12],drugs[i][10],2);
+      d.product_discount =  util.div(drugs[i][11],drugs[i][10],4)*100;
+      d.gross_interest_rate = util.div(drugs[i][12],drugs[i][10],4)*100;
 
       //将生产企业，修改为供货单位
       d.product_supplier = d.product_makesmakers;
@@ -491,7 +491,7 @@ router.post("/getDrugs",function(req,res){
         logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
       }
       req.body.page.data = result;
-      logger.error(req.session.user[0].realname + "drugs-getDrugs运行时长" + noDate.getTime()-new Date().getTime());
+      logger.error(req.session.user[0].realname + "drugs-getDrugs运行时长" + (noDate.getTime()-new Date().getTime()));
       res.json({"code":"000000",message:req.body.page});
     });
   });

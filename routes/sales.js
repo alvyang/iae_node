@@ -344,7 +344,7 @@ router.post("/exportSalesRefund",function(req,res){
   req.body.data = req.body;
   var sales = DB.get("Sales");
   var sql = getQuerySql(req);
-  sql += " order by shbp.bill_date desc,shbp.hospital_id asc,shbp.sale_create_time asc";
+  sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_create_time asc";
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
@@ -401,7 +401,7 @@ router.post("/exportSales",function(req,res){
   req.body.data = req.body;
   var sales = DB.get("Sales");
   var sql = getQuerySql(req);
-  sql += " order by shbp.bill_date desc,shbp.hospital_id asc,shbp.sale_create_time asc";
+  sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_create_time asc";
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
@@ -562,7 +562,10 @@ router.post("/editSales",function(req,res){
       sale_return_money:req.body.sale_return_money,
       sale_return_price:req.body.sale_return_price,
       sale_contact_id:req.body.sale_contact_id,
-      sale_type:req.body.sale_type
+      sale_type:req.body.sale_type,
+      sale_account_name:req.body.sale_account_name,
+      sale_account_number:req.body.sale_account_number,
+      sale_account_address:req.body.sale_account_address
     }
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
@@ -712,7 +715,7 @@ router.post("/getSales",function(req,res){
             logger.error(req.session.user[0].realname + "查询销售记录" + err);
           }
           req.body.page.data = result;
-          logger.error(req.session.user[0].realname + "sales-getSales运行时长" + noDate.getTime()-new Date().getTime());
+          logger.error(req.session.user[0].realname + "sales-getSales运行时长" + (noDate.getTime()-new Date().getTime()));
           res.json({"code":"000000",message:req.body.page});
         });
       });
@@ -724,6 +727,7 @@ router.post("/getSales",function(req,res){
 function getQuerySql(req){
   //连接查询医院名称
   var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
+            "s.sale_account_name,s.sale_account_number,s.sale_account_address,"+
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+

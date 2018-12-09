@@ -294,7 +294,7 @@ router.post("/getPurchases",function(req,res){
           logger.error(req.session.user[0].realname + "查询采购记录出错" + err);
         }
         req.body.page.data = result;
-        logger.error(req.session.user[0].realname + "purchase-getPurchases运行时长" + noDate.getTime()-new Date().getTime());
+        logger.error(req.session.user[0].realname + "purchase-getPurchases运行时长" + (noDate.getTime()-new Date().getTime()));
         res.json({"code":"000000",message:req.body.page});
       });
     });

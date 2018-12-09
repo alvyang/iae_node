@@ -10,17 +10,17 @@ path+="_"+moment(new Date()).format('YYYY-MM-DD');
 /*
 记录日志
 */
-exports.error=function(err){
-	if(err){
+exports.error=function(obj){
+	if(obj){
 			var errorLogfile = fs.createWriteStream(path, {flags: 'a',encoding:'utf8'});
       // errorLogfile.open();
-      if(err instanceof  Error){
-          var meta = '\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err.stack ;
+      if(obj instanceof  Error){
+          var meta = '\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +obj.stack ;
           errorLogfile.write(meta);
       }else{
-          errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +err);
+          errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [ERROR] ' +obj);
       }
-      errorLogfile.close();
+      errorLogfile.end();
 	}
 }
 exports.debug=function(obj){
@@ -29,6 +29,6 @@ exports.debug=function(obj){
 		// errorLogfile.open();
 		//console.log("\n["+moment(new Date()).format('YYYY-MM-DD HH:mm:ss')+"][DEBUG] "+obj);
 		errorLogfile.write('\n[' + moment(new Date()).format('YYYY-MM-DD HH:mm:ss') + '] [DEBUG] ' +obj);
-		errorLogfile.close();
+		errorLogfile.end();
 	}
 }

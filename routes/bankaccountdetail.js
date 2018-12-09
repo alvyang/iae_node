@@ -67,6 +67,11 @@ router.post("/getAccountsDetails",function(req,res){
   if(req.body.data.account_id){
     sql += " and b.account_id = '"+req.body.data.account_id+"'";
   }
+  if(req.body.data.account_type&&req.body.data.account_type == "1"){
+    sql += " and b.account_detail_money >= 0 ";
+  }else if(req.body.data.account_type&&req.body.data.account_type == "2"){
+    sql += " and b.account_detail_money < 0 ";
+  }
   accountDetail.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询银行流水，查询总数出错" + err);

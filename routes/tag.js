@@ -116,9 +116,24 @@ router.post("/getAllTags",function(req,res){
         }
       }
     }
+    var tagAll=[{label:'医院科室',value:'1',children:[]},
+                {label:'药品分类',value:'2',children:[]},
+                {label:'运营方式',value:'0',children:[]},
+                {label:'其它',value:'3',children:[]}];
+    for(var i = 0 ; i < result.length ;i++){
+      for(var j = 0 ; j < tagAll.length;j++){
+        if(tagAll[j].value == result[i].tag_type){
+          tagAll[j].children.push({
+            label:result[i].tag_name,
+            value:result[i].tag_id,
+            disabled:result[i].disabled,
+          });
+        }
+      }
+    }
     res.json({"code":"000000",message:{
       tag:tag,
-      tagAll:result
+      tagAll:tagAll
     }});
   });
 });

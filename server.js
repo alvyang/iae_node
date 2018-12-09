@@ -25,7 +25,7 @@ app.use(bodyParser.xml({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(session({secret:'lvyang',rolling: true,resave:true,cookie:{maxAge: 60000*30 },saveUninitialized:true,resave:true}));
+app.use(session({secret:'lvyang',rolling: true,resave:true,cookie:{maxAge: 60000*30 },saveUninitialized:true}));
 
 global.logger=require("./utils/logger.js");
 global.moment = require('moment');//日期函数全局访问
@@ -67,11 +67,14 @@ app.use(function(req, res, next) {
     err.status = 404;
     res.status(err.status || 500);
 });
-
 ///500
 app.use(function(err, req, res){
     logger.error(err);
     res.status(err.status || 500);
 });
-
 app.listen(5000);
+// server.listen(5000);
+// server.on('connection', function(socket) {
+//   socket.setKeepAlive();
+//   socket.setTimeout(40 * 1000);
+// });

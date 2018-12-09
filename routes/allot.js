@@ -390,7 +390,10 @@ router.post("/editAllot",function(req,res){
   		allot_return_price:req.body.allot_return_price,
   		allot_return_money:req.body.allot_return_money,
   		allot_return_time:req.body.allot_return_time,
-  		allot_return_flag:req.body.allot_return_flag
+  		allot_return_flag:req.body.allot_return_flag,
+      allot_account_name:req.body.allot_account_name,
+      allot_account_number:req.body.allot_account_number,
+      allot_account_address:req.body.allot_account_address
     }
     if(req.body.allot_account_id){
       params.allot_account_id = req.body.allot_account_id;
@@ -487,7 +490,7 @@ router.post("/exportAllotRefund",function(req,res){
   req.body.data = req.body;
   var allot = DB.get("Allot");
   var sql = getAllotSql(req);
-  sql += " order by adpc.allot_time desc,adpc.allot_create_time desc";
+  sql += " order by a.allot_time desc,a.allot_create_time desc";
   allot.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出调货回款记录出错" + err);
@@ -544,7 +547,7 @@ router.post("/exportAllot",function(req,res){
   req.body.data = req.body;
   var allot = DB.get("Allot");
   var sql = getAllotSql(req);
-  sql += " order by adpc.allot_time desc,adpc.allot_create_time desc";
+  sql += " order by a.allot_time desc,a.allot_create_time desc";
   allot.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "导出调货记录出错" + err);
@@ -603,7 +606,7 @@ router.post("/getAllot",function(req,res){
             logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
           }
           req.body.page.data = result;
-          logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + noDate.getTime()-new Date().getTime());
+          logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
           console.log(noDate.getTime()-new Date().getTime());
           res.json({"code":"000000",message:req.body.page});
         });
@@ -618,6 +621,7 @@ router.post("/getAllot",function(req,res){
 function getAllotSql(req){
   //连接查询调货记录和医院信息
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
+            "a.allot_account_name,a.allot_account_number,a.allot_account_address,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
             "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id,c.contacts_name,bus.business_name "+
@@ -656,7 +660,7 @@ function getAllotSql(req){
     sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
   if(req.body.data.contactId){
-    sql+=" where ap.allot_policy_contact_id = '"+req.body.data.contactId+"'";
+    sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";
   }
   return sql;
 }
