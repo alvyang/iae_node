@@ -16,11 +16,13 @@ router.get("/downloadErrorSales",function(req,res){
   },{caption:'产品编号',type:'string'
   },{caption:'销售单价',type:'string'
   },{caption:'销售数量',type:'string'
+  },{caption:'批号',type:'string'
+  },{caption:'该批号入库时间（高打品种必填）',type:'string'
   },{caption:'销往单位',type:'string'
   },{caption:'销售类型（1:销售出库；2:销售退回；3:销售退补价）',type:'string'
   },{caption:'错误信息',type:'string'
   }];
-  var header = ['bill_date','product_code','sale_price','sale_num','hospital_name','sale_type','errorMessage'];
+  var header = ['bill_date','product_code','sale_price','sale_num','batch_number','storage_time','hospital_name','sale_type','errorMessage'];
   var d = JSON.parse(req.session.errorSalesData);
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
@@ -45,8 +47,9 @@ router.post("/importSales",function(req,res){
       if (err){
         return;
       }
-      getSalesData(req,output).then(salesDrugsData=>{
-        var salesData= verData(req,salesDrugsData);
+      getSalesData(req,output).then(data=>{
+        var salesData= verData(req,data);
+
         req.session.errorSalesData = JSON.stringify(salesData.errData);//错误的数据
         var sData = salesData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+salesData.errData.length+"</a>条；"
@@ -55,12 +58,12 @@ router.post("/importSales",function(req,res){
           return;
         }
         //插入销售记录sql
-        var sql = "insert into sales(sale_id,bill_date,sale_price,sale_num,product_code,hospital_id,gross_profit,real_gross_profit,"+
+        var sql = "insert into sales(sale_id,bill_date,sale_price,sale_num,batch_number,product_code,hospital_id,gross_profit,real_gross_profit,"+
                   "accounting_cost,cost_univalent,sale_return_flag,sale_tax_rate,group_id,sale_create_time,sale_create_userid,"+
-                  "sale_type,sale_money,sale_return_money) VALUES ";
+                  "sale_type,sale_money,sale_return_money,sales_purchase_id,sale_return_price) VALUES ";
         //更新库存sql
-        var updateStockSql = "update drugs d set d.stock = CASE d.product_id ";
-        var updateProductId = "";
+        var updateStockSql = "insert into batch_stock(batch_stock_drug_id,batch_stock_purchase_id,batch_stock_number) values ";
+        var updateFlag = false;//是否执行更新库存语句
         //新增返款流水和医院销售回款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
                             "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
@@ -69,20 +72,22 @@ router.post("/importSales",function(req,res){
         var refundSql = "insert into refunds(refunds_id,refund_create_time,refund_create_userid,sales_id,refunds_should_money,"+
                         "refunds_should_time) VALUES ";
         var refundSqlValue = "";
+        var batchStockOject={};//记录批次库存
         for(var i = 0 ; i < sData.length;i++){
           var groupId = req.session.user[0].group_id;
           var createTime = new Date().format('yyyy-MM-dd');
           var createUserId = req.session.user[0].id;
           sData[i].sale_id = uuid.v1();
           //批量插入销售记录拼接sql
-          sql+="('"+sData[i].sale_id+"','"+sData[i].bill_date+"','"+sData[i].sale_price+"','"+sData[i].sale_num+"','"+sData[i].product_code+"',"+
+          sql+="('"+sData[i].sale_id+"','"+sData[i].bill_date+"','"+sData[i].sale_price+"','"+sData[i].sale_num+"','"+sData[i].batch_number+"','"+sData[i].product_code+"',"+
                "'"+sData[i].hospital_id+"','"+sData[i].gross_profit+"','"+sData[i].real_gross_profit+"','"+sData[i].accounting_cost+"',"+
                "'"+sData[i].cost_univalent+"','"+sData[i].sale_return_flag+"','"+sData[i].sale_tax_rate+"','"+sData[i].group_id+"',"+
-               "'"+createTime+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"'),";
+               "'"+createTime+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"',"+
+               "'"+sData[i].sales_purchase_id+"','"+sData[i].sale_policy_money+"'),";
           if(sData[i].product_type == '高打'){//更新库存，sql语句拼接
-            var tempStock = sData[i].stock-sData[i].sale_num;
-            updateProductId += "'"+sData[i].product_id+"',";
-            updateStockSql+=" when '"+sData[i].product_id+"' then '"+tempStock+"' ";
+            updateFlag = true;
+            var key = sData[i].product_id+"--"+sData[i].sales_purchase_id;
+            batchStockOject[key]=batchStockOject[key]?batchStockOject[key]-sData[i].sale_num:sData[i].stock-sData[i].sale_num;
           }
           if(sData[i].product_type == '佣金'){//添加佣金返款流水    返款记录
             bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
@@ -97,8 +102,12 @@ router.post("/importSales",function(req,res){
             bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_hospital_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
           }
         }
-        updateProductId=updateProductId.substring(0,updateProductId.length-1);
-        updateStockSql += "end where d.product_id in ("+updateProductId+")";
+        for(var k in batchStockOject){
+          var id = k.split("--");
+          updateStockSql+="('"+id[0]+"','"+id[1]+"','"+batchStockOject[k]+"'),";
+        }
+        updateStockSql = updateStockSql.substring(0,updateStockSql.length-1);
+        updateStockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number);";
         sql = sql.substring(0,sql.length-1);//插入销售sql
         bankDetailSql = bankDetailSql+bankDetailSqlValue.substring(0,bankDetailSql.length-1);//插入流水账sql
         refundSql = refundSql+refundSqlValue.substring(0,refundSql.length-1);//批量添加销售记录
@@ -107,7 +116,7 @@ router.post("/importSales",function(req,res){
           if(err){
             logger.error(req.session.user[0].realname + "批量插入销售记录出错" + err);
           }
-          if(updateProductId){
+          if(updateFlag){
             sales.executeSql(updateStockSql,function(err,result){//更新库存
               if(err){
                 logger.error(req.session.user[0].realname + "批量插入销售记录，更新库存出错" + err);
@@ -135,9 +144,11 @@ router.post("/importSales",function(req,res){
   });
 });
 //检验格式是否正确
-function verData(req,sales){
+function verData(req,data){
   var correctData=[];
   var errData=[];
+  var batchStock = data.batchStock;
+  var sales = data.salesDrugsData;
   for(var i = 0 ;i < sales.length;i++){
     //非空验证
     var d = {};
@@ -149,8 +160,31 @@ function verData(req,sales){
     d.sale_type = sales[i].sale_type;
     d.hospital_name = sales[i].hospital_name;
     d.product_code = sales[i].product_code;
-    if(!d.bill_date || !d.sale_price ||!d.sale_num ||!d.hospital_name ||!d.product_code||!d.sale_type){
-      d.errorMessage = "销售日期、产品编号、销售单价、销售数量、销往单位、销售类型为必填项";
+    d.batch_number = sales[i].batch_number;
+    d.product_type = sales[i].product_type;
+    d.storage_time = sales[i].storage_time;
+    d.bill_date = new Date(d.bill_date).format('yyyy-MM-dd');
+    if(!d.bill_date || !d.sale_price ||!d.sale_num ||!d.hospital_name ||!d.product_code||!d.sale_type||!d.batch_number){
+      d.errorMessage = "销售日期、产品编号、销售单价、销售数量、批号、销往单位、销售类型为必填项";
+      errData.push(d);
+      continue;
+    }
+    if(d.product_type == "高打" && !d.storage_time){
+      d.errorMessage = "高打品种，该批号入库时间必填";
+      errData.push(d);
+      continue;
+    }
+    d.storage_time = new Date(d.storage_time).format("yyyy-MM-dd");
+    for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
+      var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
+      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
+        d.sales_purchase_id = batchStock[j].batch_stock_purchase_id;
+        d.stock = batchStock[j].batch_stock_number;
+        break;
+      }
+    }
+    if(d.product_type == "高打" && !d.sales_purchase_id){
+      d.errorMessage = "当前入库时间，无该批号或该批号无库存";
       errData.push(d);
       continue;
     }
@@ -198,20 +232,18 @@ function verData(req,sales){
     d.sale_money = util.mul(d.sale_num,d.sale_price,2);
     d.accounting_cost = sales[i].accounting_cost;
     d.cost_univalent = sales[i].product_mack_price;
-    d.product_type = sales[i].product_type;
     d.product_id = sales[i].product_id;
     d.sale_return_flag = sales[i].product_return_statistics;
     d.product_return_time_type = sales[i].product_return_time_type;
     d.product_return_time_day = sales[i].product_return_time_day;
     d.product_return_time_day_num = sales[i].product_return_time_day_num;
-    d.stock = sales[i].stock;
     d.sale_tax_rate = sales[i].product_tax_rate;
     d.sale_type = sales[i].sale_type;
     d.product_return_money = sales[i].product_return_money;
     d.group_id = req.session.user[0].group_id;
-    d.bill_date = new Date(d.bill_date).format('yyyy-MM-dd');
     d.sale_create_time = new Date().format('yyyy-MM-dd');
     d.sale_create_userid = req.session.user[0].id;
+    d.sale_policy_money = sales[i].sale_policy_money;
     d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money,2):"";
     correctData.push(d);
   }
@@ -252,6 +284,8 @@ function getSalesData(req,sales){
               result[j].sale_num=d.sale_num;
               result[j].sale_type=d.sale_type;
               result[j].hospital_name=d.hospital_name;
+              result[j].batch_number = d.batch_number;
+              result[j].storage_time = d.storage_time;
               var temp = JSON.stringify(result[j]);
               salesDrugsData.push(JSON.parse(temp));
             }
@@ -304,13 +338,26 @@ function getSalesData(req,sales){
                 }
               }
             }
-            resolve(data.salesDrugsData);
+            resolve(data);
           }
         });
       });
     }else{
-      resolve(data.salesDrugsData);
+      resolve(data);
     }
+  }).then(data=>{//查询批次库存
+    return new Promise((resolve, reject) => {
+      var batchStock = DB.get("BatchStock");
+      var sql = "select * from batch_stock bs where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+                "and bs.batch_stock_number > 0";
+      batchStock.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "由药品id，查询批次库存出错" + err);
+        }
+        data.batchStock = result;
+        resolve(data);
+      });
+    });
   });
 }
 //将数组转成对象
@@ -320,8 +367,10 @@ function arrayToObject(sales){
     product_code:sales[1],
     sale_price:sales[2],
     sale_num:sales[3],
-    hospital_name:sales[4],
-    sale_type:sales[5]
+    batch_number:sales[4],
+    storage_time:sales[5],
+    hospital_name:sales[6],
+    sale_type:sales[7]
   }
 }
 //查询药品商业对应的政策
@@ -333,63 +382,6 @@ router.post("/selesPolicy",function(req,res){
       logger.error(req.session.user[0].realname + "查询销售医院药品政策，出错" + err);
     }
     res.json({"code":"000000",message:result});
-  });
-});
-//导出回款记录
-router.post("/exportSalesRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("e430d5a0-d802-11e8-a19c-cf0f6be47d2e") < 0){
-    res.json({"code":"111112",message:"无权限"});
-    return ;
-  }
-  req.body.data = req.body;
-  var sales = DB.get("Sales");
-  var sql = getQuerySql(req);
-  sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_create_time asc";
-  sales.executeSql(sql,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
-    }
-    var conf ={};
-    conf.stylesXmlFile = "./utils/styles.xml";
-    conf.name = "mysheet";
-    conf.cols = [{
-        caption:'日期',
-        type:'string',
-        beforeCellWrite:function(row, cellData){
-          return new Date(cellData).format('yyyy-MM-dd');
-        }
-    },{caption:'销往单位',type:'string'
-    },{caption:'产品编码',type:'string'
-    },{caption:'产品名称',type:'string'
-    },{caption:'产品规格',type:'string'
-    },{caption:'生产厂家',type:'string'
-    },{caption:'单位',type:'string'
-    },{caption:'计划数量',type:'number'
-    },{caption:'中标价',type:'number'
-    },{caption:'购入金额',type:'number'
-    },{caption:'回款金额',type:'number'
-    },{caption:'回款总额',type:'number'
-    },{
-        caption:'回款时间',
-        type:'string',
-        beforeCellWrite:function(row, cellData){
-          if(cellData){
-            return new Date(cellData).format('yyyy-MM-dd');
-          }else{
-            return "";
-          }
-
-        }
-    },{caption:'回款备注',type:'string'
-    }];
-    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','sale_return_price',
-                  'sale_return_money','sale_return_time','sale_policy_remark'];
-    conf.rows = util.formatExcel(header,result);
-    var result = nodeExcel.execute(conf);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
-    res.end(result, 'binary');
   });
 });
 //导出销售记录
@@ -477,14 +469,12 @@ router.post("/saveSales",function(req,res){
   });
   //添加完销售记录后，更新库存。
   if(productType == '高打'){
-    var drugsStock = {
-      product_id:productId,
-      stock:stock-req.body.sale_num
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
+    var batchStock = DB.get("BatchStock");
+    var sql = "update batch_stock set batch_stock_number=batch_stock_number-"+req.body.sale_num+" where "+
+              "batch_stock_purchase_id='"+req.body.sales_purchase_id+"' and batch_stock_drug_id='"+productId+"'";
+    batchStock.executeSql(sql,function(err,result){
       if(err){
-        logger.error(req.session.user[0].realname + "新增销售记录，更新库存出错" + err);
+        logger.error(req.session.user[0].realname + "销售高打品种，更新库存出错" + err);
       }
     });
   }
@@ -565,7 +555,8 @@ router.post("/editSales",function(req,res){
       sale_type:req.body.sale_type,
       sale_account_name:req.body.sale_account_name,
       sale_account_number:req.body.sale_account_number,
-      sale_account_address:req.body.sale_account_address
+      sale_account_address:req.body.sale_account_address,
+      batch_number:req.body.batch_number
     }
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
@@ -584,14 +575,13 @@ router.post("/editSales",function(req,res){
 
     //添加完销售记录后，更新库存。
     if(req.body.product_type == '高打'){
-      var drugsStock = {
-        product_id:req.body.product_id,
-        stock:req.body.stock-req.body.sale_num + parseInt(req.body.sale_num_temp)
-      }
-      var drugs = DB.get("Drugs");
-      drugs.update(drugsStock,'product_id',function(err,result){
+      var stock = req.body.sale_num - parseInt(req.body.sale_num_temp);
+      var batchStock = DB.get("BatchStock");
+      var sql = "update batch_stock set batch_stock_number=batch_stock_number-"+stock+" where "+
+                "batch_stock_purchase_id='"+req.body.sales_purchase_id+"' and batch_stock_drug_id='"+req.body.product_id+"'";
+      batchStock.executeSql(sql,function(err,result){
         if(err){
-          logger.error(req.session.user[0].realname + "修改销售记录，更新库存出错" + err);
+          logger.error(req.session.user[0].realname + "销售高打品种，更新库存出错" + err);
         }
       });
     }
@@ -639,7 +629,7 @@ function updateAllotAccountDetail(req){
     bankaccountdetail.account_detail_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
   }
   bankaccountdetail.account_detail_mark = bankaccountdetail.account_detail_time+req.body.hospital_name+"销售"+
-                                          req.body.product_common_name+"回款"+req.body.sale_return_money;
+                                          req.body.product_common_name+"回积分"+req.body.sale_return_money;
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
   bankaccountdetail.flag_id = "sale_hospital_"+req.body.sale_id;
   bankaccountdetail.account_detail_create_time = new Date();
@@ -663,10 +653,6 @@ router.post("/deleteSales",function(req,res){
   var stock = parseInt(req.body.stock);
   var productId = req.body.product_id;
   var saleNum = parseInt(req.body.sale_num);
-  delete req.body.product_type;
-  delete req.body.stock;
-  delete req.body.product_id;
-  delete req.body.sale_num;
   sales.update(req.body,'sale_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "删除销售出错" + err);
@@ -676,14 +662,12 @@ router.post("/deleteSales",function(req,res){
 
   //删除完销售记录后，更新库存。
   if(productType == '高打'){
-    var drugsStock = {
-      product_id:productId,
-      stock:stock+saleNum
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
+    var batchStock = DB.get("BatchStock");
+    var sql = "update batch_stock set batch_stock_number=batch_stock_number+"+saleNum+" where "+
+              "batch_stock_purchase_id='"+req.body.sales_purchase_id+"' and batch_stock_drug_id='"+productId+"'";
+    batchStock.executeSql(sql,function(err,result){
       if(err){
-        logger.error(req.session.user[0].realname + "删除销售记录，更新库存出错" + err);
+        logger.error(req.session.user[0].realname + "删除高打品种，更新库存出错" + err);
       }
     });
   }
@@ -727,19 +711,20 @@ router.post("/getSales",function(req,res){
 function getQuerySql(req){
   //连接查询医院名称
   var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
-            "s.sale_account_name,s.sale_account_number,s.sale_account_address,"+
+            "s.sale_account_name,s.sale_account_number,s.sale_account_address,s.batch_number,s.sales_purchase_id,"+
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code "+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code ";
-  if(req.body.data.tag){
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
     sql+="left join tag_drug td on d.product_id = td.drug_id ";
   }
   sql +="left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id ";
   sql +="left join business bus on d.product_business = bus.business_id "+
         "left join hospitals h on s.hospital_id = h.hospital_id "+
+        "left join contacts c on c.contacts_id = d.contacts_id "+
         "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
         "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
@@ -788,7 +773,7 @@ function getQuerySql(req){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }
   //连接查询标签
-  if(req.body.data.tag){
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
     sql += " and td.tag_id = '"+req.body.data.tag+"'";
   }
   if(req.body.data.salesReturnFlag){

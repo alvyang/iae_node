@@ -15,12 +15,14 @@ router.get("/downloadErrorAllots",function(req,res){
   conf.name = "mysheet";
   conf.cols = [{caption:'调货日期',type:'string'
   },{caption:'产品编号',type:'string'
+  },{caption:'批号',type:'string'
+  },{caption:'该批号入库时间（高打品种必填）',type:'string'
   },{caption:'调货单价',type:'string'
   },{caption:'调货数量',type:'string'
   },{caption:'调货单位',type:'string'
   },{caption:'错误信息',type:'string'
   }];
-  var header = ['allot_time','product_code','allot_price','allot_number','hospital_name','errorMessage'];
+  var header = ['allot_time','product_code','batch_number','storage_time','allot_price','allot_number','hospital_name','errorMessage'];
   var d = JSON.parse(req.session.errorAllotsData);
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
@@ -56,13 +58,14 @@ router.post("/importAllots",function(req,res){
         }
         //指插入调货记录
         var insertAllotSql = "insert allot (allot_id,allot_time,allot_price,allot_number,allot_hospital,allot_drug_id,allot_money,"+
-                             "allot_group_id,allot_create_userid,allot_create_time,allot_return_price,allot_return_money,allot_mack_price) values";
+                             "allot_group_id,allot_create_userid,allot_create_time,allot_return_price,allot_return_money,allot_mack_price,"+
+                             "allot_purchase_id,batch_number) values";
         //更新库存sql
-        var updateStockSql = "update drugs d set d.stock = CASE d.product_id ";
-        var updateProductId = "";
+        var updateStockSql = "insert into batch_stock(batch_stock_drug_id,batch_stock_purchase_id,batch_stock_number) values ";
         //新增返款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
                             "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
+        var batchStockOject={};//记录批次库存
         for(var i = 0 ; i < sData.length;i++){
           //批量插入调货记录
           var allotId = uuid.v1();
@@ -70,19 +73,23 @@ router.post("/importAllots",function(req,res){
           insertAllotSql+="('"+allotId+"','"+sData[i].allot_time+"','"+sData[i].allot_price+"','"+sData[i].allot_number+"',"+
                           "'"+sData[i].allot_hospital+"','"+sData[i].allot_drug_id+"','"+sData[i].allot_money+"',"+
                           "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+createTime+"',"+
-                          "'"+sData[i].allot_return_price+"','"+sData[i].allot_return_money+"','"+sData[i].allot_mack_price+"'),";
+                          "'"+sData[i].allot_return_price+"','"+sData[i].allot_return_money+"','"+sData[i].allot_mack_price+"',"+
+                          "'"+sData[i].allot_purchase_id+"','"+sData[i].batch_number+"'),";
           //更新库存sql
-          var tempStock = sData[i].stock-sData[i].allot_number;
-          updateProductId += "'"+sData[i].allot_drug_id+"',";
-          updateStockSql+=" when '"+sData[i].allot_drug_id+"' then '"+tempStock+"' ";
+          var key = sData[i].allot_drug_id+"--"+sData[i].allot_purchase_id;
+          batchStockOject[key]=batchStockOject[key]?batchStockOject[key]-sData[i].allot_number:sData[i].stock-sData[i].allot_number;
           //批量插入返款流水
           bankDetailSql+="('"+uuid.v1()+"','1','"+sData[i].allot_group_id+"','allot_"+allotId+"','"+createTime+"','"+sData[i].allot_create_userid+"'),";
         };
+        for(var k in batchStockOject){
+          var id = k.split("--");
+          updateStockSql+="('"+id[0]+"','"+id[1]+"','"+batchStockOject[k]+"'),";
+        }
         //批量插入调货记录sql
         insertAllotSql = insertAllotSql.substring(0,insertAllotSql.length-1);
         //批量更新库存sql
-        updateProductId=updateProductId.substring(0,updateProductId.length-1);
-        updateStockSql += "end where d.product_id in ("+updateProductId+")";
+        updateStockSql = updateStockSql.substring(0,updateStockSql.length-1);
+        updateStockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number);";
         //批量更新返款流水sql
         bankDetailSql = bankDetailSql.substring(0,bankDetailSql.length-1);
 
@@ -108,9 +115,11 @@ router.post("/importAllots",function(req,res){
   });
 });
 //检验格式是否正确
-function verData(req,sales){
+function verData(req,data){
   var correctData=[];
   var errData=[];
+  var batchStock = data.batchStock;
+  var sales = data.allotsDrugsData;
   for(var i = 0 ;i < sales.length;i++){
     //非空验证
     var d = {};
@@ -123,8 +132,31 @@ function verData(req,sales){
     d.allot_drug_id = sales[i].product_id;
     d.allot_policy_money = sales[i].allot_policy_money;
     d.allot_policy_contact_id = sales[i].allot_policy_contact_id;
-    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code){
-      d.errorMessage = "调货日期、产品编号、调货单价、调货数量、调货单位为必填项";
+    d.batch_number = sales[i].batch_number;
+    d.product_type = sales[i].product_type;
+    d.storage_time = sales[i].storage_time;
+    d.allot_time = new Date(d.allot_time).format('yyyy-MM-dd');
+    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code||!d.batch_number){
+      d.errorMessage = "调货日期、产品编号、批号、调货单价、调货数量、调货单位为必填项";
+      errData.push(d);
+      continue;
+    }
+    if(d.product_type == "高打" && !d.storage_time){
+      d.errorMessage = "高打品种，该批号入库时间必填";
+      errData.push(d);
+      continue;
+    }
+    d.storage_time =  new Date(d.storage_time).format("yyyy-MM-dd");
+    for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
+      var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
+      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
+        d.allot_purchase_id = batchStock[j].batch_stock_purchase_id;
+        d.stock = batchStock[j].batch_stock_number;
+        break;
+      }
+    }
+    if(!d.allot_purchase_id){
+      d.errorMessage = "当前入库时间，无该批号或该批号无库存";
       errData.push(d);
       continue;
     }
@@ -155,8 +187,6 @@ function verData(req,sales){
       continue;
     }
     d.allot_mack_price = sales[i].product_mack_price;
-    d.product_type = sales[i].product_type;
-    d.stock = sales[i].stock;
     d.allot_money = util.mul(d.allot_number,d.allot_price,2);
     d.allot_policy_contact_id = sales[i].allot_policy_contact_id?sales[i].allot_policy_contact_id:"";
     d.allot_return_price = sales[i].allot_policy_money?sales[i].allot_policy_money:"";
@@ -164,7 +194,6 @@ function verData(req,sales){
     d.allot_create_userid = req.session.user[0].id;
     d.allot_return_money = d.allot_return_price?util.mul(d.allot_number,d.allot_return_price,2):"";
     d.allot_create_time = new Date().format('yyyy-MM-dd');
-    d.allot_time = new Date(d.allot_time).format('yyyy-MM-dd');
     correctData.push(d);
   }
   return {
@@ -203,6 +232,8 @@ function getAllotsData(req,allots){
               result[j].allot_price=d.allot_price;
               result[j].allot_number=d.allot_number;
               result[j].hospital_name=d.hospital_name;
+              result[j].batch_number=d.batch_number;
+              result[j].storage_time= d.storage_time;
               var temp = JSON.stringify(result[j]);
               allotsDrugsData.push(JSON.parse(temp));
             }
@@ -257,23 +288,38 @@ function getAllotsData(req,allots){
                 }
               }
             }
-            resolve(data.allotsDrugsData);
+            resolve(data);
           }
         });
       });
     }else{
-      resolve(data.allotsDrugsData);
+      resolve(data);
     }
-  });
+  }).then(data=>{//查询批次库存
+    return new Promise((resolve, reject) => {
+      var batchStock = DB.get("BatchStock");
+      var sql = "select * from batch_stock bs where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+                "and bs.batch_stock_number > 0";
+      batchStock.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "由药品id，查询批次库存出错" + err);
+        }
+        data.batchStock = result;
+        resolve(data);
+      });
+    });
+  });;
 }
 //将数组转成对象
 function arrayToObject(sales){
   return {
     allot_time:sales[0],
     product_code:sales[1],
-    allot_price:sales[2],
-    allot_number:sales[3],
-    hospital_name:sales[4]
+    batch_number:sales[2],
+    storage_time:sales[3],
+    allot_price:sales[4],
+    allot_number:sales[5],
+    hospital_name:sales[6]
   }
 }
 //新增调货记录
@@ -316,21 +362,15 @@ router.post("/saveAllot",function(req,res){
     //更新调货医院--药品 政策信息
     updateAllotPolicy(req,contactId,allotPolicyRemark);
   });
-
   //添加完调货记录后，更新库存。
-  if(productType == '高打'){
-    var drugsStock = {
-      product_id:productId,
-      stock:stock-req.body.allot_number
+  var batchStock = DB.get("BatchStock");
+  var sql = "update batch_stock set batch_stock_number=batch_stock_number-"+req.body.allot_number+" where "+
+            "batch_stock_purchase_id='"+req.body.allot_purchase_id+"' and batch_stock_drug_id='"+productId+"'";
+  batchStock.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "新增调货,更新库存出错" + err);
     }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "新增调货,更新库存出错" + err);
-      }
-    });
-  }
-
+  });
 });
 //更新调货医院--药品 政策信息
 function updateAllotPolicy(req,contactId,allotPolicyRemark){
@@ -411,18 +451,15 @@ router.post("/editAllot",function(req,res){
     });
 
     //添加完调货记录后，更新库存。
-    if(req.body.product_type == '高打'){
-      var drugsStock = {
-        product_id:req.body.product_id,
-        stock:req.body.stock-req.body.allot_number + parseInt(req.body.allot_number_temp)
+    var stock = req.body.allot_number - parseInt(req.body.allot_number_temp);
+    var batchStock = DB.get("BatchStock");
+    var sql = "update batch_stock set batch_stock_number=batch_stock_number-"+stock+" where "+
+              "batch_stock_purchase_id='"+req.body.allot_purchase_id+"' and batch_stock_drug_id='"+req.body.product_id+"'";
+    batchStock.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改调货记录，更新库存出错" + err);
       }
-      var drugs = DB.get("Drugs");
-      drugs.update(drugsStock,'product_id',function(err,result){
-        if(err){
-          logger.error(req.session.user[0].realname + "修改调货记录，更新库存出错" + err);
-        }
-      });
-    }
+    });
     //更新调货医院--药品 政策信息
     updateAllotPolicy(req,contactId,allotPolicyRemark);
     //修改调货流水信息
@@ -468,74 +505,13 @@ router.post("/deleteAllot",function(req,res){
     res.json({"code":"000000",message:null});
   });
   //添加完调货记录后，更新库存。
-  if(productType == '高打' || productType == '高打(底价)'){
-    var drugsStock = {
-      product_id:productId,
-      stock:stock+allotNumber
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "删除调货记录出错" + err);
-      }
-    });
-  }
-});
-//导出调货回款记录
-router.post("/exportAllotRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("f8037330-d802-11e8-a19c-cf0f6be47d2e") < 0){
-    res.json({"code":"111112",message:"无权限"});
-    return ;
-  }
-  req.body.data = req.body;
-  var allot = DB.get("Allot");
-  var sql = getAllotSql(req);
-  sql += " order by a.allot_time desc,a.allot_create_time desc";
-  allot.executeSql(sql,function(err,result){
+  var batchStock = DB.get("BatchStock");
+  var sql = "update batch_stock set batch_stock_number=batch_stock_number+"+allotNumber+" where "+
+            "batch_stock_purchase_id='"+req.body.allot_purchase_id+"' and batch_stock_drug_id='"+productId+"'";
+  batchStock.executeSql(sql,function(err,result){
     if(err){
-      logger.error(req.session.user[0].realname + "导出调货回款记录出错" + err);
+      logger.error(req.session.user[0].realname + "删除调货记录出错" + err);
     }
-    var conf ={};
-    conf.stylesXmlFile = "./utils/styles.xml";
-    conf.name = "mysheet";
-    conf.cols = [{
-        caption:'调货时间',
-        type:'string',
-        beforeCellWrite:function(row, cellData){
-          return new Date(cellData).format('yyyy-MM-dd');
-        }
-    },{caption:'调货单位',type:'string'
-    },{caption:'产品编码',type:'string'
-    },{caption:'产品名称',type:'string'
-    },{caption:'产品规格',type:'string'
-    },{caption:'生产厂家',type:'string'
-    },{caption:'单位',type:'string'
-    },{caption:'商业',type:'string'
-    },{caption:'调货数量',type:'number'
-    },{caption:'中标价',type:'number'
-    },{caption:'调货金额',type:'number'
-    },{caption:'回款金额',type:'number'
-    },{caption:'回款总额',type:'number'
-    },{
-      caption:'回款时间',
-      type:'string',
-      beforeCellWrite:function(row, cellData){
-        if(cellData){
-          return new Date(cellData).format('yyyy-MM-dd');
-        }else{
-          return "";
-        }
-      }
-    },{caption:'回款备注',type:'string'
-    }];
-    var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money',
-                  'allot_return_price','allot_return_money','allot_return_time','allot_policy_remark'];
-    conf.rows = util.formatExcel(header,result);
-    var result = nodeExcel.execute(conf);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
-    res.end(result, 'binary');
   });
 });
 //导出调货记录
@@ -607,7 +583,6 @@ router.post("/getAllot",function(req,res){
           }
           req.body.page.data = result;
           logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
-          console.log(noDate.getTime()-new Date().getTime());
           res.json({"code":"000000",message:req.body.page});
         });
       });
@@ -621,7 +596,8 @@ router.post("/getAllot",function(req,res){
 function getAllotSql(req){
   //连接查询调货记录和医院信息
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
-            "a.allot_account_name,a.allot_account_number,a.allot_account_address,"+
+            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,"+
+            "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
             "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id,c.contacts_name,bus.business_name "+

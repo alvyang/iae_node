@@ -324,8 +324,9 @@ router.post("/saveDrugs",function(req,res){
 function updateQuoteNum(data1,data2,req,drugId){
   var addTags = util.getArrayDuplicateRemoval(data1,data2);
   var deleteTags = util.getArrayDuplicateRemoval(data2,data1).join(",");
-  if(deleteTags){
-    var deleteSql = "update tag_drug set tag_drug_deleta_flag='1' where drug_id = '"+drugId+"' and tag_id in ("+deleteTags+")";
+  deleteTags.replace(",","','");
+  if(deleteTags || deleteTags == '1'){
+    var deleteSql = "update tag_drug set tag_drug_deleta_flag='1' where drug_id = '"+drugId+"' and tag_id in ('"+deleteTags+"')";
     var tag = DB.get("Tag");
     tag.executeSql(deleteSql,function(err,result){
       if(err){
@@ -442,7 +443,7 @@ router.post("/exportDrugs",function(req,res){
     },{caption:'商业',type:'string'
     },{caption:'采购员',type:'string'
     },{caption:'品种类型',type:'string'
-    },{caption:'返费金额',type:'number'
+    },{caption:'积分',type:'number'
     },{caption:'联系人',type:'string'
     },{caption:'医保类型',type:'string'
     },{caption:'采购方式',type:'string'
@@ -496,30 +497,7 @@ router.post("/getDrugs",function(req,res){
     });
   });
 });
-//获取药品库存  以及当前备货量
-router.post("/getDrugsStock",function(req,res){
-  var drugs = DB.get("Drugs");
-  var sql = getDrugsSql(req);
-  var purchaseSql = "select pur.drug_id,sum(pur.purchase_number) purnum from purchase pur where "+
-                    "pur.delete_flag = '0' and pur.group_id='"+req.session.user[0].group_id+"' and pur.storage_time is null "+
-                    "group by pur.drug_id";
-  sql = "select sbusp.*,IFNULL(purSql.purnum, 0) pnum from ("+sql+") sbusp left join ("+purchaseSql+") purSql on sbusp.product_id = purSql.drug_id"
-  drugs.countBySql(sql,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "查询药品列表，查询总数出错" + err);
-    }
-    req.body.page.totalCount = result;
-    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by sbusp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
-    drugs.executeSql(sql,function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
-      }
-      req.body.page.data = result;
-      res.json({"code":"000000",message:req.body.page});
-    });
-  });
-});
+
 function getDrugsSql(req){
   var salesSql = "select * from drugs ds left join (select distinct s.product_code as readonly from sales s where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"') sr "+
                  "on ds.product_code = sr.readonly where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
@@ -562,7 +540,7 @@ function getDrugsSql(req){
                "where td.tag_drug_deleta_flag = '0' and td.tag_drug_group_id = '"+req.session.user[0].group_id+"' "+
                "group by td.drug_id ";
   sql = "select sbust.*,tag.tag_ids,tag.tag_names from ("+sql+") sbust left join ("+tagSql+") tag on sbust.product_id = tag.drug_id ";
-  if(req.body.data.tag){
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
      sql += "where tag.tag_ids like '%"+req.body.data.tag+",%'";
   }
   sql = "select sbus.*,bus.business_name from ("+sql+") sbus left join business bus on sbus.product_business = bus.business_id ";

@@ -4,7 +4,157 @@ var logger = require('../utils/logger');
 var nodeExcel = require('excel-export');
 var util= require('../utils/global_util.js');
 var router = express.Router();
+//导出调货回款记录
+router.post("/exportAllotRefund",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("f8037330-d802-11e8-a19c-cf0f6be47d2e") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  req.body.data = req.body;
+  var allot = DB.get("Allot");
+  var sql = getAllotSql(req);
+  sql += " order by a.allot_time desc,a.allot_create_time desc";
+  allot.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出调货回款记录出错" + err);
+    }
+    for(var i = 0 ; i< result.length;i++){
+      if(result[i].refunds_real_time && result[i].refunds_real_money){
+         result[i].realMoney = util.div(result[i].refunds_real_money,result[i].purchase_number,2);
+      }else{
+         result[i].realMoney = 0;
+      }
+    }
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{
+        caption:'调货时间',
+        type:'string',
+        beforeCellWrite:function(row, cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }
+    },{caption:'调货单位',type:'string'
+    },{caption:'产品编码',type:'string'
+    },{caption:'产品名称',type:'string'
+    },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
+    },{caption:'单位',type:'string'
+    },{caption:'商业',type:'string'
+    },{caption:'调货数量',type:'number'
+    },{caption:'中标价',type:'number'
+    },{caption:'调货金额',type:'number'
+    },{caption:'上游实返积分',type:'number'
+    },{caption:'政策积分',type:'number'
+    },{caption:'应回积分',type:'number'
+    },{
+      caption:'回积分时间',
+      type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
+    },{caption:'回积分备注',type:'string'
+    }];
+    var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
+                  'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
+                  'allot_return_price','allot_return_money','allot_return_time','allot_policy_remark'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
+//获取调货列表
+router.post("/getAllotReturnMoney",function(req,res){
+  var noDate = new Date();
+  if(req.session.user[0].authority_code.indexOf("61") > 0  || req.session.user[0].authority_code.indexOf("130627a0-cb9b-11e8-81ff-23b7b224f706") > 0){
+    var allot = DB.get("Allot");
+    var sql = getAllotSql(req);
+    allot.countBySql(sql,function(err,result){//查询调货总数
+      if(err){
+        logger.error(req.session.user[0].realname + "查询调货列表，查询调货总数出错" + err);
+      }
+      var numSql = "select sum(num.allot_return_money) as returnMoney,sum(num.allot_money) as allotMoney from ( " + sql + " ) num";
+      allot.executeSql(numSql,function(err,m){//查询调货应返金额
+        if(err){
+          logger.error(req.session.user[0].realname + "查询调货列表，计算返款金额出错" + err);
+        }
+        req.body.page.returnMoney = m && m[0].returnMoney?m[0].returnMoney.toFixed(2):0;
+        req.body.page.allotMoney = m && m[0].allotMoney?m[0].allotMoney.toFixed(2):0;
+        req.body.page.totalCount = result;
+        req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+        sql += " order by a.allot_time desc,a.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+        allot.executeSql(sql,function(err,result){
+          if(err){
+            logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
+          }
+          req.body.page.data = result;
+          logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
+          res.json({"code":"000000",message:req.body.page});
+        });
+      });
 
+    });
+  }else{
+    res.json({"code":"111112",message:"无权限"});
+  }
+
+});
+function getAllotSql(req){
+  //连接查询调货记录和医院信息
+  var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
+            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,"+
+            "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
+            "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
+            "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
+            "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id,c.contacts_name,bus.business_name,"+
+            "r.refunds_real_time,r.refunds_real_money,p.purchase_number "+
+            "from allot a "+
+            "left join drugs d on a.allot_drug_id = d.product_id "+
+            "left join allot_policy ap on a.allot_drug_id = ap.allot_drug_id and a.allot_hospital = ap.allot_hospital_id "+
+            "left join purchase p on p.purchase_id = a.allot_purchase_id "+//取上游备货数量，计算实返金额
+            "left join refunds r on r.purchases_id = a.allot_purchase_id  "+
+            "left join contacts c on ap.allot_policy_contact_id = c.contacts_id "+
+            "left join hospitals h on a.allot_hospital = h.hospital_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
+  //数据权限
+  if(req.session.user[0].data_authority == "2"){
+    sql += "and a.allot_create_userid = '"+req.session.user[0].id+"'";
+  }
+  if(req.body.data.product_makesmakers){
+    sql += "and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'";
+  }
+  if(req.body.data.productCommonName){
+    sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
+  }
+  if(req.body.data.allot_hospital){
+    sql += " and a.allot_hospital = '"+req.body.data.allot_hospital+"'"
+  }
+  if(req.body.data.product_code){
+    sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
+  if(req.body.data.allot_time){
+    var start = new Date(req.body.data.allot_time[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.allot_time[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(a.allot_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_time,'%Y-%m-%d') <= '"+end+"'";
+  }
+  if(req.body.data.allot_return_flag){
+    sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
+  }
+  if(req.body.data.contactId){
+    sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";
+  }
+  return sql;
+}
 //调货政策复制
 router.post("/copyAllotPolicy",function(req,res){
   if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
@@ -73,9 +223,9 @@ router.post("/exportAllotPolicy",function(req,res){
     },{caption:'单位',type:'string'
     },{caption:'商业',type:'string'
     },{caption:'中标价',type:'number'
-    },{caption:'厂家返利',type:'string'
-    },{caption:'调货政策',type:'string'
-    },{caption:'政策备注',type:'string'
+    },{caption:'积分',type:'string'
+    },{caption:'调货积分',type:'string'
+    },{caption:'积分备注',type:'string'
     },{caption:'业务员',type:'string'
     }];
     var header = ['product_code', 'product_common_name', 'product_specifications',

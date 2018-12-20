@@ -42,7 +42,7 @@ router.post("/editUsers",function(req,res){
   }
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
-	req.body.group_id = req.session.user[0].group_id;
+	req.body.group_id?req.body.group_id:req.session.user[0].group_id;
   if(!req.body.password){
     delete req.body.password;
   }else{
@@ -96,7 +96,15 @@ router.post("/getUsers",function(req,res){
     return ;
   }
   var user = DB.get("Users");
-  var sql = "select u.*,r.role_name from users u left join role r on u.role_id = r.role_id where u.group_id = '"+req.session.user[0].group_id+"' and u.delete_flag = '0'";
+  var sql = "select u.*,r.role_name,g.group_code from users u left join role r on u.role_id = r.role_id "+
+            " left join groups g on g.group_id = r.group_id "+
+            " where u.delete_flag = '0' ";
+  if(req.session.user[0].username != 'admin'){
+    sql+=" and u.group_id = '"+req.session.user[0].group_id+"'  "
+  }
+  if(req.body.data.groupId){
+    sql+=" and u.group_id = '"+req.body.data.groupId+"'  "
+  }
   if(req.body.data.username){
     sql += " and u.username like '%"+req.body.data.username+"%'";
   }

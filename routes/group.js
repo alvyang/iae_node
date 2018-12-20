@@ -92,4 +92,17 @@ router.post("/getGroups",function(req,res){
     });
   });
 });
+router.post("/getAllGroups",function(req,res){
+  var group = DB.get("Groups");
+  var sql = "select * from groups g where g.delete_flag = '0' ";
+  if(req.session.user[0].username != 'admin'){
+    sql += " and g.group_id = '"+req.session.user[0].group_id+"'";
+  }
+  group.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询所有用户组出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
 module.exports = router;

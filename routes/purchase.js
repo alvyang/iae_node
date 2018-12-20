@@ -45,22 +45,26 @@ router.post("/savePurchases",function(req,res){
     }
     //新增高打返款记录
     saveRefundsPurchase(req,productReturnMoney,result,returnTime);
+    updateStatchStock(req,result);
     res.json({"code":"000000",message:result});
   });
 
+
+});
+function updateStatchStock(req,result){
   if(req.body.storage_time){//入库更新库存
-    var drugsStock = {
-      product_id:req.body.drug_id,
-      stock:stock+parseInt(req.body.purchase_number)
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
+    var batchStock = DB.get("BatchStock");
+    //联合主键，更新库存
+    var stockSql = "insert into batch_stock values "+
+                   "('"+req.body.drug_id+"','"+result+"','"+req.body.purchase_number+"','"+req.body.storage_time+"','"+req.body.batch_number+"','0','"+req.session.user[0].group_id+"')";
+    stockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number),batch_number=VALUES(batch_number),batch_stock_time=VALUES(batch_stock_time);"
+    batchStock.executeSql(stockSql,function(err,result){
       if(err){
-        logger.error(req.session.user[0].realname + "新增采购记录，更新库存出错" + err);
+        logger.error(req.session.user[0].realname + "更新批次库存出错" + err);
       }
     });
   }
-});
+}
 //新增 返款记录
 function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
   //新增返款记录  并保存应返金额
@@ -128,7 +132,8 @@ router.post("/editPurchase",function(req,res){
 		send_out_time:req.body.send_out_time,
 		storage_time:req.body.storage_time,
 		make_money_time:req.body.make_money_time,
-		remark:req.body.remark
+		remark:req.body.remark,
+    batch_number:req.body.batch_number,
   }
   purchase.update(params,'purchase_id',function(err,result){
     if(err){
@@ -142,21 +147,32 @@ router.post("/editPurchase",function(req,res){
   if(req.body.storage_time || req.body.storage_time_temp){//入库更新库存
     var stock = 0;
     if(req.body.storage_time_temp && req.body.storage_time){
-      stock = parseInt(req.body.stock)-parseInt(req.body.purchase_number_temp)+parseInt(req.body.purchase_number);
+      stock = -parseInt(req.body.purchase_number_temp)+parseInt(req.body.purchase_number);
     }else if(req.body.storage_time_temp && !req.body.storage_time){
-      stock = parseInt(req.body.stock)-parseInt(req.body.purchase_number);
+      stock = -parseInt(req.body.purchase_number);
     }else if(!req.body.storage_time_temp && req.body.storage_time){
-      stock = parseInt(req.body.stock)+parseInt(req.body.purchase_number);
+      stock = parseInt(req.body.purchase_number);
     }
-    var drugsStock = {
-      product_id:req.body.product_id,
-      stock:stock
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
+
+    var batchStock = DB.get("BatchStock");
+    var  getStock = "select bs.batch_stock_number from batch_stock bs where "+
+                    "bs.batch_stock_purchase_id = '"+req.body.purchase_id+"' and bs.batch_stock_drug_id = '"+req.body.product_id+"' "+
+                    "and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' and bs.tag_type_delete_flag = '0' ";
+    batchStock.executeSql(getStock,function(err,result){//查询现有库存
       if(err){
-        logger.error(req.session.user[0].realname + "修改采购记录，更新库存出错" + err);
+        logger.error(req.session.user[0].realname + "更新批次库存，查询现库存出错" + err);
       }
+      var nowStock = result.length>0?result[0].batch_stock_number:0;
+      stock = parseInt(stock)+ parseInt(nowStock);
+      //联合主键，更新库存
+      var stockSql = "insert into batch_stock values "+
+                     "('"+req.body.product_id+"','"+req.body.purchase_id+"','"+stock+"','"+req.body.storage_time+"','"+req.body.batch_number+"','0','"+req.session.user[0].group_id+"')";
+      stockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number),batch_number=VALUES(batch_number),batch_stock_time=VALUES(batch_stock_time);"
+      batchStock.executeSql(stockSql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "更新批次库存出错" + err);
+        }
+      });
     });
   }
 });
@@ -209,14 +225,11 @@ router.post("/deletePurchases",function(req,res){
   });
 
   if(storageTime){//入库更新库存
-    var drugsStock = {
-      product_id:productId,
-      stock:stock-purchaseNumber
-    }
-    var drugs = DB.get("Drugs");
-    drugs.update(drugsStock,'product_id',function(err,result){
+    var batchStock = DB.get("BatchStock");
+    var sql = "update batch_stock set tag_type_delete_flag = '1' where batch_stock_drug_id = '"+productId+"' and batch_stock_purchase_id = '"+req.body.purchase_id+"' ";
+    batchStock.executeSql(sql,function(err,result){
       if(err){
-        logger.error(req.session.user[0].realname + "删除采购记录，更新库存出错" + err);
+        logger.error(req.session.user[0].realname + "删除采购记录，更新批次库存出错" + err);
       }
     });
   }
@@ -301,7 +314,7 @@ router.post("/getPurchases",function(req,res){
   });
 });
 function getPurchasesSql(req){
-  var sql = "select p.purchase_id,p.time,p.purchase_number,p.purchase_money,p.purchase_mack_price,p.purchase_price,"+
+  var sql = "select p.purchase_id,p.time,p.purchase_number,p.purchase_money,p.purchase_mack_price,p.purchase_price,p.batch_number,"+
             "p.puchase_gross_rate,p.make_money_time,p.send_out_time,p.storage_time,p.remark,bus.business_name,c.contacts_name,"+
             "d.product_id,d.stock,d.product_code,d.product_type,d.buyer,d.product_common_name,"+
             "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,"+

@@ -1,5 +1,10 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var nodeExcel = require('excel-export');
+var util= require('../utils/global_util.js');
+var parse = require('csv-parse');
+var XLSX = require("xlsx");
+var uuid=require("node-uuid");
 var router = express.Router();
 
 //新增返款记录
@@ -130,6 +135,89 @@ router.post("/editRefunds",function(req,res){
     return ;
   }
 });
+//导出高打返款记录
+router.post("/exportRefundPurchase",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("106") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  req.body.data = req.body;
+  var refunds = DB.get("Refunds");
+  var sql = getPurchasesSql(req);
+  sql += " order by p.time desc,p.purchase_create_time desc  ";
+  refunds.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出高打返款记录出错" + err);
+    }
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'产品编码',type:'string'
+    },{caption:'产品名称',type:'string'
+    },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
+    },{caption:'单位',type:'string'
+    },{caption:'包装',type:'string'
+    },{caption:'中标价',type:'number'
+    },{caption:'购入数量',type:'number'
+    },{caption:'购入金额',type:'number'
+    },{caption:'商业',type:'string'
+    },{caption:'联系人',type:'string'
+    },{
+      caption:'打款日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{
+      caption:'发货日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{
+      caption:'应返日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{caption:'积分',type:'number'
+    },{caption:'应返积分',type:'number'
+    },{
+      caption:'实返日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{caption:'实返积分',type:'number'
+    },{caption:'返积分人',type:'string'
+    },{caption:'收积分账号',type:'string'
+    },{caption:'备注',type:'string'
+    }];
+    var header = ['product_code', 'product_common_name', 'product_specifications',
+                  'product_makesmakers','product_unit','product_packing','purchase_price','purchase_number',
+                  'purchase_money','business_name','contacts_name','make_money_time','send_out_time','refunds_should_time',
+                  'product_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
+                  'account_number','refunds_remark'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
 //获取高打返款列表
 router.post("/getPurchaseRefunds",function(req,res){
   var noDate = new Date();
@@ -232,6 +320,81 @@ function getPurchasesSql(req){
   }
   return sql;
 }
+//导出佣金返款记录
+router.post("/exportRefundSale",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("106") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  req.body.data = req.body;
+  var refunds = DB.get("Refunds");
+  var sql = getQuerySql(req);
+  sql += " order by s.bill_date desc,s.sale_create_time desc ";
+  refunds.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出高打返款记录出错" + err);
+    }
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'产品编码',type:'string'
+    },{caption:'产品名称',type:'string'
+    },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
+    },{caption:'单位',type:'string'
+    },{caption:'包装',type:'string'
+    },{caption:'中标价',type:'number'
+    },{caption:'销售数量',type:'number'
+    },{caption:'销售金额',type:'number'
+    },{caption:'商业',type:'string'
+    },{caption:'联系人',type:'string'
+    },{caption:'销往单位',type:'string'
+    },{
+      caption:'销售日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{
+      caption:'应返日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{caption:'积分',type:'number'
+    },{caption:'应返积分',type:'number'
+    },{
+      caption:'实返日期',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format("yyyy-MM-dd");
+        }else{
+          return "";
+        }
+      }
+    },{caption:'实返积分',type:'number'
+    },{caption:'返积分人',type:'string'
+    },{caption:'收积分账号',type:'string'
+    },{caption:'备注',type:'string'
+    }];
+    var header = ['product_code', 'product_common_name', 'product_specifications',
+                  'product_makesmakers','product_unit','product_packing','sale_price','sale_num',
+                  'sale_money','business_name','contacts_name','hospital_name','bill_date','refunds_should_time',
+                  'product_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
+                  'account_number','refunds_remark'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
 //获取返款
 router.post("/getSaleRefunds",function(req,res){
   var noDate = new Date();

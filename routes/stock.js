@@ -3,6 +3,123 @@ var util= require('../utils/global_util.js');
 var logger = require('../utils/logger');
 var router = express.Router();
 
+//获取药品的所有，批次库存
+router.post("/getBatchStockByDrugId",function(req,res){
+  var batchStock = DB.get("BatchStock");
+  var sql = "select * from batch_stock bs where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+             "and bs.batch_stock_drug_id = '"+req.body.productId+"' and bs.batch_stock_number > 0";
+  batchStock.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "由药品id，查询批次库存出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
+
+//编辑菜单
+router.post("/deleteBatchStock",function(req,res){
+  var batchStock = DB.get("BatchStock");
+  var sql = "update batch_stock set tag_type_delete_flag='1' where "+
+            "batch_stock_purchase_id='"+req.body.batch_stock_purchase_id+"' and batch_stock_drug_id='"+req.body.batch_stock_drug_id+"'";
+  batchStock.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "删除批次库存出错" + err);
+    }
+    res.json({"code":"000000",message:null});
+  });
+});
+//编辑菜单
+router.post("/editBatchStock",function(req,res){
+  var batchStock = DB.get("BatchStock");
+  var sql = "update batch_stock set batch_stock_number='"+req.body.batch_stock_number+"' where "+
+            "batch_stock_purchase_id='"+req.body.batch_stock_purchase_id+"' and batch_stock_drug_id='"+req.body.batch_stock_drug_id+"'";
+  batchStock.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改批次库存出错" + err);
+    }
+    res.json({"code":"000000",message:null});
+  });
+});
+
+//获取药品列表
+router.post("/getDrugsStockList",function(req,res){
+  // if(req.session.user[0].authority_code.indexOf("65") < 0){
+  //   res.json({"code":"111112",message:"无权限"});
+  //   return ;
+  // }
+  var batchStock = DB.get("BatchStock");
+  var sql = "select * from batch_stock bs where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+            "and bs.batch_stock_drug_id = '"+req.body.data.drug_id+"'";
+  batchStock.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询批次库存列表，查询总数出错" + err);
+    }
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by bs.batch_stock_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    batchStock.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询批次库存列表出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
+  });
+});
+
+//获取药品库存  以及当前备货量
+router.post("/getDrugsStock",function(req,res){
+  var drugs = DB.get("Drugs");
+  var sql = getDrugsSql(req);
+  var purchaseSql = "select pur.drug_id,sum(pur.purchase_number) purnum from purchase pur where "+
+                    "pur.delete_flag = '0' and pur.group_id='"+req.session.user[0].group_id+"' and pur.storage_time is null "+
+                    "group by pur.drug_id";
+  sql = "select sbusp.*,IFNULL(purSql.purnum, 0) pnum from ("+sql+") sbusp left join ("+purchaseSql+") purSql on sbusp.product_id = purSql.drug_id"
+  drugs.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询药品列表，查询总数出错" + err);
+    }
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by sbusp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    drugs.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询药品列表出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
+  });
+});
+function getDrugsSql(req){
+  var salesSql = "select * from drugs ds where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
+  var sql = "select d.*,c.contacts_name from ("+salesSql+") d left join contacts c on d.contacts_id = c.contacts_id where 1=1";
+  if(req.body.data.productCommonName){
+    sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
+  }
+  if(req.body.data.product_code){
+    sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
+  if(req.body.data.product_type){
+    var type = req.body.data.product_type;
+    if(typeof type == 'object'){
+      var t = type.join(",").replace(/,/g,"','");
+      sql += " and d.product_type in ('"+t+"')"
+    }else{
+      sql += " and d.product_type in ('"+type+"')"
+    }
+  }
+  if(req.body.data.product_distribution_flag){
+    sql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"'";
+  }
+  var stockSql = "select sum(bs.batch_stock_number) batch_stock_number,bs.batch_stock_drug_id from batch_stock bs where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' group by bs.batch_stock_drug_id " ;
+  var sql = "select bsd.*,IFNULL(stockSql.batch_stock_number, 0) batch_stock_number from ("+sql+") bsd left join ("+stockSql+") stockSql on bsd.product_id = stockSql.batch_stock_drug_id "
+  sql = "select sbus.*,bus.business_name from ("+sql+") sbus left join business bus on sbus.product_business = bus.business_id ";
+  return sql;
+}
 //编辑菜单
 router.post("/editStock",function(req,res){
   // if(req.session.user[0].authority_code.indexOf("63") < 0){
