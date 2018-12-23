@@ -164,8 +164,13 @@ function verData(req,data){
     d.product_type = sales[i].product_type;
     d.storage_time = sales[i].storage_time;
     d.bill_date = new Date(d.bill_date).format('yyyy-MM-dd');
-    if(!d.bill_date || !d.sale_price ||!d.sale_num ||!d.hospital_name ||!d.product_code||!d.sale_type||!d.batch_number){
-      d.errorMessage = "销售日期、产品编号、销售单价、销售数量、批号、销往单位、销售类型为必填项";
+    if(!d.bill_date || !d.sale_price ||!d.sale_num ||!d.hospital_name ||!d.product_code||!d.sale_type){
+      d.errorMessage = "销售日期、产品编号、销售单价、销售数量、销往单位、销售类型为必填项";
+      errData.push(d);
+      continue;
+    }
+    if(d.product_type == "高打" && !d.batch_number){
+      d.errorMessage = "高打品种，批号必填";
       errData.push(d);
       continue;
     }
