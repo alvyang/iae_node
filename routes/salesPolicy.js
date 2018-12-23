@@ -170,6 +170,11 @@ function getQuerySql(req){
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
   }
+  if(req.body.data.salesReturnTime){
+    var start = new Date(req.body.data.salesReturnTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.salesReturnTime[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(s.sale_return_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.sale_return_time,'%Y-%m-%d') <= '"+end+"'";
+  }
   if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }
@@ -203,6 +208,38 @@ router.post("/copySalesPolicy",function(req,res){
       }
       res.json({"code":"000000",message:""});
     });
+
+
+    var getSalesSql = "select s.*,d.product_id from sales s left join drugs d on d.product_code = s.product_code "+
+                      "where s.group_id = '"+req.session.user[0].group_id+"' "+
+                      "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+                      "and s.delete_flag = '0' and (s.sale_account_id is null or s.sale_account_id = '' ) "+
+                      "and s.hospital_id = '"+req.body.hospital_id_copy+"'";
+    salePolicy.executeSql(getSalesSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
+      if(err){
+        logger.error(req.session.user[0].realname + "更新政策前，查询要更新的销售记录更新出错" + err);
+      }
+      var salesHospital = "insert into sales (sale_id,sale_return_price,sale_return_money) values "
+      var updateFlag = false;
+      for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
+        for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+          if(d[m].sale_drug_id == result[j].product_id){
+            updateFlag=true;
+            var t = util.mul(d[m].sale_policy_money,result[j].sale_num,2);
+            salesHospital+="('"+result[j].sale_id+"','"+d[m].sale_policy_money+"','"+t+"'),";
+          }
+        }
+      }
+      if(updateFlag){//判断是否更新
+        salesHospital = salesHospital.substring(0,salesHospital.length-1);
+        salesHospital +=" on duplicate key update sale_return_price=values(sale_return_price),sale_return_money=values(sale_return_money)";
+        salePolicy.executeSql(salesHospital,function(err,result){//更新记录
+          if(err){
+            logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录更新出错" + err);
+          }
+        });
+      }
+    });
   });
 });
 //修改销售政策
@@ -220,6 +257,15 @@ router.post("/editSalesPolicy",function(req,res){
       logger.error(req.session.user[0].realname + "更新销售医院药品政策，出错" + err);
     }
     res.json({"code":"000000",message:""});
+  });
+
+  var saleHospital = "update sales set sale_return_price = '"+req.body.sale_policy_money+"',sale_return_money=sale_num*"+req.body.sale_policy_money+" "+
+                      "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+req.body.sale_hospital_id+"' "+
+                      "and product_code = '"+req.body.product_code+"' and (sale_account_id is null or sale_account_id = '') ";
+  salePolicy.executeSql(saleHospital,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
+    }
   });
 });
 //导出

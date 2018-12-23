@@ -38,38 +38,69 @@ router.post("/getBuninessCommission",function(req,res){
   var sales = DB.get("Sales");
   //拼接sql
   var sql = getBusinessCommissionSql(req);
-  sales.countBySql(sql.sql,function(err,result){
+
+  sales.executeSql(sql.sql,function(err,result){
     if(err){
-      logger.error(req.session.user[0].realname + "查询商业提成，查询总数出错" + err);
+      logger.error(req.session.user[0].realname + "查询商业提成出错" + err);
     }
-    req.body.page.totalCount = result;
-    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql.sql += " order by s.bd desc";
-    sales.executeSql(sql.sql,function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "查询商业提成出错" + err);
+    getDayCommissionData(req,sql.daySql).then(dayCommission=>{
+      var temp = formatCommissionData(result,dayCommission);
+      if(req.body.data.startTime){
+        var sd = new Date(req.body.data.startTime).format("yyyy-MM");
+        sd = new Date(sd);
+        for(var i = 0 ; i < temp.length;i++){
+          var bd = new Date(temp[i].bd);
+          if(bd < sd){
+            temp.splice(i,1);
+            i--;
+          }
+        }
       }
-      getDayCommissionData(req,sql.daySql).then(dayCommission=>{
-        var temp = formatCommissionData(result,dayCommission);
-        req.body.page.data = temp.data;
-        req.body.page.account = temp.account;
-        res.json({"code":"000000",message:req.body.page});
-      });
+      if(req.body.data.endTime){
+        var ed = new Date(req.body.data.endTime).format("yyyy-MM");
+        ed = new Date(ed);
+        for(var i = 0 ; i < temp.length ; i++){
+          var bd = new Date(temp[i].bd);
+          if(bd > ed){
+            temp.splice(i,1);
+            i--;
+          }
+        }
+      }
+      var account = {
+        smAccount:0,
+        rgpAccount:0,
+        rgptAccount:0,
+        profitAccount:0,
+        dayAvgprofitAccount:0
+      };
+      for(var i = 0 ; i < temp.length;i++){
+        account.smAccount+=temp[i].sm;
+        account.rgpAccount+=temp[i].rgp;
+        account.rgptAccount+=temp[i].rgpt;
+        account.profitAccount+=temp[i].profit;
+        account.dayAvgprofitAccount+=temp[i].dayAvgprofit;
+      }
+      account.smAccount=Math.round(account.smAccount*100)/100;
+      account.rgpAccount=Math.round(account.rgpAccount*100)/100;
+      account.rgptAccount=Math.round(account.rgptAccount*100)/100;
+      account.profitAccount=Math.round(account.profitAccount*100)/100;
+      account.dayAvgprofitAccount=Math.round(account.dayAvgprofitAccount*100)/100;
+      req.body.page.data = temp;
+      req.body.page.account = account;
+      req.body.page.totalCount = temp.length;
+      req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+      res.json({"code":"000000",message:req.body.page});
     });
   });
+
+
+
 });
 function getBusinessCommissionSql(req){
   //连接查询销售表和商品表 用于取药品
   var sql = "select sd.*,d.product_business from sales sd left join drugs d on sd.product_code = d.product_code "+
             "where sd.delete_flag = '0' and sd.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag='0' ";
-  if(req.body.data.startTime){
-    req.body.data.startTime = new Date(req.body.data.startTime).format('yyyy-MM');
-    sql += " and DATE_FORMAT(sd.bill_date,'%Y-%m') >= '"+req.body.data.startTime+"'";
-  }
-  if(req.body.data.endTime){
-    req.body.data.endTime = new Date(req.body.data.endTime).format('yyyy-MM');
-    sql += " and DATE_FORMAT(sd.bill_date,'%Y-%m') <= '"+req.body.data.endTime+"'";
-  }
   if(req.body.data.business){
     sql += " and d.product_business = '"+req.body.data.business+"' ";
   }
@@ -139,7 +170,7 @@ function getDayCommissionData(req,sql){
  */
 function formatDayCommissionData(daySale,hospitalsReturn){
   var dayCommission={};//计算统计后的数据，对象
-  for(var i = 0 ; i < daySale.length ;i++){
+  for(var i = 0 ; i < daySale.length ;i++){ //计算日均销售额
     var billDate = new Date(daySale[i].billDate);//销售日期
     var lastDay = util.getLastDateOfMonth(billDate.getFullYear(),billDate.getMonth());//销售日，最后日期
     var billDateDay = parseInt(lastDay.format("yyyy-MM-dd").split("-")[2]);//销售日当月天数
@@ -149,12 +180,13 @@ function formatDayCommissionData(daySale,hospitalsReturn){
     }
     var key = billDate.format("yyyy-MM")+"_"+daySale[i].hospital_id+"_"+daySale[i].product_business;
     dayCommission[key]=dayCommission[key]?dayCommission[key]:0;
+    //当天销售额  除 当月天数billDateDay  乘  当月剩余天数intDay
     dayCommission[key]+=util.mul(util.div(daySale[i].sm,billDateDay,6),intDay,4);
   }
   for(var i in dayCommission){
     var key = i.split("_");
     var returnMoney = 0;
-    for(var j = 0 ; j < hospitalsReturn.length ;j++){
+    for(var j = 0 ; j < hospitalsReturn.length ;j++){//医院回款，按日均算
       if(key[1] == hospitalsReturn[j].return_money_hospital &&
          key[2] == hospitalsReturn[j].return_money_business &&
          key[0] == new Date(hospitalsReturn[j].return_money_time).format("yyyy-MM")){
@@ -166,7 +198,9 @@ function formatDayCommissionData(daySale,hospitalsReturn){
            intDay--;
          }
          returnMoney +=parseFloat(hospitalsReturn[j].return_money);
+         //医院回款  除  当月天数billDateDay  乘   当月剩余天数
          var temp = util.mul(util.div(hospitalsReturn[j].return_money,billDateDay,6),intDay,4);//回款月均
+         //月平均销售 - 月回款平均数  =  当月平均应还账款
          dayCommission[i] = util.sub(dayCommission[i],temp,2);
       }
     }
@@ -179,25 +213,19 @@ function formatCommissionData(data,dayCommission){
   var sumMoney = {};
   var mouthGap = {};
   var l = data.length-1;
-  var account = {
-    smAccount:0,
-    rgpAccount:0,
-    rgptAccount:0,
-    profitAccount:0,
-    dayAvgprofitAccount:0
-  };
   for(var i = l ; i >= 0 ;i--){
     var temp = {};
     //四舍五入金额 销售额、真实毛利、真实毛利（不含税） 计算
     temp.sm = Math.round(data[i].sm*100)/100;
     //真实毛利
     temp.rgp = Math.round(data[i].rgp*100)/100;
-    //真实毛利率
+    //真实毛利率   真实毛利  除  销售额
     temp.rgpPercent = Math.round(util.div(data[i].rgp,data[i].sm,4)*10000)/100;
     //真实毛利不含税
     temp.rgpt = Math.round(data[i].rgpt*100)/100;
-    //真实毛利不含税率
+    //真实毛利不含税率    真实毛利不含税    除   销售额
     temp.rgptPercent = Math.round(util.div(data[i].rgpt,data[i].sm,4)*10000)/100;
+    //以下两条语句，查看是否特别指定个某月的，商业成本率。没有指定，则取默认的
     temp.hb_fixed_rate = data[i].commission_fixed_rate?data[i].commission_fixed_rate:data[i].hb_fixed_rate;
     temp.hb_floating_rate = data[i].commission_floating_rate?data[i].commission_floating_rate:data[i].hb_floating_rate;
     //计算当月欠款金额
@@ -231,20 +259,8 @@ function formatCommissionData(data,dayCommission){
     //商务提成，按日均算
     temp.dayAvgprofitCoefficient = Math.round(temp.dayAvgprofit/data[i].sm*10000)/100;
     Object.assign(data[i],temp);
-    account.smAccount+=data[i].sm;
-    account.rgpAccount+=data[i].rgp;
-    account.rgptAccount+=data[i].rgpt;
-    account.profitAccount+=data[i].profit;
-    account.dayAvgprofitAccount+=data[i].dayAvgprofit;
   }
-  account.smAccount=Math.round(account.smAccount*100)/100;
-  account.rgpAccount=Math.round(account.rgpAccount*100)/100;
-  account.rgptAccount=Math.round(account.rgptAccount*100)/100;
-  account.profitAccount=Math.round(account.profitAccount*100)/100;
-  account.dayAvgprofitAccount=Math.round(account.dayAvgprofitAccount*100)/100;
-  return {
-    data:data,
-    account:account
-  };
+
+  return data;
 }
 module.exports = router;

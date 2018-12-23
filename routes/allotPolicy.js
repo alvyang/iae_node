@@ -147,6 +147,11 @@ function getAllotSql(req){
     var end = new Date(req.body.data.allot_time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(a.allot_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_time,'%Y-%m-%d') <= '"+end+"'";
   }
+  if(req.body.data.allotReturnTime){
+    var start = new Date(req.body.data.allotReturnTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.allotReturnTime[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') <= '"+end+"'";
+  }
   if(req.body.data.allot_return_flag){
     sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
@@ -169,7 +174,8 @@ router.post("/copyAllotPolicy",function(req,res){
       logger.error(req.session.user[0].realname + "复制调货政策，查询已选择销售出错" + err);
     }
     var copySql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id) values ";
-    for(var i = 0 ; i < d.length ;i++){
+    var allotHospital = "update allot set ";
+    for(var i = 0 ; i < d.length ;i++){//查询已有医院政策
       copySql += "('"+req.body.hospital_id_copy+"','"+d[i].allot_drug_id+"','"+d[i].allot_policy_money+"','"+d[i].allot_policy_remark+"','"+d[i].allot_policy_contact_id+"'),";
     }
     copySql = copySql.substring(0,copySql.length-1);
@@ -179,6 +185,35 @@ router.post("/copyAllotPolicy",function(req,res){
         logger.error(req.session.user[0].realname + "复制调货政策，复制销售出错" + err);
       }
       res.json({"code":"000000",message:""});
+    });
+
+    var getAllotSql = "select * from allot a where a.allot_group_id = '"+req.session.user[0].group_id+"' "+
+                      "and a.allot_delete_flag = '0' and (a.allot_account_id is null or a.allot_account_id = '') "+
+                      "and a.allot_hospital = '"+req.body.hospital_id_copy+"'";
+    allotPolicy.executeSql(getAllotSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
+      if(err){
+        logger.error(req.session.user[0].realname + "更新政策前，查询要更新的记录更新出错" + err);
+      }
+      var allotHospital = "insert into allot (allot_id,allot_return_price,allot_return_money) values "
+      var updateFlag = false;
+      for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
+        for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+          if(d[m].allot_drug_id == result[j].allot_drug_id){
+            updateFlag=true;
+            var t = util.mul(d[m].allot_policy_money,result[j].allot_number,2);
+            allotHospital+="('"+result[j].allot_id+"','"+d[m].allot_policy_money+"','"+t+"'),";
+          }
+        }
+      }
+      if(updateFlag){//判断是否更新
+        allotHospital = allotHospital.substring(0,allotHospital.length-1);
+        allotHospital +=" on duplicate key update allot_return_price=values(allot_return_price),allot_return_money=values(allot_return_money)";
+        allotPolicy.executeSql(allotHospital,function(err,result){//更新记录
+          if(err){
+            logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+          }
+        });
+      }
     });
   });
 });
@@ -197,6 +232,14 @@ router.post("/editAllotPolicy",function(req,res){
       logger.error(req.session.user[0].realname + "更新调货医院药品政策，出错" + err);
     }
     res.json({"code":"000000",message:""});
+  });
+  var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
+                      "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+req.body.allot_hospital_id+"' "+
+                      "and allot_drug_id = '"+req.body.allot_drug_id+"' and (allot_account_id is null or allot_account_id = '') ";
+  allotPolicy.executeSql(allotHospital,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+    }
   });
 });
 //导出销售政策

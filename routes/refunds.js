@@ -287,6 +287,16 @@ function getPurchasesSql(req){
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
+  if(req.body.data.realReturnTime){
+    var start = new Date(req.body.data.realReturnTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.realReturnTime[1]).format("yyyy-MM-dd");
+    sql += " and (DATE_FORMAT(r.refunds_real_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_real_time,'%Y-%m-%d') <= '"+end+"')";
+  }
+  if(req.body.data.makeMoneyTime){
+    var start = new Date(req.body.data.makeMoneyTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.makeMoneyTime[1]).format("yyyy-MM-dd");
+    sql += " and (DATE_FORMAT(p.make_money_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.make_money_time,'%Y-%m-%d') <= '"+end+"')";
+  }
   if(req.body.data.overdue){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
@@ -485,6 +495,11 @@ function getQuerySql(req){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
+  }
+  if(req.body.data.realReturnTime){
+    var start = new Date(req.body.data.realReturnTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.realReturnTime[1]).format("yyyy-MM-dd");
+    sql += " and (DATE_FORMAT(r.refunds_real_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_real_time,'%Y-%m-%d') <= '"+end+"')";
   }
   if(req.body.data.returnTime){
     var start = new Date(req.body.data.returnTime[0]).format("yyyy-MM-dd");

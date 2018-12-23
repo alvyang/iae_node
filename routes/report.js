@@ -3,6 +3,210 @@ var logger = require('../utils/logger');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
+//查询利润负债，综合查询
+router.post("/getReportComprehensive",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("99") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  getComprehensive(req).then(data => {
+    //销售表，综合统计回款情况，销售情况，库存负债情况
+    var result = getGroupData(data);
+    //调货相关数据
+    getAllotComprehensive(req,result).then(data=>{
+      //备货相关数据
+      getPurchaseComprehensive(req,data).then(data=>{
+        res.json({"code":"000000",message:data});
+      });
+    });
+  });
+});
+function getPurchaseComprehensive(req,data){
+  var sql = "select * from purchase p left join refunds r on p.purchase_id = r.purchases_id "+
+            "where p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' "+
+            "and p.purchase_return_flag='2' and p.make_money_time is not null and r.refund_delete_flag = '0' ";
+  //查询近12个月日期
+  var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
+                "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
+  var rSql = "select * from ("+dataSql+") t1 right join ("+sql+") t2 on t1.all_day = DATE_FORMAT(t2.make_money_time,'%Y-%m') order by t1.all_day desc";
+  return new Promise((resolve, reject) => {//查询所有药品编码{
+    var sales = DB.get("Sales");
+    sales.executeSql(rSql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "综合查询，查询备货相关部分出错" + err);
+      }
+      for(var i = 0 ; i < result.length ;i++){
+        var temp = new Date(result[i].refunds_real_time).format("yyyy-MM");
+        var purchaseTime = new Date(result[i].make_money_time).format("yyyy-MM");
+        for(var j = 0 ; j<data.length;j++){
+          if(result[i].refunds_real_money && result[i].refunds_real_time && result[i].receiver && data[j].time == temp){
+            data[j].apurchaseReturnMoney1=data[j].apurchaseReturnMoney1?data[j].apurchaseReturnMoney1:0;//调货已回款
+            data[j].apurchaseReturnMoney1+=result[i].refunds_real_money?parseFloat(result[i].refunds_real_money):0;
+          }
+          if(result[i].refunds_real_money && result[i].refunds_real_time && data[j].time == purchaseTime){
+            data[j].apurchaseReturnMoney0=data[j].apurchaseReturnMoney0?data[j].apurchaseReturnMoney0:0;//调货未回款
+            data[j].apurchaseReturnMoney0+=result[i].refunds_real_money?parseFloat(result[i].refunds_real_money):0;
+          }else if(result[i].make_money_time && data[j].time == purchaseTime){
+            data[j].npurchaseReturnMoney0=data[j].npurchaseReturnMoney0?data[j].npurchaseReturnMoney0:0;//调货未回款
+            data[j].npurchaseReturnMoney0+=result[i].refunds_should_money?parseFloat(result[i].refunds_should_money):0;
+          }
+        }
+      }
+      for(var i = 0 ; i < data.length;i++){
+        data[i].apurchaseReturnMoney1=Math.round(data[i].apurchaseReturnMoney1*100)/100;
+        data[i].apurchaseReturnMoney0=Math.round(data[i].apurchaseReturnMoney0*100)/100;
+        data[i].npurchaseReturnMoney0=Math.round(data[i].npurchaseReturnMoney0*100)/100;
+      }
+      resolve(data);
+    });
+  });
+}
+//查询调货记录，返款等记录
+function getAllotComprehensive(req,data){
+  var sql = "select * from allot a where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
+  //查询近12个月日期
+  var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
+                "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
+  var rSql = "select * from ("+dataSql+") t1 left join ("+sql+") t2 on t1.all_day = DATE_FORMAT(t2.allot_time,'%Y-%m') order by t1.all_day desc";
+  return new Promise((resolve, reject) => {//查询所有药品编码{
+    var sales = DB.get("Sales");
+    sales.executeSql(rSql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "综合查询，查询调货相关部分出错" + err);
+      }
+      for(var i = 0 ; i < result.length ;i++){
+        var temp = new Date(result[i].allot_return_time).format("yyyy-MM");
+        var allotTime = new Date(result[i].allot_time).format("yyyy-MM");
+        for(var j = 0 ; j<data.length;j++){
+          if(result[i].allot_return_time && result[i].allot_account_id && data[j].time == allotTime){
+            data[j].allotReturnMoney0=data[j].allotReturnMoney0?data[j].allotReturnMoney0:0;//调货已回款
+            data[j].allotReturnMoney0+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
+          }else if(data[j].time == allotTime){
+            data[j].allotReturnMoney1=data[j].allotReturnMoney1?data[j].allotReturnMoney1:0;//调货未回款
+            data[j].allotReturnMoney1+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
+          }
+          if(result[i].allot_return_time && result[i].allot_account_id && data[j].time == temp){
+            data[j].callotReturnMoney0=data[j].callotReturnMoney0?data[j].callotReturnMoney0:0;//调货未回款
+            data[j].callotReturnMoney0+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
+          }
+        }
+      }
+      for(var i = 0 ; i < data.length;i++){
+        data[i].allotReturnMoney0=Math.round(data[i].allotReturnMoney0*100)/100;
+        data[i].callotReturnMoney0=Math.round(data[i].callotReturnMoney0*100)/100;
+        data[i].allotReturnMoney1=Math.round(data[i].allotReturnMoney1*100)/100;
+      }
+      resolve(data);
+    });
+  });
+}
+//将查询出的数据，进行拼接
+function getGroupData(d){
+  var rd={};
+  var st = "";
+  for(var i = 0 ; i < d.length;i++){
+    rd[d[i].all_day]=rd[d[i].all_day]?rd[d[i].all_day]:{};
+    if(st.indexOf(d[i].product_code+",") < 0){//同一个药，只加一次
+      st += d[i].product_code+","
+      rd[d[i].all_day].stockMoneyReturn = rd[d[i].all_day].stockMoneyReturn?rd[d[i].all_day].stockMoneyReturn:0;
+      rd[d[i].all_day].stockMoneyReturn += d[i].stockMoney?parseFloat(d[i].stockMoney):0;
+    }
+    var temp = new Date(d[i].sale_return_time).format("yyyy-MM");
+    if(d[i].product_type == "高打"){
+      rd[d[i].all_day].saleMoney0 = rd[d[i].all_day].saleMoney0?rd[d[i].all_day].saleMoney0:0;//高打销售额
+      rd[d[i].all_day].saleMoney0 += parseFloat(d[i].sale_money);//高打销售额
+      if(d[i].sale_return_time && d[i].sale_account_id){//销售已回款金额
+        rd[d[i].all_day].aReturnMoney0 = rd[d[i].all_day].aReturnMoney0?rd[d[i].all_day].aReturnMoney0:0//高打品种，已回款
+        rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//高打品种，已回款
+        rd[temp].cReturnMoney0 = rd[temp].cReturnMoney0?rd[temp].cReturnMoney0:0;
+        rd[temp].cReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//高打品种，本月已回款
+      }else{//销售未回款金额
+        rd[d[i].all_day].nReturnMoney0 = rd[d[i].all_day].nReturnMoney0?rd[d[i].all_day].nReturnMoney0:0//高打品种，未回款
+        rd[d[i].all_day].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//高打品种，未回款
+      }
+    } else if (d[i].product_type == "佣金"){
+      rd[d[i].all_day].saleMoney1 = rd[d[i].all_day].saleMoney1?rd[d[i].all_day].saleMoney1:0;//佣金销售额
+      rd[d[i].all_day].saleMoney1 += parseFloat(d[i].sale_money);//佣金销售额
+      if(d[i].sale_return_time && d[i].sale_account_id){//销售已回款金额
+        rd[d[i].all_day].aReturnMoney1 = rd[d[i].all_day].aReturnMoney1?rd[d[i].all_day].aReturnMoney1:0//佣金品种，已回款
+        rd[d[i].all_day].aReturnMoney1 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//佣金品种，已回款
+        rd[temp].cReturnMoney1 = rd[temp].cReturnMoney1?rd[temp].cReturnMoney1:0;
+        rd[temp].cReturnMoney1 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//高打品种，本月已回款
+      }else{//销售未回款金额
+        rd[d[i].all_day].nReturnMoney1 = rd[d[i].all_day].nReturnMoney1?rd[d[i].all_day].nReturnMoney1:0//佣金品种，未回款
+        rd[d[i].all_day].nReturnMoney1 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//佣金品种，未回款
+      }
+      var tempRefund = new Date(d[i].refunds_real_time).format("yyyy-MM");
+      if(d[i].refunds_real_money && d[i].refunds_real_time && d[i].receiver){
+        rd[d[i].all_day].refundsMoney1 = rd[d[i].all_day].refundsMoney1?rd[d[i].all_day].refundsMoney1:0;//上游返利
+        rd[d[i].all_day].refundsMoney1 += d[i].refunds_real_money?parseFloat(d[i].refunds_real_money):0;
+        rd[tempRefund].crefundsMoney1 = rd[tempRefund].crefundsMoney1?rd[tempRefund].crefundsMoney1:0;//上游返利
+        rd[tempRefund].crefundsMoney1 += d[i].refunds_real_money?parseFloat(d[i].refunds_real_money):0;
+      }else{
+        rd[d[i].all_day].srefundsMoney1 = rd[d[i].all_day].srefundsMoney1?rd[d[i].all_day].srefundsMoney1:0;//上游返利
+        rd[d[i].all_day].srefundsMoney1 += d[i].refunds_should_money?parseFloat(d[i].refunds_should_money):0;
+      }
+    } else {
+      rd[d[i].all_day].saleMoney2 = rd[d[i].all_day].saleMoney2?rd[d[i].all_day].saleMoney2:0;//其它销售额
+      rd[d[i].all_day].saleMoney2 += parseFloat(d[i].sale_money);//其它销售额
+    }
+  }
+  var rdTemp = [];
+  for(var key in rd){
+    rdTemp.push({
+      time:key,
+      srefundsMoney1:Math.round(rd[key].srefundsMoney1*100)/100,
+      refundsMoney1:Math.round(rd[key].refundsMoney1*100)/100,
+      crefundsMoney1:Math.round(rd[key].crefundsMoney1*100)/100,
+      saleMoney0:Math.round(rd[key].saleMoney0*100)/100,
+      aReturnMoney0:Math.round(rd[key].aReturnMoney0*100)/100,
+      nReturnMoney0:Math.round(rd[key].nReturnMoney0*100)/100,
+      cReturnMoney0:Math.round(rd[key].cReturnMoney0*100)/100,
+      stockMoneyReturn:Math.round(rd[key].stockMoneyReturn*100)/100,
+      saleMoney1:Math.round(rd[key].saleMoney1*100)/100,
+      aReturnMoney1:Math.round(rd[key].aReturnMoney1*100)/100,
+      nReturnMoney1:Math.round(rd[key].nReturnMoney1*100)/100,
+      cReturnMoney1:Math.round(rd[key].cReturnMoney1*100)/100,
+      saleMoney2:Math.round(rd[key].saleMoney2*100)/100
+    });
+  }
+  return rdTemp;
+}
+//查询佣金类型的各项数据   这个表里的sql，超级复杂
+function getComprehensive(req){
+  //stockSql  查询的是，高打药品库存里还有多少库存，并计算，库存积分
+  var stockSql = "select sum(r.refunds_real_money*bs.batch_stock_number/p.purchase_number) stockMoney,bs.batch_stock_drug_id from batch_stock bs "+
+                 "left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+                 "left join refunds r on bs.batch_stock_purchase_id = r.purchases_id "+
+                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' group by bs.batch_stock_drug_id ";
+  //药品sql，及连接查询库存积分
+  var drugStockSql = "select ds.*,stockSql.stockMoney from drugs ds left join ("+stockSql+") stockSql on ds.product_id = stockSql.batch_stock_drug_id "+
+                     "where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
+  //销售查询
+  var sql = "select s.*,rs.*,d.stockMoney,d.product_type from sales s left join ("+drugStockSql+") d on s.product_code = d.product_code "+
+            "left join refunds rs on rs.sales_id = s.sale_id "+
+            "where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' ";
+  if(req.body.hospitalsId){
+    sql+="and s.hospital_id = '"+req.body.hospitalsId+"' "
+  }
+  if(req.body.business){
+    sql+="and d.product_business = '"+req.body.business+"' "
+  }
+  //查询近12个月日期
+  var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
+                "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
+
+  var rSql = "select * from ("+dataSql+") t1 left join ("+sql+") t2 on t1.all_day = DATE_FORMAT(t2.bill_date,'%Y-%m') order by t1.all_day desc";
+  return new Promise((resolve, reject) => {//查询所有药品编码{
+    var sales = DB.get("Sales");
+    sales.executeSql(rSql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "综合查询，查询销售额，销售回积分出错" + err);
+      }
+      resolve(result);
+    });
+  });
+}
 //查询销售按真实毛利率
 router.post("/getSalesByProfitRate",function(req,res){
   if(req.session.user[0].authority_code.indexOf("99") < 0){
