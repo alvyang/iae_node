@@ -298,7 +298,7 @@ router.post("/getPurchases",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询采购记录，统计金额出错" + err);
       }
-      req.body.page.purchaseMoney = purchaseMoney && purchaseMoney[0].purchaseMoney?purchaseMoney[0].purchaseMoney.toFixed(2):0;
+      req.body.page.purchaseMoney = purchaseMoney && purchaseMoney[0].purchaseMoney?Math.round(purchaseMoney[0].purchaseMoney*100)/100:0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
       sql += " order by p.time desc,p.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";

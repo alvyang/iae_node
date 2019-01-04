@@ -246,7 +246,7 @@ function verData(req,data){
     d.sale_type = sales[i].sale_type;
     d.product_return_money = sales[i].product_return_money;
     d.group_id = req.session.user[0].group_id;
-    d.sale_create_time = new Date().format('yyyy-MM-dd');
+    d.sale_create_time = new Date().format('yyyy-MM-dd hh:mm:ss');
     d.sale_create_userid = req.session.user[0].id;
     d.sale_policy_money = sales[i].sale_policy_money;
     d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money,2):"";
@@ -634,7 +634,7 @@ function updateAllotAccountDetail(req){
     bankaccountdetail.account_detail_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
   }
   bankaccountdetail.account_detail_mark = bankaccountdetail.account_detail_time+req.body.hospital_name+"销售"+
-                                          req.body.product_common_name+"回积分"+req.body.sale_return_money;
+                                          req.body.product_common_name+"付积分"+req.body.sale_return_money;
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
   bankaccountdetail.flag_id = "sale_hospital_"+req.body.sale_id;
   bankaccountdetail.account_detail_create_time = new Date();
@@ -693,10 +693,10 @@ router.post("/getSales",function(req,res){
           logger.error(req.session.user[0].realname + "查询销售记录，统计金额出错" + err);
         }
         req.body.page.totalCount = result;
-        req.body.page.saleMoney = money && money[0].saleMoney?money[0].saleMoney.toFixed(2):0;
-        req.body.page.realGrossProfit = money && money[0].realGrossProfit?money[0].realGrossProfit.toFixed(2):0;
-        req.body.page.grossProfit = money && money[0].grossProfit?money[0].grossProfit.toFixed(2):0;
-        req.body.page.saleReturnMoney = money && money[0].saleReturnMoney?money[0].saleReturnMoney.toFixed(2):0;
+        req.body.page.saleMoney = money && money[0].saleMoney?Math.round(money[0].saleMoney*100)/100:0;
+        req.body.page.realGrossProfit = money && money[0].realGrossProfit?Math.round(money[0].realGrossProfit*100)/100:0;
+        req.body.page.grossProfit = money && money[0].grossProfit?Math.round(money[0].grossProfit*100)/100:0;
+        req.body.page.saleReturnMoney = money && money[0].saleReturnMoney?Math.round(money[0].saleReturnMoney*100)/100:0;
         req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
         sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
         sales.executeSql(sql,function(err,result){

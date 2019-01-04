@@ -38,7 +38,7 @@ router.get("/downloadErrorData",function(req,res){
   },{caption:'错误信息',type:'string'
   }];
   var header = ['product_common_name','product_code','product_specifications','product_makesmakers','product_tax_rate',
-            'buyer','product_business','product_packing','product_unit','product_basic_medicine','product_price','product_mack_price',
+            'buyer','product_business','product_packing','product_unit','product_medical_type','product_price','product_mack_price',
             'accounting_cost','product_purchase_mode','product_basic_medicine','product_type','product_floor_price','product_high_discount',
             'product_return_money','product_return_explain','product_return_statistics','errorMessage'];
   var d = JSON.parse(req.session.errorDrugsData);
@@ -78,11 +78,11 @@ router.post("/importDrugs",function(req,res){
                   "buyer,product_business,product_packing,product_unit,product_basic_medicine,product_price,product_mack_price,"+
                   "accounting_cost,product_purchase_mode,product_type,product_floor_price,product_high_discount,"+
                   "product_return_money,product_return_explain,product_return_statistics,group_id,product_create_time,product_create_userid,"+
-                  "product_discount,gross_interest_rate) VALUES ";
+                  "product_discount,gross_interest_rate,product_medical_type) VALUES ";
         for(var i = 0 ; i < cData.length; i++){
           cData[i].product_id = uuid.v1();
           cData[i].group_id = req.session.user[0].group_id;
-          cData[i].product_create_time = new Date().format("yyyy-MM-dd");
+          cData[i].product_create_time = new Date().format("yyyy-MM-dd hh:mm:ss");
           cData[i].product_create_userid = req.session.user[0].id;
           sql += "('"+cData[i].product_id+"','"+cData[i].product_common_name+"','"+cData[i].product_code+"','"+cData[i].product_specifications+"',"+
                  "'"+cData[i].product_makesmakers+"','"+cData[i].product_supplier+"','"+cData[i].product_tax_rate+"','"+cData[i].buyer+"',"+
@@ -90,7 +90,8 @@ router.post("/importDrugs",function(req,res){
                  "'"+cData[i].product_price+"','"+cData[i].product_mack_price+"','"+cData[i].accounting_cost+"','"+cData[i].product_purchase_mode+"',"+
                  "'"+cData[i].product_type+"','"+cData[i].product_floor_price+"','"+cData[i].product_high_discount+"',"+
                  "'"+cData[i].product_return_money+"','"+cData[i].product_return_explain+"','"+cData[i].product_return_statistics+"',"+
-                 "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"','"+cData[i].product_discount+"','"+cData[i].gross_interest_rate+"'),";
+                 "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"','"+cData[i].product_discount+"',"+
+                 "'"+cData[i].gross_interest_rate+"','"+cData[i].product_medical_type+"'),";
         }
         sql = sql.substring(0,sql.length-1);
         var drugsSql = DB.get("Drugs");
@@ -152,7 +153,7 @@ function getDrugsData(drugs,code,business){
         continue;
       }
       //验证编码是否存在，  1位置在模板中为产品编码drugs[i][1]
-      if(JSON.stringify(code).indexOf(""+drugs[i][1]+"") > 0){
+      if(JSON.stringify(code).indexOf("\""+drugs[i][1]+"\"") > 0){
         d.errorMessage = "产品编码已存在";
         errData.push(d);
         continue;
@@ -201,7 +202,7 @@ function getDrugsData(drugs,code,business){
         continue;
       }
       //医保类型（甲类/乙类/丙类/省医保）
-      if(drugs[i][9] && !(drugs[i][9]=='高打'||drugs[i][9]=='佣金'||drugs[i][9]=='其它')){
+      if(drugs[i][9] && !(drugs[i][9]=='甲类'||drugs[i][9]=='乙类'||drugs[i][9]=='丙类'||drugs[i][9]=='省医保')){
         d.errorMessage = "医保类型请填写 甲类/乙类/丙类/省医保";
         errData.push(d);
         continue;
@@ -217,7 +218,7 @@ function getDrugsData(drugs,code,business){
       d.product_name_pinyin = util.getFirstLetter(drugs[i][0]);
       //计算扣率和毛利率
       d.product_discount =  util.div(drugs[i][11],drugs[i][10],4)*100;
-      d.gross_interest_rate = util.div(drugs[i][12],drugs[i][10],4)*100;
+      d.gross_interest_rate = util.sub(100,util.div(drugs[i][12],drugs[i][10],4)*100,4);
 
       //将生产企业，修改为供货单位
       d.product_supplier = d.product_makesmakers;
@@ -256,7 +257,7 @@ function arrayToObject(drugs){
     product_business:drugs[6],
     product_packing:drugs[7],
     product_unit:drugs[8],
-    product_basic_medicine:drugs[9],
+    product_medical_type:drugs[9],
     product_price:drugs[10],
     product_mack_price:drugs[11],
     accounting_cost:drugs[12],

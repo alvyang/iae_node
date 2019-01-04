@@ -7,7 +7,7 @@ var router = express.Router();
 router.post("/getBatchStockByDrugId",function(req,res){
   var batchStock = DB.get("BatchStock");
   var sql = "select * from batch_stock bs where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
-             "and bs.batch_stock_drug_id = '"+req.body.productId+"' and bs.batch_stock_number > 0";
+             "and bs.batch_stock_drug_id = '"+req.body.productId+"' ";
   batchStock.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "由药品id，查询批次库存出错" + err);

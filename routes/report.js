@@ -327,7 +327,7 @@ router.post("/getSalesReturnByContacts",function(req,res){
   }
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
   var sql = "select * from sales s left join refunds r on s.sale_id = r.sales_id where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' "+
-            "and s.delete_flag = '0' and r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
+            "and s.delete_flag = '0' and r.refund_delete_flag='0' and r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
 
   sql = "select sd.*,d.contacts_id from ("+sql+") sd left join drugs d on sd.product_code = d.product_code where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   sql = "select c.contacts_name,sum(sdc.refunds_should_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+

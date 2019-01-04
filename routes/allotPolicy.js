@@ -84,8 +84,8 @@ router.post("/getAllotReturnMoney",function(req,res){
         if(err){
           logger.error(req.session.user[0].realname + "查询调货列表，计算返款金额出错" + err);
         }
-        req.body.page.returnMoney = m && m[0].returnMoney?m[0].returnMoney.toFixed(2):0;
-        req.body.page.allotMoney = m && m[0].allotMoney?m[0].allotMoney.toFixed(2):0;
+        req.body.page.returnMoney = m && m[0].returnMoney?Math.round(m[0].returnMoney*100)/100:0;
+        req.body.page.allotMoney = m && m[0].allotMoney?Math.round(m[0].allotMoney*100)/100:0;
         req.body.page.totalCount = result;
         req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
         sql += " order by a.allot_time desc,a.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";

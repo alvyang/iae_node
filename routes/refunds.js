@@ -236,9 +236,9 @@ router.post("/getPurchaseRefunds",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询高打返款列表，统计金额出错" + err);
       }
-      req.body.page.rsm = refund&&refund[0].rsm?refund[0].rsm.toFixed(2):0;
-      req.body.page.rrm = refund&&refund[0].rrm?refund[0].rrm.toFixed(2):0;
-      req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
+      req.body.page.rsm = refund&&refund[0].rsm?Math.round(refund[0].rsm*100)/100:0;
+      req.body.page.rrm = refund&&refund[0].rrm?Math.round(refund[0].rrm*100)/100:0;
+      req.body.page.sc = refund&&refund[0].sc?Math.round(refund[0].sc*100)/100:0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
       sql += " order by p.time desc,p.purchase_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
@@ -423,9 +423,9 @@ router.post("/getSaleRefunds",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询佣金返款列表，统计金额出错" + err);
       }
-      req.body.page.rsm = refund&&refund[0].rsm?refund[0].rsm.toFixed(2):0;
-      req.body.page.rrm = refund&&refund[0].rrm?refund[0].rrm.toFixed(2):0;
-      req.body.page.sc = refund&&refund[0].sc?refund[0].sc.toFixed(2):0;
+      req.body.page.rsm = refund&&refund[0].rsm?Math.round(refund[0].rsm*100)/100:0;
+      req.body.page.rrm = refund&&refund[0].rrm?Math.round(refund[0].rrm*100)/100:0;
+      req.body.page.sc = refund&&refund[0].sc?Math.round(refund[0].sc*100)/100:0;
       req.body.page.totalCount = result;
       req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
       sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";

@@ -71,10 +71,10 @@ router.post("/getReturnMoney",function(req,res){
     sql += "and hrm.return_money_create_userid = '"+req.session.user[0].id+"'";
   }
   if(req.body.data.hospitalsId){
-    sql += " and hrm.return_money_hospital like '%"+req.body.data.hospitalsId+"%'";
+    sql += " and hrm.return_money_hospital ='"+req.body.data.hospitalsId+"'";
   }
   if(req.body.data.business){
-    sql += " and hrm.return_money_business like '%"+req.body.data.business+"%'";
+    sql += " and hrm.return_money_business = '"+req.body.data.business+"'";
   }
   var start = new Date(req.body.data.startTime).format("yyyy-MM-dd");
   if(req.body.data.startTime){

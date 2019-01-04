@@ -128,7 +128,7 @@ function getBusinessCommissionSql(req){
         "group by DATE_FORMAT(sdhbc.bill_date,'%Y-%m'),sdhbc.hospital_id,sdhbc.product_business";
   //连接查询商业提成表
   sql = "select * from ("+sql+") s left join business_commission bc on s.hospital_id = bc.commission_hospital_id and "+
-        "s.product_business = bc.commission_business and s.bd = DATE_FORMAT(bc.commission_time,'%Y-%m') ";
+        "s.product_business = bc.commission_business and s.bd = DATE_FORMAT(bc.commission_time,'%Y-%m') order by s.bd desc";
   return {
     sql:sql,
     daySql:daySql
