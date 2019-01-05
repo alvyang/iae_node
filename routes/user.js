@@ -17,7 +17,7 @@ router.post("/exitsUsers",function(req,res){
 });
 //新增角色
 router.post("/saveUsers",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("16") < 0){
+  if(req.session.user[0].authority_code.indexOf("16,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -36,7 +36,7 @@ router.post("/saveUsers",function(req,res){
 });
 //编辑用户
 router.post("/editUsers",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("17") < 0){
+  if(req.session.user[0].authority_code.indexOf("17,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -61,7 +61,7 @@ router.post("/editUsers",function(req,res){
 });
 //编辑用户权限
 router.post("/editUserRole",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("24") < 0){
+  if(req.session.user[0].authority_code.indexOf("24,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -76,7 +76,7 @@ router.post("/editUserRole",function(req,res){
 });
 //删除菜单
 router.post("/deleteUsers",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("18") < 0){
+  if(req.session.user[0].authority_code.indexOf("18,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -91,7 +91,7 @@ router.post("/deleteUsers",function(req,res){
 });
 //获取用户列表
 router.post("/getUsers",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("18") < 0){
+  if(req.session.user[0].authority_code.indexOf("18,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

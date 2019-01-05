@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增角色
 router.post("/saveRoles",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("11") < 0){
+  if(req.session.user[0].authority_code.indexOf("11,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -21,7 +21,7 @@ router.post("/saveRoles",function(req,res){
 });
 //编辑角色
 router.post("/editRoles",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("12") > -1){
+  if(req.session.user[0].authority_code.indexOf("12,") > -1){
     var role = DB.get("Role");
   	req.body.group_id = req.session.user[0].group_id;
     delete req.body.role_create_time;
@@ -37,7 +37,7 @@ router.post("/editRoles",function(req,res){
 });
 //授权
 router.post("/editAuthority",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("15") > -1){
+  if(req.session.user[0].authority_code.indexOf("15,") > -1){
     var roleAuthority = DB.get("RoleAuthority");
   	//联合主键，存在将删除更新为0。不存在插入
     var sql = "insert into role_authority values ";
@@ -67,7 +67,7 @@ router.post("/editAuthority",function(req,res){
 });
 //删除菜单
 router.post("/deleteRoles",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("13") < 0){
+  if(req.session.user[0].authority_code.indexOf("13,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -82,13 +82,14 @@ router.post("/deleteRoles",function(req,res){
 });
 //获取角色列表
 router.post("/getRoles",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("14") < 0){
+  if(req.session.user[0].authority_code.indexOf("14,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
   var role = DB.get("Role");
   var sql = "select r.*,concat(GROUP_CONCAT(ra.authority_id),',') authority_code from role r left join role_authority ra on r.role_id = ra.role_id "+
-            "where r.group_id='"+req.session.user[0].group_id+"' and r.delete_flag = '0' group by r.role_id";
+            "where (ra.role_authority_delete_flag = '0' || ra.role_authority_delete_flag is null) and (ra.role_authority_group_id = '"+req.session.user[0].group_id+"' || ra.role_authority_group_id is null) "+
+            "and r.group_id='"+req.session.user[0].group_id+"' and r.delete_flag = '0' group by r.role_id";
   role.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询角色，查询总数出错" + err);

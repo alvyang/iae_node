@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增联系人
 router.post("/saveAccountsDetail",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("76") < 0){
+  if(req.session.user[0].authority_code.indexOf("76,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -23,7 +23,7 @@ router.post("/saveAccountsDetail",function(req,res){
 });
 //编辑联系人
 router.post("/editAccountsDetail",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("74") > -1){
+  if(req.session.user[0].authority_code.indexOf("74,") > -1){
     var accountDetail = DB.get("AccountDetail");
   	req.body.account_detail_group_id = req.session.user[0].group_id;
     req.body.account_detail_time = new Date(req.body.account_detail_time).format('yyyy-MM-dd');
@@ -43,7 +43,7 @@ router.post("/editAccountsDetail",function(req,res){
 });
 //删除联系人
 router.post("/deleteAccountDetail",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("75") < 0){
+  if(req.session.user[0].authority_code.indexOf("75,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -58,7 +58,7 @@ router.post("/deleteAccountDetail",function(req,res){
 });
 //获取银行账号列表
 router.post("/getAccountsDetails",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("73") < 0){
+  if(req.session.user[0].authority_code.indexOf("73,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

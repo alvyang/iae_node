@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增医院回款
 router.post("/saveReturnMoney",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("87") < 0){
+  if(req.session.user[0].authority_code.indexOf("87,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -22,7 +22,7 @@ router.post("/saveReturnMoney",function(req,res){
 });
 //编辑医院回款
 router.post("/editReturnMoney",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("85") > -1){
+  if(req.session.user[0].authority_code.indexOf("85,") > -1){
     var hospitalReturnMoney = DB.get("HospitalReturnMoney");
     delete req.body.business_name;
     delete req.body.hospital_name;
@@ -41,7 +41,7 @@ router.post("/editReturnMoney",function(req,res){
 });
 //删除医院回款
 router.post("/deleteReturnMoney",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("86") < 0){
+  if(req.session.user[0].authority_code.indexOf("86,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -56,7 +56,7 @@ router.post("/deleteReturnMoney",function(req,res){
 });
 //获取医院回款列表
 router.post("/getReturnMoney",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("84") < 0){
+  if(req.session.user[0].authority_code.indexOf("84,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

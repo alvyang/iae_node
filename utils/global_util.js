@@ -111,19 +111,22 @@ exports.getSixMonth = function(){
   //获取年
   var year=data.getFullYear();
   //获取月
-  var mon=data.getMonth()+1;
+  var month=data.getMonth()+1;
   var arry=new Array();
+  var flag = true;
   for(var i=0;i<6;i++){
-      var temp = mon - i;
-      if(temp<=0){
-          year=year-1;
-          temp=temp+12;
+      var mon = month - i;
+      if(mon<=0 && flag){
+        year=year-1;
+        flag = false;
       }
-      if(temp<10){
-          temp="0"+temp;
+      if(mon<=0){
+        mon =mon+12;
       }
-
-      arry[i]=year+"-"+temp;
+      if(mon<10){
+          mon="0"+mon;
+      }
+      arry[i]=year+"-"+mon;
   }
   return arry;
 }

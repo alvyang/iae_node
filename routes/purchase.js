@@ -7,7 +7,7 @@ var router = express.Router();
 
 //新增采购记录
 router.post("/savePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("53") < 0){
+  if(req.session.user[0].authority_code.indexOf("53,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -103,7 +103,7 @@ function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
 }
 //编辑菜单
 router.post("/editPurchase",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("54") < 0){
+  if(req.session.user[0].authority_code.indexOf("54,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -203,7 +203,7 @@ function updateRefundsPurchase(req){
 }
 //删除菜单
 router.post("/deletePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("55") < 0){
+  if(req.session.user[0].authority_code.indexOf("55,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -236,7 +236,7 @@ router.post("/deletePurchases",function(req,res){
 });
 //导出备货列表
 router.post("/exportPurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("57") < 0){
+  if(req.session.user[0].authority_code.indexOf("57,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -283,7 +283,7 @@ router.post("/exportPurchases",function(req,res){
 //获取备货列表
 router.post("/getPurchases",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("56") < 0){
+  if(req.session.user[0].authority_code.indexOf("56,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

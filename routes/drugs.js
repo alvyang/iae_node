@@ -50,7 +50,7 @@ router.get("/downloadErrorData",function(req,res){
 });
 //excel 导入药品数据
 router.post("/importDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("100") < 0){
+  if(req.session.user[0].authority_code.indexOf("100,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -78,12 +78,13 @@ router.post("/importDrugs",function(req,res){
                   "buyer,product_business,product_packing,product_unit,product_basic_medicine,product_price,product_mack_price,"+
                   "accounting_cost,product_purchase_mode,product_type,product_floor_price,product_high_discount,"+
                   "product_return_money,product_return_explain,product_return_statistics,group_id,product_create_time,product_create_userid,"+
-                  "product_discount,gross_interest_rate,product_medical_type) VALUES ";
+                  "product_discount,gross_interest_rate,product_medical_type,product_return_discount) VALUES ";
         for(var i = 0 ; i < cData.length; i++){
           cData[i].product_id = uuid.v1();
           cData[i].group_id = req.session.user[0].group_id;
           cData[i].product_create_time = new Date().format("yyyy-MM-dd hh:mm:ss");
           cData[i].product_create_userid = req.session.user[0].id;
+          cData[i].product_return_discount = util.div(cData[i].product_return_money,cData[i].product_price,4)*100;
           sql += "('"+cData[i].product_id+"','"+cData[i].product_common_name+"','"+cData[i].product_code+"','"+cData[i].product_specifications+"',"+
                  "'"+cData[i].product_makesmakers+"','"+cData[i].product_supplier+"','"+cData[i].product_tax_rate+"','"+cData[i].buyer+"',"+
                  "'"+cData[i].product_business+"','"+cData[i].product_packing+"','"+cData[i].product_unit+"','"+cData[i].product_basic_medicine+"',"+
@@ -91,7 +92,7 @@ router.post("/importDrugs",function(req,res){
                  "'"+cData[i].product_type+"','"+cData[i].product_floor_price+"','"+cData[i].product_high_discount+"',"+
                  "'"+cData[i].product_return_money+"','"+cData[i].product_return_explain+"','"+cData[i].product_return_statistics+"',"+
                  "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"','"+cData[i].product_discount+"',"+
-                 "'"+cData[i].gross_interest_rate+"','"+cData[i].product_medical_type+"'),";
+                 "'"+cData[i].gross_interest_rate+"','"+cData[i].product_medical_type+"','"+cData[i].product_return_discount+"'),";
         }
         sql = sql.substring(0,sql.length-1);
         var drugsSql = DB.get("Drugs");
@@ -296,7 +297,7 @@ function deleteParams(params){
 }
 //新增药品
 router.post("/saveDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("62") < 0){
+  if(req.session.user[0].authority_code.indexOf("62,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -351,7 +352,7 @@ function updateQuoteNum(data1,data2,req,drugId){
 }
 //标记为是否配送
 router.post("/distributionFlag",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("63") < 0){
+  if(req.session.user[0].authority_code.indexOf("63,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -365,7 +366,7 @@ router.post("/distributionFlag",function(req,res){
 });
 //编辑药品
 router.post("/editDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("63") < 0){
+  if(req.session.user[0].authority_code.indexOf("63,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -404,7 +405,7 @@ router.post("/editDrugs",function(req,res){
 });
 //删除菜单
 router.post("/deleteDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("64") < 0){
+  if(req.session.user[0].authority_code.indexOf("64,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -419,7 +420,7 @@ router.post("/deleteDrugs",function(req,res){
 });
 //导出药品表
 router.post("/exportDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("0f32a940-d803-11e8-a19c-cf0f6be47d2e") < 0){
+  if(req.session.user[0].authority_code.indexOf("0f32a940-d803-11e8-a19c-cf0f6be47d2e,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -475,7 +476,7 @@ router.post("/exportDrugs",function(req,res){
 //获取药品列表
 router.post("/getDrugs",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("65") < 0){
+  if(req.session.user[0].authority_code.indexOf("65,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -549,7 +550,7 @@ function getDrugsSql(req){
 }
 //获取库存统计
 router.post("/getStockNum",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("65") < 0){
+  if(req.session.user[0].authority_code.indexOf("65,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

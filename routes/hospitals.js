@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增医院
 router.post("/saveHospitals",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("28") < 0){
+  if(req.session.user[0].authority_code.indexOf("28,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -21,7 +21,7 @@ router.post("/saveHospitals",function(req,res){
 });
 //编辑医院
 router.post("/editHospitals",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("29") > -1){
+  if(req.session.user[0].authority_code.indexOf("29,") > -1){
     var hospitals = DB.get("Hospitals");
   	req.body.group_id = req.session.user[0].group_id;
     delete req.body.hospital_create_time;
@@ -37,7 +37,7 @@ router.post("/editHospitals",function(req,res){
 });
 //删除医院
 router.post("/deleteHospitals",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("30") < 0){
+  if(req.session.user[0].authority_code.indexOf("30,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -52,7 +52,7 @@ router.post("/deleteHospitals",function(req,res){
 });
 //获取医院列表
 router.post("/getHospitals",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("31") < 0){
+  if(req.session.user[0].authority_code.indexOf("31,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

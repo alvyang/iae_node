@@ -5,7 +5,7 @@ var router = express.Router();
 
 //查询利润负债，综合查询
 router.post("/getReportComprehensive",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -209,7 +209,7 @@ function getComprehensive(req){
 }
 //查询销售按真实毛利率
 router.post("/getSalesByProfitRate",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -246,7 +246,7 @@ router.post("/getSalesByProfitRate",function(req,res){
 });
 //查询销售按销售单位
 router.post("/getSalesByHospital",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -282,7 +282,7 @@ router.post("/getSalesByHospital",function(req,res){
 
 //查询销售按品种
 router.post("/getSalesByProduct",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -321,7 +321,7 @@ router.post("/getSalesByProduct",function(req,res){
 
 //查询佣金外欠金额，按联系人
 router.post("/getSalesReturnByContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -342,7 +342,7 @@ router.post("/getSalesReturnByContacts",function(req,res){
 });
 //查询高打外欠金额，按联系人
 router.post("/getPurchasesReturnByContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -367,7 +367,7 @@ router.post("/getPurchasesReturnByContacts",function(req,res){
 });
 //按标签销售金额、毛利、真实毛利统计
 router.post('/getTagAnalysis',function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -419,7 +419,7 @@ router.post('/getTagAnalysis',function(req,res){
 });
 //查询销售记录
 router.post("/getSalesMonth",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99") < 0){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -430,7 +430,8 @@ router.post("/getSalesMonth",function(req,res){
   //按月分组查询销售记录
   var sql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,sum(s.sale_money) sm,sum(s.real_gross_profit) rgp from sales s "+
             "left join drugs d on s.product_code = d.product_code "+
-            "where s.delete_flag ='0' and s.group_id = '"+req.session.user[0].group_id+"' ";
+            "where s.delete_flag ='0' and s.group_id = '"+req.session.user[0].group_id+"' "+
+            " and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.hospitalsId){
     sql+="and s.hospital_id = '"+req.body.hospitalsId+"' "
   }
@@ -439,7 +440,7 @@ router.post("/getSalesMonth",function(req,res){
   }
   sql += "group by DATE_FORMAT(s.bill_date,'%Y-%m') ";
 
-  var s = "select t.all_day,ifnull(st.sm,0) smt,ifnull(st.rgp,0) rgpt from ("+dataSql+") t left join ("+sql+") st on st.bd = t.all_day";
+  var s = "select t.all_day,ifnull(st.sm,0) smt,ifnull(st.rgp,0) rgpt from ("+dataSql+") t left join ("+sql+") st on st.bd = t.all_day order by t.all_day desc";
   sales.executeSql(s,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "报表查询销售统计出错" + err);

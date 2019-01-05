@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增菜单
 router.post("/saveAuthoritys",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("7") < 0){
+  if(req.session.user[0].authority_code.indexOf("7,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return;
   }
@@ -21,7 +21,7 @@ router.post("/saveAuthoritys",function(req,res){
 });
 //编辑菜单
 router.post("/editAuthoritys",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("8") < 0){
+  if(req.session.user[0].authority_code.indexOf("8,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

@@ -15,7 +15,7 @@ router.post("/exitsGroup",function(req,res){
 });
 //新增组
 router.post("/saveGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("20") < 0){
+  if(req.session.user[0].authority_code.indexOf("20,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -33,7 +33,7 @@ router.post("/saveGroups",function(req,res){
 });
 //编辑菜单
 router.post("/editGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("21") < 0){
+  if(req.session.user[0].authority_code.indexOf("21,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -52,7 +52,7 @@ router.post("/editGroups",function(req,res){
 });
 //删除菜单
 router.post("/deleteGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("22") < 0){
+  if(req.session.user[0].authority_code.indexOf("22,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -67,7 +67,7 @@ router.post("/deleteGroups",function(req,res){
 });
 //获取角色列表
 router.post("/getGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("23") < 0){
+  if(req.session.user[0].authority_code.indexOf("23,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

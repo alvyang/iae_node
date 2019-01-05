@@ -9,7 +9,7 @@ var router = express.Router();
 
 //导出回款记录
 router.post("/exportSalesRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("e430d5a0-d802-11e8-a19c-cf0f6be47d2e") < 0){
+  if(req.session.user[0].authority_code.indexOf("e430d5a0-d802-11e8-a19c-cf0f6be47d2e,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -77,7 +77,7 @@ router.post("/exportSalesRefund",function(req,res){
 //查询销售记录
 router.post("/getSalesReturnMoney",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("51") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b") > 0){
+  if(req.session.user[0].authority_code.indexOf("51,") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b,") > 0){
     var sales = DB.get("Sales");
     var sql = getQuerySql(req);
     sales.countBySql(sql,function(err,result){
@@ -185,7 +185,7 @@ function getQuerySql(req){
 }
 //复制销售政策
 router.post("/copySalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -244,7 +244,7 @@ router.post("/copySalesPolicy",function(req,res){
 });
 //修改销售政策
 router.post("/editSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -270,7 +270,7 @@ router.post("/editSalesPolicy",function(req,res){
 });
 //导出
 router.post("/exportSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("c250c860-d81f-11e8-a52f-4f446572c8cf") < 0){
+  if(req.session.user[0].authority_code.indexOf("c250c860-d81f-11e8-a52f-4f446572c8cf,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -298,7 +298,7 @@ router.post("/exportSalesPolicy",function(req,res){
     },{caption:'业务员',type:'string'
     }];
     var header = ['product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','business_name','product_price','product_return_money','allot_policy_money',
+                  'product_makesmakers','product_unit','business_name','product_price','product_return_money','sale_policy_money',
                   'sale_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -309,7 +309,7 @@ router.post("/exportSalesPolicy",function(req,res){
 });
 //查询销售政策
 router.post("/getSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("83ff2470-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("83ff2470-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

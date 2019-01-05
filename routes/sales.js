@@ -32,7 +32,7 @@ router.get("/downloadErrorSales",function(req,res){
 });
 //导入销售记录
 router.post("/importSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("102") < 0){
+  if(req.session.user[0].authority_code.indexOf("102,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -109,8 +109,8 @@ router.post("/importSales",function(req,res){
         updateStockSql = updateStockSql.substring(0,updateStockSql.length-1);
         updateStockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number);";
         sql = sql.substring(0,sql.length-1);//插入销售sql
-        bankDetailSql = bankDetailSql+bankDetailSqlValue.substring(0,bankDetailSql.length-1);//插入流水账sql
-        refundSql = refundSql+refundSqlValue.substring(0,refundSql.length-1);//批量添加销售记录
+        bankDetailSql = bankDetailSql+bankDetailSqlValue.substring(0,bankDetailSqlValue.length-1);//插入流水账sql
+        refundSql = refundSql+refundSqlValue.substring(0,refundSqlValue.length-1);//批量添加销售记录
         var sales = DB.get("Sales");
         sales.executeSql(sql,function(err,result){//批量添加销售记录
           if(err){
@@ -391,7 +391,7 @@ router.post("/selesPolicy",function(req,res){
 });
 //导出销售记录
 router.post("/exportSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("52") < 0){
+  if(req.session.user[0].authority_code.indexOf("52,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -443,7 +443,7 @@ router.post("/getAllSales",function(req,res){
 });
 //新增销售
 router.post("/saveSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("48") < 0){
+  if(req.session.user[0].authority_code.indexOf("48,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -540,7 +540,7 @@ function saveSaleHospitalAccountDetail(req,id){
 }
 //编辑销售记录
 router.post("/editSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("49") > 0 || req.session.user[0].authority_code.indexOf("4a023420-d40a-11e8-bfbc-6f9a2209108b") > 0){
+  if(req.session.user[0].authority_code.indexOf("49,") > 0 || req.session.user[0].authority_code.indexOf("4a023420-d40a-11e8-bfbc-6f9a2209108b,") > 0){
     var sales = DB.get("Sales");
     req.body.bill_date = new Date(req.body.bill_date).format('yyyy-MM-dd');
     var params = {
@@ -648,7 +648,7 @@ function updateAllotAccountDetail(req){
 }
 //删除联系人
 router.post("/deleteSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("50") < 0){
+  if(req.session.user[0].authority_code.indexOf("50,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -680,7 +680,7 @@ router.post("/deleteSales",function(req,res){
 //查询销售记录
 router.post("/getSales",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("51") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b") > 0){
+  if(req.session.user[0].authority_code.indexOf("51,") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b,") > 0){
     var sales = DB.get("Sales");
     var sql = getQuerySql(req);
     sales.countBySql(sql,function(err,result){

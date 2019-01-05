@@ -6,7 +6,7 @@ var util= require('../utils/global_util.js');
 var router = express.Router();
 //导出调货回款记录
 router.post("/exportAllotRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("f8037330-d802-11e8-a19c-cf0f6be47d2e") < 0){
+  if(req.session.user[0].authority_code.indexOf("f8037330-d802-11e8-a19c-cf0f6be47d2e,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -72,7 +72,7 @@ router.post("/exportAllotRefund",function(req,res){
 //获取调货列表
 router.post("/getAllotReturnMoney",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("61") > 0  || req.session.user[0].authority_code.indexOf("130627a0-cb9b-11e8-81ff-23b7b224f706") > 0){
+  if(req.session.user[0].authority_code.indexOf("61,") > 0  || req.session.user[0].authority_code.indexOf("130627a0-cb9b-11e8-81ff-23b7b224f706,") > 0){
     var allot = DB.get("Allot");
     var sql = getAllotSql(req);
     allot.countBySql(sql,function(err,result){//查询调货总数
@@ -162,7 +162,7 @@ function getAllotSql(req){
 }
 //调货政策复制
 router.post("/copyAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -219,7 +219,7 @@ router.post("/copyAllotPolicy",function(req,res){
 });
 //修改调货政策
 router.post("/editAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("860afa00-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -244,7 +244,7 @@ router.post("/editAllotPolicy",function(req,res){
 });
 //导出销售政策
 router.post("/exportAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("c39f8f80-d81f-11e8-a52f-4f446572c8cf") < 0){
+  if(req.session.user[0].authority_code.indexOf("c39f8f80-d81f-11e8-a52f-4f446572c8cf,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -283,7 +283,7 @@ router.post("/exportAllotPolicy",function(req,res){
 });
 //查询销售政策
 router.post("/getAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("83ff2470-d43d-11e8-984b-5b9b376cac6a") < 0){
+  if(req.session.user[0].authority_code.indexOf("83ff2470-d43d-11e8-984b-5b9b376cac6a,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增联系人
 router.post("/saveBusiness",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("92") < 0){
+  if(req.session.user[0].authority_code.indexOf("92,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -21,7 +21,7 @@ router.post("/saveBusiness",function(req,res){
 });
 //编辑联系人
 router.post("/editBusiness",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("91") > -1){
+  if(req.session.user[0].authority_code.indexOf("91,") > -1){
     var business = DB.get("Business");
   	req.body.business_group_id = req.session.user[0].group_id;
     delete req.body.business_create_time;
@@ -37,7 +37,7 @@ router.post("/editBusiness",function(req,res){
 });
 //删除联系人
 router.post("/deleteBusiness",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("90") < 0){
+  if(req.session.user[0].authority_code.indexOf("90,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -52,7 +52,7 @@ router.post("/deleteBusiness",function(req,res){
 });
 //获取联系人列表
 router.post("/getBusiness",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("89") < 0){
+  if(req.session.user[0].authority_code.indexOf("89,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
