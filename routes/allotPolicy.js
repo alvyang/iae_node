@@ -153,7 +153,7 @@ function getAllotSql(req){
     sql += " and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') <= '"+end+"'";
   }
   if(req.body.data.allot_return_flag){
-    sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
+    sql += req.body.data.allot_return_flag=="已付"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
   if(req.body.data.contactId){
     sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";

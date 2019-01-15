@@ -18,5 +18,6 @@ module.exports = {
 					'purchase_return_flag',
 					'purchase_create_time',
 					'purchase_create_userid',
-					'batch_number']
+					'batch_number',
+					'ticket_number']
 };

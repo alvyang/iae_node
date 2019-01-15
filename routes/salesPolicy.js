@@ -175,6 +175,9 @@ function getQuerySql(req){
     var end = new Date(req.body.data.salesReturnTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.sale_return_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.sale_return_time,'%Y-%m-%d') <= '"+end+"'";
   }
+  if(req.body.data.sale_return_flag){
+    sql += req.body.data.sale_return_flag=="已付"?" and s.sale_return_time is not null":" and s.sale_return_time is null";
+  }
   if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }

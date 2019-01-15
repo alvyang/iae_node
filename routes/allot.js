@@ -433,7 +433,8 @@ router.post("/editAllot",function(req,res){
   		allot_return_flag:req.body.allot_return_flag,
       allot_account_name:req.body.allot_account_name,
       allot_account_number:req.body.allot_account_number,
-      allot_account_address:req.body.allot_account_address
+      allot_account_address:req.body.allot_account_address,
+      allot_type:req.body.allot_type
     }
     if(req.body.allot_account_id){
       params.allot_account_id = req.body.allot_account_id;
@@ -543,13 +544,17 @@ router.post("/exportAllot",function(req,res){
     },{caption:'产品规格',type:'string'
     },{caption:'生产厂家',type:'string'
     },{caption:'单位',type:'string'
+    },{caption:'调货类型',type:'string',
+      beforeCellWrite:function(row, cellData){
+        return cellData=="1"?"调货出库":"调货退回";
+      }
     },{caption:'商业',type:'string'
     },{caption:'调货数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
     }];
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money'];
+                  'product_makesmakers','product_unit','allot_type','business_name','allot_number','allot_price','allot_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -599,7 +604,7 @@ function getAllotSql(req){
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
             "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,"+
             "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
-            "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
+            "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,a.allot_type,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
             "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,ap.allot_policy_contact_id,c.contacts_name,bus.business_name "+
             "from allot a "+

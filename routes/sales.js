@@ -633,7 +633,7 @@ function updateAllotAccountDetail(req){
   if(req.body.sale_return_time){
     bankaccountdetail.account_detail_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
   }
-  bankaccountdetail.account_detail_mark = bankaccountdetail.account_detail_time+req.body.hospital_name+"销售"+
+  bankaccountdetail.account_detail_mark = req.body.bill_date+req.body.hospital_name+"销售"+
                                           req.body.product_common_name+"付积分"+req.body.sale_return_money;
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
   bankaccountdetail.flag_id = "sale_hospital_"+req.body.sale_id;
