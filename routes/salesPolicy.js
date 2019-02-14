@@ -163,7 +163,7 @@ function getQuerySql(req){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
   if(req.body.data.sale_contact_id){
-    sql += " and s.sale_contact_id = '"+req.body.data.sale_contact_id+"'"
+    sql += " and sp.sale_policy_contact_id = '"+req.body.data.sale_contact_id+"'"
   }
   if(req.body.data.salesTime){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");

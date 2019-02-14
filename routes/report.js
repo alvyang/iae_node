@@ -250,16 +250,21 @@ router.post("/getSalesByHospital",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  var sql = "select h.hospital_name,sum(s.sale_money) sale_money from sales s left join hospitals h "+
-            "on s.hospital_id = h.hospital_id where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' "+
-            "and h.delete_flag='0' and h.group_id = '"+req.session.user[0].group_id+"' ";
+  var sql = "select h.hospital_name,sum(s.sale_money) sale_money from sales s "+
+            "left join drugs d on s.product_code = d.product_code "+
+            "left join business b on d.product_business = b.business_id "+
+            "left join hospitals h on s.hospital_id = h.hospital_id "+
+            "where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+            "and h.delete_flag='0' and h.group_id = '"+req.session.user[0].group_id+"' "+
+            "and b.business_delete_flag='0' and b.business_group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.salesTime && req.body.data.salesTime.length > 1){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
   }
   if(req.body.data.business){
-    sql+=" and s.hospital_id = '"+req.body.data.business+"' "
+    sql+=" and d.product_business = '"+req.body.data.business+"' "
   }
   sql+=" group by h.hospital_id";
   var sales = DB.get("Sales");
@@ -380,7 +385,9 @@ router.post('/getTagAnalysis',function(req,res){
   if(req.body.tag_type){
     sql += " and t.tag_type = '"+req.body.tag_type+"'";
   }
-  sql = "select tdt.tag_name,tdt.tag_id,d.product_code,d.product_business from ("+sql+") tdt left join drugs d on d.product_id = tdt.drug_id";
+  sql = "select tdt.tag_name,tdt.tag_id,d.product_code,d.product_business from ("+sql+") tdt left join drugs d on d.product_id = tdt.drug_id "+
+        "where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+
   sql = "select ifnull(sum(s.sale_money),0) sm,ifnull(sum(s.real_gross_profit),0) rgp ,sd.tag_name  from ("+sql+") sd left join sales s "+
         "on sd.product_code = s.product_code where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.salesTime && req.body.salesTime.length > 1){

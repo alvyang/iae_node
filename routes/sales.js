@@ -419,10 +419,11 @@ router.post("/exportSales",function(req,res){
     },{caption:'生产厂家',type:'string'
     },{caption:'单位',type:'string'
     },{caption:'计划数量',type:'number'
+    },{caption:'商业',type:'string'
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
     }];
-    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','sale_price','sale_money'];
+    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -720,12 +721,14 @@ function getQuerySql(req){
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name "+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,td.tag_ids "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code ";
-  if(req.body.data.tag && req.body.data.tag != 'undefined'){
-    sql+="left join tag_drug td on d.product_id = td.drug_id ";
-  }
+  // if(req.body.data.tag && req.body.data.tag != 'undefined'){
+    var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids from tag_drug tagd "+
+                 "where tagd.tag_drug_deleta_flag = '0' and tagd.tag_drug_group_id = '"+req.session.user[0].group_id+"' group by tagd.drug_id ";
+    sql+="left join ("+tagSql+") td on d.product_id = td.drug_id ";
+  // }
   sql +="left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id ";
   sql +="left join business bus on d.product_business = bus.business_id "+
         "left join hospitals h on s.hospital_id = h.hospital_id "+
@@ -735,6 +738,9 @@ function getQuerySql(req){
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and s.sale_create_userid = '"+req.session.user[0].id+"'";
+  }
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
+    sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
   }
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
@@ -776,10 +782,6 @@ function getQuerySql(req){
   }
   if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
-  }
-  //连接查询标签
-  if(req.body.data.tag && req.body.data.tag != 'undefined'){
-    sql += " and td.tag_id = '"+req.body.data.tag+"'";
   }
   if(req.body.data.salesReturnFlag){
     sql += " and sp.sale_policy_money is not null and sp.sale_policy_money !=''";

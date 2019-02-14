@@ -72,6 +72,14 @@ router.post("/getAccountsDetails",function(req,res){
   }else if(req.body.data.account_type&&req.body.data.account_type == "2"){
     sql += " and b.account_detail_money < 0 ";
   }
+  if(req.body.data.textarea){
+    sql += " and b.account_detail_mark like '%"+req.body.data.textarea+"%'";
+  }
+  if(req.body.data.account_detail_time){
+    var start = new Date(req.body.data.account_detail_time[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.account_detail_time[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(b.account_detail_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(b.account_detail_time,'%Y-%m-%d') <= '"+end+"'";
+  }
   accountDetail.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询银行流水，查询总数出错" + err);

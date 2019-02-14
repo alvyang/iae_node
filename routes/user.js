@@ -23,7 +23,7 @@ router.post("/saveUsers",function(req,res){
   }
   var user = DB.get("Users");
   var md5 = crypto.createHash('md5');
-  req.body.group_id = req.session.user[0].group_id;
+  req.body.group_id?req.body.group_id:req.session.user[0].group_id;
   req.body.user_create_userid = req.session.user[0].id;
   req.body.password = md5.update(req.body.password).digest('base64');
   req.body.user_create_time = new Date();
@@ -96,8 +96,8 @@ router.post("/getUsers",function(req,res){
     return ;
   }
   var user = DB.get("Users");
-  var sql = "select u.*,r.role_name,g.group_code from users u left join role r on u.role_id = r.role_id "+
-            " left join groups g on g.group_id = r.group_id "+
+  var sql = "select u.*,r.role_name,g.group_code,g.group_name from users u left join role r on u.role_id = r.role_id "+
+            " left join groups g on g.group_id = u.group_id "+
             " where u.delete_flag = '0' ";
   if(req.session.user[0].username != 'admin'){
     sql+=" and u.group_id = '"+req.session.user[0].group_id+"'  "

@@ -20,9 +20,10 @@ router.get("/downloadErrorAllots",function(req,res){
   },{caption:'调货单价',type:'string'
   },{caption:'调货数量',type:'string'
   },{caption:'调货单位',type:'string'
+  },{caption:'调货类型',type:'string'
   },{caption:'错误信息',type:'string'
   }];
-  var header = ['allot_time','product_code','batch_number','storage_time','allot_price','allot_number','hospital_name','errorMessage'];
+  var header = ['allot_time','product_code','batch_number','storage_time','allot_price','allot_number','hospital_name','allot_type','errorMessage'];
   var d = JSON.parse(req.session.errorAllotsData);
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
@@ -59,7 +60,7 @@ router.post("/importAllots",function(req,res){
         //指插入调货记录
         var insertAllotSql = "insert allot (allot_id,allot_time,allot_price,allot_number,allot_hospital,allot_drug_id,allot_money,"+
                              "allot_group_id,allot_create_userid,allot_create_time,allot_return_price,allot_return_money,allot_mack_price,"+
-                             "allot_purchase_id,batch_number) values";
+                             "allot_purchase_id,batch_number,allot_type) values";
         //更新库存sql
         var updateStockSql = "insert into batch_stock(batch_stock_drug_id,batch_stock_purchase_id,batch_stock_number) values ";
         //新增返款流水
@@ -74,7 +75,7 @@ router.post("/importAllots",function(req,res){
                           "'"+sData[i].allot_hospital+"','"+sData[i].allot_drug_id+"','"+sData[i].allot_money+"',"+
                           "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+createTime+"',"+
                           "'"+sData[i].allot_return_price+"','"+sData[i].allot_return_money+"','"+sData[i].allot_mack_price+"',"+
-                          "'"+sData[i].allot_purchase_id+"','"+sData[i].batch_number+"'),";
+                          "'"+sData[i].allot_purchase_id+"','"+sData[i].batch_number+"','"+sData[i].allot_type+"'),";
           //更新库存sql
           var key = sData[i].allot_drug_id+"--"+sData[i].allot_purchase_id;
           batchStockOject[key]=batchStockOject[key]?batchStockOject[key]-sData[i].allot_number:sData[i].stock-sData[i].allot_number;
@@ -123,6 +124,7 @@ function verData(req,data){
   for(var i = 0 ;i < sales.length;i++){
     //非空验证
     var d = {};
+    d.allot_type = sales[i].allot_type;
     d.allot_time = sales[i].allot_time;
     d.allot_price = sales[i].allot_price;
     d.allot_number = sales[i].allot_number;
@@ -136,8 +138,8 @@ function verData(req,data){
     d.product_type = sales[i].product_type;
     d.storage_time = sales[i].storage_time;
     d.allot_time = new Date(d.allot_time).format('yyyy-MM-dd');
-    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code||!d.batch_number){
-      d.errorMessage = "调货日期、产品编号、批号、调货单价、调货数量、调货单位为必填项";
+    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code||!d.batch_number || !d.allot_type){
+      d.errorMessage = "调货日期、产品编号、批号、调货单价、调货数量、调货单位、调货类型为必填项";
       errData.push(d);
       continue;
     }
@@ -186,6 +188,7 @@ function verData(req,data){
       errData.push(d);
       continue;
     }
+    d.allot_type = sales[i].allot_type;
     d.allot_mack_price = sales[i].product_mack_price;
     d.allot_money = util.mul(d.allot_number,d.allot_price,2);
     d.allot_policy_contact_id = sales[i].allot_policy_contact_id?sales[i].allot_policy_contact_id:"";
@@ -234,6 +237,7 @@ function getAllotsData(req,allots){
               result[j].hospital_name=d.hospital_name;
               result[j].batch_number=d.batch_number;
               result[j].storage_time= d.storage_time;
+              result[j].allot_type= d.allot_type;
               var temp = JSON.stringify(result[j]);
               allotsDrugsData.push(JSON.parse(temp));
             }
@@ -319,7 +323,8 @@ function arrayToObject(sales){
     storage_time:sales[3],
     allot_price:sales[4],
     allot_number:sales[5],
-    hospital_name:sales[6]
+    hospital_name:sales[6],
+    allot_type:sales[7],
   }
 }
 //新增调货记录
