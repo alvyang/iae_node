@@ -44,7 +44,7 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'调货数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
-    },{caption:'上游实返积分',type:'number'
+    },{caption:'实收上游积分',type:'number'
     },{caption:'政策积分',type:'number'
     },{caption:'应回积分',type:'number'
     },{
@@ -79,23 +79,29 @@ router.post("/getAllotReturnMoney",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询调货列表，查询调货总数出错" + err);
       }
-      var numSql = "select sum(num.allot_return_money) as returnMoney,sum(num.allot_money) as allotMoney from ( " + sql + " ) num";
+      var numSql = "select sum(num.allot_return_money) as returnMoney from ( " + sql + " ) num";
+      var numSql1 = "select sum(num.allot_return_money) as returnMoney from ( " + sql + " ) num where num.allot_return_time is not null";
       allot.executeSql(numSql,function(err,m){//查询调货应返金额
         if(err){
           logger.error(req.session.user[0].realname + "查询调货列表，计算返款金额出错" + err);
         }
-        req.body.page.returnMoney = m && m[0].returnMoney?Math.round(m[0].returnMoney*100)/100:0;
-        req.body.page.allotMoney = m && m[0].allotMoney?Math.round(m[0].allotMoney*100)/100:0;
-        req.body.page.totalCount = result;
-        req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-        sql += " order by a.allot_time desc,a.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
-        allot.executeSql(sql,function(err,result){
+        allot.executeSql(numSql1,function(err,m1){//查询调货应返金额
           if(err){
-            logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
+            logger.error(req.session.user[0].realname + "查询调货列表，计算返款金额1出错" + err);
           }
-          req.body.page.data = result;
-          logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
-          res.json({"code":"000000",message:req.body.page});
+          req.body.page.returnMoney = m && m[0].returnMoney?Math.round(m[0].returnMoney*100)/100:0;
+          req.body.page.returnMoney1 = m1 && m1[0].returnMoney?Math.round(m1[0].returnMoney*100)/100:0;
+          req.body.page.totalCount = result;
+          req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+          sql += " order by a.allot_time desc,a.allot_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+          allot.executeSql(sql,function(err,result){
+            if(err){
+              logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
+            }
+            req.body.page.data = result;
+            logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
+            res.json({"code":"000000",message:req.body.page});
+          });
         });
       });
 
@@ -316,6 +322,9 @@ function getAllotPolicySql(req){
   }
   if(req.body.data.contactId){
     sql += " and ap.allot_policy_contact_id = '"+req.body.data.contactId+"'";
+  }
+  if(req.body.data.productCode){
+    sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接业务员
   sql = "select apc.*,c.contacts_name from ("+sql+") apc left join contacts c on apc.allot_policy_contact_id = c.contacts_id";

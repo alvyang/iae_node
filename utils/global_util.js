@@ -105,6 +105,31 @@ exports.div = function(arg1,arg2,num){//除法
     num = Math.pow(10,num);
     return Math.round(a*num)/num;
 }
+//获取n月日期
+exports.getnMonth = function(n,data){
+  //获取年
+  var year=data.getFullYear();
+  //获取月
+  var month=data.getMonth()+1;
+  var arry=new Array();
+  var flag = true;
+  for(var i=0;i<n;i++){
+      var mon = month - i;
+      if(mon<=0 && flag){
+        year=year-1;
+        flag = false;
+      }
+      if(mon<=0){
+        mon =mon+12;
+      }
+      if(mon<10){
+          mon="0"+mon;
+      }
+      arry[i]=year+"-"+mon;
+  }
+  return arry;
+}
+//获取6个月日期
 exports.getSixMonth = function(){
   //创建现在的时间
   var data=new Date();

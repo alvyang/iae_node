@@ -3,6 +3,361 @@ var logger = require('../utils/logger');
 var util= require('../utils/global_util.js');
 var router = express.Router();
 
+//计算方差，标准差，来获取偏离程度，统计产品销售是否稳定
+router.post("/getSaleVariance",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  getSaleVariance(req).then(data => {
+    var date = new Date();
+    date.setMonth(date.getMonth()-1,1);
+    var d = util.getnMonth(12,date);
+    //计算方差
+    for(var i = 0 ; i < data.length;i++){
+      culVariance(data[i],d)
+    }
+    selectSortVariance(data);
+    res.json({"code":"000000",message:{data:data,time:d}});
+  });
+});
+//选择排序
+function selectSortVariance(arr){
+    for(var i=0;i<arr.length;i++){
+        //设置当前范围最小值和索引
+        var min = arr[i];
+        var minIndex = i;
+        //在该范围选出最小值
+        for(var j=i+1;j<arr.length;j++){
+            if(min.continuity>arr[j].continuity){
+                min = arr[j];
+                minIndex = j;
+            }
+        }
+        //将最小值插入,并将原来位置的最小值删除
+        arr.splice(i,0,min);
+        arr.splice(minIndex+1,1);
+    }
+    return arr.reverse();
+}
+//计算方式
+function culVariance(data,d){
+  var cum = 0;//累计
+  var saleMoney = [];
+  for(var i = 0 ; i < d.length;i++){
+    cum += data[d[i]];
+    saleMoney.push(data[d[i]]);
+  }
+  var avg = cum/12;
+  var s = 0;
+  var continuity1=0,continuity2=0;//continuity1  值大于0的个数   continuity2等于0的个数
+  for(var j = 0 ; j < saleMoney.length;j++){
+    saleMoney[j]>0?continuity1++:continuity2++;
+    s+=(saleMoney[j]-avg)*(saleMoney[j]-avg);
+  }
+  continuity1=continuity1==0?1:continuity1;
+  continuity2=continuity2==0?1:continuity2;
+  data.variance = Math.sqrt(s/12);
+  data.variance = Math.round(Math.sqrt(s/12)*100)/100;
+  data.continuity = Math.round(continuity1*100/continuity2)/100;
+}
+function getSaleVariance(req){
+  //查询近12个月日期
+  var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
+                "FROM (SELECT @rownum := 0) AS r_init,(select * from sales s limit 12) as c_init";
+  var data = new Date();
+  data.setMonth(data.getMonth()-1,1);
+  var d = util.getnMonth(12,data);
+  //以药品信息，及日期分组查询出销售数据
+  var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
+            "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
+            " and DATE_FORMAT(s.bill_date,'%Y-%m') >= '"+d[11]+"' and DATE_FORMAT(s.bill_date,'%Y-%m') <= '"+d[0]+"' ";
+  if(req.body.data.hospitalsId){
+    saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
+  }
+  if(req.body.data.business){
+    saleSql += " and d.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
+  //以药品为左表，查出想对应的月销售数据，这样做目的是，同时，查出没有销售的药品数据
+  var sql = "select ds.product_common_name,ds.product_specifications,ds.product_makesmakers,";
+  for(var i = 0 ; i < d.length;i++){
+    sql+=" Max(case sd.all_day when '"+d[i]+"' then s2.sn else 0 end ) '"+d[i]+"',";
+  }
+  sql = sql.substring(0,sql.length-1);
+  sql += " from drugs ds left join ("+saleSql+") s2 on ds.product_common_name = s2.product_common_name and ds.product_specifications = s2.product_specifications "+
+        "and ds.product_makesmakers = s2.product_makesmakers "+
+        "left join ("+dataSql+") sd on s2.bd = sd.all_day "+
+        "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
+  if(req.body.data.business){
+    sql += " and ds.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  sql += " group by ds.product_common_name,ds.product_specifications,ds.product_makesmakers";
+  return new Promise((resolve, reject) => {//查询所有药品编码
+    var sales = DB.get("Sales");
+    sales.executeSql(sql,function(err,r){
+      resolve(r);
+    });
+  });
+}
+//产品同比分析
+router.post("/getSaleOnYear",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  getSaleOnYear(req).then(data => {
+    //获取同比的时间 同比选择三年内 当月 前月  后一个月的时间  9个月的统计
+    var gd = getOnYearDate();
+    var d = gd.date;
+    var ms = gd.month;
+    for(var i = 0 ; i < data.length;i++){
+      var key = data[i].key.split("::-::");
+      data[i].product_common_name = key[0];
+      data[i].product_specifications = key[1];
+      data[i].product_makesmakers = key[3];
+      for(var m in data[i]){
+        data[i]['sum']=data[i]['sum']?data[i]['sum']:0;
+        for(var j = 0 ; j < d.length ; j++){
+          if(m == d[j].time){
+            var value = req.body.type=="sn"?data[i][d[j].time+'sn']:data[i][d[j].time];
+            data[i]['sum'] += parseFloat(value);
+          }
+        }
+      }
+      data[i]['sum'] = Math.round(data[i]['sum']*100)/100;
+    }
+    data = selectSort(data);
+    res.json({"code":"000000",message:{
+      data:data,
+      month:ms.reverse(),
+      time:gd.date.reverse()
+    }});
+  });
+});
+function getSaleOnYear(req){
+  //获取同比的时间 同比选择三年内 当月 前月  后一个月的时间  9个月的统计
+  var date = getOnYearDate();
+  var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
+            "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
+            " and DATE_FORMAT(s.bill_date,'%Y-%m') in ("+date.dateStr+") ";
+  if(req.body.data.hospitalsId){
+    saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
+  }
+  if(req.body.data.business){
+    saleSql += " and d.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
+  var sql = "select ds.product_common_name,ds.product_specifications,ds.product_makesmakers,s2.bd,s2.sm,s2.sn from drugs ds left join ("+saleSql+") s2 on ds.product_common_name = s2.product_common_name and ds.product_specifications = s2.product_specifications "+
+            "and ds.product_makesmakers = s2.product_makesmakers "+
+            "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
+  if(req.body.data.business){
+    sql += " and ds.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  return new Promise((resolve, reject) => {//查询所有药品编码
+    var sales = DB.get("Sales");
+    sales.executeSql(sql,function(err,r){
+      var data = [];
+      for(var i = 0 ; i < r.length; i++){
+        var temp = {};
+        var pFlag = true;
+        var key = r[i].product_common_name+"::-::"+r[i].product_specifications+"::-::"+r[i].product_unit+"::-::"+r[i].product_makesmakers;
+        for(var j = 0 ; j<data.length;j++){
+          if(data[j].key == key){
+            pFlag = false;
+            data[j][r[i].bd]=r[i].sm;
+            data[j][r[i].bd+'sn']=r[i].sn;
+          }
+        }
+        if(pFlag){
+          temp.key = key;
+          temp[r[i].bd] = r[i].sm;
+          temp[r[i].bd+'sn'] = r[i].sn;
+          data.push(temp);
+        }
+      }
+      resolve(data);
+    });
+  });
+}
+//获取 同比时间
+function getOnYearDate(){
+  var date = [];
+  var dateStr="";
+  var ms=[];
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth();
+  for(var i = -1 ; i < 2;i++){
+    var m = month-i+1;
+    m = m>9?m:"0"+m;
+    ms.push(m);
+    for(var j = 0 ; j < 3;j++){
+      now.setFullYear(year-j,month-i,1);
+      var temp = now.format("yyyy-MM");
+      date.push({
+        time:temp,
+        year:temp.split("-")[0],
+        month:temp.split("-")[1]
+      });
+      dateStr+="'"+temp+"',";
+    }
+  }
+  return {
+    date:date,
+    month:ms,
+    dateStr:dateStr.substring(0,dateStr.length-1)
+  };
+}
+//产品环比分析
+router.post("/getReportSaleChainRatio",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  getSaleAble(req).then(data => {
+    var d = util.getnMonth(12,new Date());
+    for(var i = 0 ; i < data.length;i++){
+      var key = data[i].key.split("::-::");
+      data[i].product_common_name = key[0];
+      data[i].product_specifications = key[1];
+      data[i].product_makesmakers = key[3];
+      for(var m in data[i]){
+        data[i]['sum']=data[i]['sum']?data[i]['sum']:0;
+        for(var j = 0 ; j < d.length ; j++){
+          if(m == d[j]){
+            var value = req.body.type=="sn"?data[i][d[j]+'sn']:data[i][d[j]];
+            data[i]['sum'] += parseFloat(value);
+          }
+        }
+      }
+      data[i]['sum'] = Math.round(data[i]['sum']*100)/100;
+    }
+    data = selectSort(data);
+    res.json({"code":"000000",message:{
+      data:data,
+      time:d.reverse()
+    }});
+  });
+});
+//选择排序
+function selectSort(arr){
+    for(var i=0;i<arr.length;i++){
+        //设置当前范围最小值和索引
+        var min = arr[i];
+        var minIndex = i;
+        //在该范围选出最小值
+        for(var j=i+1;j<arr.length;j++){
+            if(min.sum>arr[j].sum){
+                min = arr[j];
+                minIndex = j;
+            }
+        }
+        //将最小值插入,并将原来位置的最小值删除
+        arr.splice(i,0,min);
+        arr.splice(minIndex+1,1);
+    }
+    return arr.reverse();
+}
+function getSaleAble(req){
+  var d = util.getnMonth(12,new Date());
+  var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
+            "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
+            " and DATE_FORMAT(s.bill_date,'%Y-%m') >= '"+d[11]+"' and DATE_FORMAT(s.bill_date,'%Y-%m') <= '"+d[0]+"' ";
+  if(req.body.data.hospitalsId){
+    saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
+  }
+  if(req.body.data.business){
+    saleSql += " and d.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
+  var sql = "select ds.product_common_name,ds.product_specifications,ds.product_makesmakers,s2.bd,s2.sm,s2.sn from drugs ds left join ("+saleSql+") s2 on ds.product_common_name = s2.product_common_name and ds.product_specifications = s2.product_specifications "+
+            "and ds.product_makesmakers = s2.product_makesmakers "+
+            "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
+  if(req.body.data.business){
+    sql += " and ds.product_business = '"+req.body.data.business+"' ";
+  }
+  if(req.body.data.productCommonName){
+    sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
+  }
+  if(req.body.data.product_distribution_flag){
+    sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
+  }
+  return new Promise((resolve, reject) => {//查询所有药品编码
+    var sales = DB.get("Sales");
+
+    sales.executeSql(sql,function(err,r){
+      var data = [];
+      for(var i = 0 ; i < r.length; i++){
+        var temp = {};
+        var pFlag = true;
+        var key = r[i].product_common_name+"::-::"+r[i].product_specifications+"::-::"+r[i].product_unit+"::-::"+r[i].product_makesmakers;
+        for(var j = 0 ; j<data.length;j++){
+          if(data[j].key == key){
+            pFlag = false;
+            data[j][r[i].bd]=r[i].sm;
+            data[j][r[i].bd+'sn']=r[i].sn;
+          }
+        }
+        if(pFlag){
+          temp.key = key;
+          temp[r[i].bd] = r[i].sm;
+          temp[r[i].bd+'sn'] = r[i].sn;
+          data.push(temp);
+        }
+      }
+      resolve(data);
+    });
+  });
+}
 //查询利润负债，综合查询
 router.post("/getReportComprehensive",function(req,res){
   if(req.session.user[0].authority_code.indexOf("99,") < 0){
@@ -304,6 +659,9 @@ router.post("/getSalesByProduct",function(req,res){
   }
   if(req.body.data.business){
     sql+="and d.product_business = '"+req.body.data.business+"' "
+  }
+  if(req.body.data.product_distribution_flag){
+    sql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   sql+="group by d.product_common_name,d.product_specifications,d.product_makesmakers";
   var sales = DB.get("Sales");

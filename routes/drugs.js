@@ -35,12 +35,13 @@ router.get("/downloadErrorData",function(req,res){
   },{caption:'返款金额',type:'number'
   },{caption:'返款说明',type:'string'
   },{caption:'返款统计（1:销售记录返。2:备货记录返；3:无返款）',type:'string'
+  },{caption:'联系人',type:'string'
   },{caption:'错误信息',type:'string'
   }];
   var header = ['product_common_name','product_code','product_specifications','product_makesmakers','product_tax_rate',
             'buyer','product_business','product_packing','product_unit','product_medical_type','product_price','product_mack_price',
             'accounting_cost','product_purchase_mode','product_basic_medicine','product_type','product_floor_price','product_high_discount',
-            'product_return_money','product_return_explain','product_return_statistics','errorMessage'];
+            'product_return_money','product_return_explain','product_return_statistics','contacts_name','errorMessage'];
   var d = JSON.parse(req.session.errorDrugsData);
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
@@ -66,7 +67,7 @@ router.post("/importDrugs",function(req,res){
         return;
       }
       getDrugsInsertData(req).then(data => {
-        var drugData = getDrugsData(output,data.code,data.business);//转换数据
+        var drugData = getDrugsData(output,data.code,data.business,data.contact);//转换数据
         req.session.errorDrugsData = JSON.stringify(drugData.errData);//错误的数据
         var cData = drugData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+cData.length+"</a>条；导入错误<a style='color:red;'>"+drugData.errData.length+"</a>条；"
@@ -78,7 +79,7 @@ router.post("/importDrugs",function(req,res){
                   "buyer,product_business,product_packing,product_unit,product_basic_medicine,product_price,product_mack_price,"+
                   "accounting_cost,product_purchase_mode,product_type,product_floor_price,product_high_discount,"+
                   "product_return_money,product_return_explain,product_return_statistics,group_id,product_create_time,product_create_userid,"+
-                  "product_discount,gross_interest_rate,product_medical_type,product_return_discount) VALUES ";
+                  "product_discount,gross_interest_rate,product_medical_type,product_return_discount,contacts_id) VALUES ";
         for(var i = 0 ; i < cData.length; i++){
           cData[i].product_id = uuid.v1();
           cData[i].group_id = req.session.user[0].group_id;
@@ -92,7 +93,7 @@ router.post("/importDrugs",function(req,res){
                  "'"+cData[i].product_type+"','"+cData[i].product_floor_price+"','"+cData[i].product_high_discount+"',"+
                  "'"+cData[i].product_return_money+"','"+cData[i].product_return_explain+"','"+cData[i].product_return_statistics+"',"+
                  "'"+cData[i].group_id+"','"+cData[i].product_create_time+"','"+cData[i].product_create_userid+"','"+cData[i].product_discount+"',"+
-                 "'"+cData[i].gross_interest_rate+"','"+cData[i].product_medical_type+"','"+cData[i].product_return_discount+"'),";
+                 "'"+cData[i].gross_interest_rate+"','"+cData[i].product_medical_type+"','"+cData[i].product_return_discount+"','"+cData[i].contacts_id+"'),";
         }
         sql = sql.substring(0,sql.length-1);
         var drugsSql = DB.get("Drugs");
@@ -133,10 +134,22 @@ function getDrugsInsertData(req){
         }
       });
     });
+  }).then(data => {//查询所有的联系人
+    var contacts = DB.get("Contacts");
+    var sql = "select * from contacts c where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' ";
+    return new Promise((resolve, reject) => {//查询所有药品编码
+      contacts.executeSql(sql,function(err,contacts){
+        if(err){
+          logger.error(req.session.user[0].realname + "导入药品，查询所有联系人出错" + err);
+        }
+        data.contact = contacts;
+        resolve(data);
+      });
+    });
   });
 }
 //对上传的excel进行检验，选择出所有正确的数据和错误的数据
-function getDrugsData(drugs,code,business){
+function getDrugsData(drugs,code,business,contacts){
   //去空格处理
   for(var i = 0 ; i < drugs.length;i++){
     for(var j = 0 ;j<drugs[i].length ;j++){
@@ -210,6 +223,7 @@ function getDrugsData(drugs,code,business){
       }
       //商业
       d.product_business = getBusinessId(business,drugs[i][6]);
+      d.contacts_id = getContactsId(contacts,drugs[i][21]);
       if(!d.product_business){
         d.errorMessage = "该商业不存在";
         errData.push(d);
@@ -236,6 +250,15 @@ function getDrugsData(drugs,code,business){
     correctData:correctData,
     errData:errData
   };
+}
+//根据联系人名称 查询id
+function getContactsId(contacts,name){
+  for(var i = 0 ; i < contacts.length ;i++){
+    if(contacts[i].contacts_name == name){
+      return contacts[i].contacts_id;
+    }
+  }
+  return "";
 }
 //数据根据值，取出数据中的对象
 function getBusinessId(business,name){
@@ -269,7 +292,8 @@ function arrayToObject(drugs){
     product_high_discount:drugs[17],
     product_return_money:drugs[18],
     product_return_explain:drugs[19],
-    product_return_statistics:drugs[20]
+    product_return_statistics:drugs[20],
+    contacts_name:drugs[21]
   }
 }
 //验证产品编码是否存在

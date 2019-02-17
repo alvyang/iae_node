@@ -1,7 +1,21 @@
 var express = require("express");
 var logger = require('../utils/logger');
 var router = express.Router();
-
+//验证产品编码是否存在
+router.post("/exitsHospitlsName",function(req,res){
+  var hospitals = DB.get("Hospitals");
+  var params={
+    hospital_name:req.body.hospital.hospital_name,
+    group_id:req.session.user[0].group_id,
+    delete_flag:'0'
+  }
+  hospitals.where(params,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "验证销售医院是否存在出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
 //新增医院
 router.post("/saveHospitals",function(req,res){
   if(req.session.user[0].authority_code.indexOf("28,") < 0){

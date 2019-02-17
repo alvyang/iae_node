@@ -48,7 +48,7 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'计划数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
-    },{caption:'上游实返积分',type:'number'
+    },{caption:'实收上游积分',type:'number'
     },{caption:'政策积分',type:'number'
     },{caption:'应回积分',type:'number'
     },{
@@ -84,25 +84,29 @@ router.post("/getSalesReturnMoney",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询销售记录，统计总数出错" + err);
       }
-      var numSql = "select sum(num.sale_money) as saleMoney,sum(num.real_gross_profit) as realGrossProfit,sum(num.gross_profit) as grossProfit,sum(num.sale_return_money) as saleReturnMoney from ( " + sql + " ) num";
+      var numSql = "select sum(num.sale_return_money) as saleReturnMoney from ( " + sql + " ) num";
+      var numSql1 = "select sum(num.sale_return_money) as saleReturnMoney from ( " + sql + " ) num where sale_return_time is not null";
       sales.executeSql(numSql,function(err,money){
         if(err){
           logger.error(req.session.user[0].realname + "查询销售记录，统计金额出错" + err);
         }
-        req.body.page.totalCount = result;
-        req.body.page.saleMoney = money && money[0].saleMoney?Math.round(money[0].saleMoney*100)/100:0;
-        req.body.page.realGrossProfit = money && money[0].realGrossProfit?Math.round(money[0].realGrossProfit*100)/100:0;
-        req.body.page.grossProfit = money && money[0].grossProfit?Math.round(money[0].grossProfit*100)/100:0;
-        req.body.page.saleReturnMoney = money && money[0].saleReturnMoney?Math.round(money[0].saleReturnMoney*100)/100:0;
-        req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-        sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
-        sales.executeSql(sql,function(err,result){
+        sales.executeSql(numSql,function(err,money1){//查询已付积分总额
           if(err){
-            logger.error(req.session.user[0].realname + "查询销售记录" + err);
+            logger.error(req.session.user[0].realname + "查询销售记录，统计金额出错" + err);
           }
-          req.body.page.data = result;
-          logger.error(req.session.user[0].realname + "sales-getSales运行时长" + (noDate.getTime()-new Date().getTime()));
-          res.json({"code":"000000",message:req.body.page});
+          req.body.page.totalCount = result;
+          req.body.page.saleReturnMoney = money && money[0].saleReturnMoney?Math.round(money[0].saleReturnMoney*100)/100:0;
+          req.body.page.saleReturnMoney1 = money1 && money1[0].saleReturnMoney?Math.round(money1[0].saleReturnMoney*100)/100:0;
+          req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+          sql += " order by s.bill_date desc,s.sale_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+          sales.executeSql(sql,function(err,result){
+            if(err){
+              logger.error(req.session.user[0].realname + "查询销售记录" + err);
+            }
+            req.body.page.data = result;
+            logger.error(req.session.user[0].realname + "sales-getSales运行时长" + (noDate.getTime()-new Date().getTime()));
+            res.json({"code":"000000",message:req.body.page});
+          });
         });
       });
     });
@@ -345,6 +349,9 @@ function getSalesPolicySql(req){
   }
   if(req.body.data.sale_contact_id){
     sql += " and sp.sale_policy_contact_id = '"+req.body.data.sale_contact_id+"'";
+  }
+  if(req.body.data.productCode){
+    sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接业务员
   sql = "select dsc.*,c.contacts_name from ("+sql+") dsc left join contacts c on dsc.sale_policy_contact_id = c.contacts_id";

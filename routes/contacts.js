@@ -2,6 +2,21 @@ var express = require("express");
 var logger = require('../utils/logger');
 var router = express.Router();
 
+//验证产品编码是否存在
+router.post("/exitsContactsName",function(req,res){
+  var contacts = DB.get("Contacts");
+  var params={
+    contacts_name:req.body.contact.contacts_name,
+    group_id:req.session.user[0].group_id,
+    delete_flag:'0'
+  }
+  contacts.where(params,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "验证联系人是否存在出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
 //新增联系人
 router.post("/saveContacts",function(req,res){
   if(req.session.user[0].authority_code.indexOf("32,") < 0){
