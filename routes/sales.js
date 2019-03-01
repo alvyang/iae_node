@@ -541,7 +541,7 @@ function saveSaleHospitalAccountDetail(req,id){
 }
 //编辑销售记录
 router.post("/editSales",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("49,") > 0 || req.session.user[0].authority_code.indexOf("4a023420-d40a-11e8-bfbc-6f9a2209108b,") > 0){
+  if(req.session.user[0].authority_code.indexOf("49,") > 0 || req.session.user[0].authority_code.indexOf("128,") > 0){
     var sales = DB.get("Sales");
     req.body.bill_date = new Date(req.body.bill_date).format('yyyy-MM-dd');
     var params = {
@@ -562,7 +562,9 @@ router.post("/editSales",function(req,res){
       sale_account_name:req.body.sale_account_name,
       sale_account_number:req.body.sale_account_number,
       sale_account_address:req.body.sale_account_address,
-      batch_number:req.body.batch_number
+      batch_number:req.body.batch_number,
+      sale_other_money:req.body.sale_other_money,
+      sale_return_real_return_money:req.body.sale_return_real_return_money
     }
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
@@ -630,12 +632,12 @@ function updateAllotAccountDetail(req){
     bankaccountdetail.account_detail_deleta_flag = '0';
     bankaccountdetail.account_id = req.body.sale_account_id;
   }
-  bankaccountdetail.account_detail_money = -req.body.sale_return_money;
+  bankaccountdetail.account_detail_money = -req.body.sale_return_real_return_money;
   if(req.body.sale_return_time){
     bankaccountdetail.account_detail_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
   }
   bankaccountdetail.account_detail_mark = req.body.bill_date+req.body.hospital_name+"销售"+
-                                          req.body.product_common_name+"付积分"+req.body.sale_return_money;
+                                          req.body.product_common_name+"付积分"+req.body.sale_return_real_return_money;
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
   bankaccountdetail.flag_id = "sale_hospital_"+req.body.sale_id;
   bankaccountdetail.account_detail_create_time = new Date();
@@ -681,7 +683,7 @@ router.post("/deleteSales",function(req,res){
 //查询销售记录
 router.post("/getSales",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("51,") > 0 || req.session.user[0].authority_code.indexOf("47979cc0-d40a-11e8-bfbc-6f9a2209108b,") > 0){
+  if(req.session.user[0].authority_code.indexOf("51,") > 0 || req.session.user[0].authority_code.indexOf("127,") > 0){
     var sales = DB.get("Sales");
     var sql = getQuerySql(req);
     sales.countBySql(sql,function(err,result){
@@ -717,7 +719,7 @@ router.post("/getSales",function(req,res){
 function getQuerySql(req){
   //连接查询医院名称
   var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
-            "s.sale_account_name,s.sale_account_number,s.sale_account_address,s.batch_number,s.sales_purchase_id,"+
+            "s.sale_account_name,s.sale_account_number,s.sale_account_address,s.batch_number,s.sales_purchase_id,s.sale_other_money,"+
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+

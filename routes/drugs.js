@@ -444,7 +444,7 @@ router.post("/deleteDrugs",function(req,res){
 });
 //导出药品表
 router.post("/exportDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("0f32a940-d803-11e8-a19c-cf0f6be47d2e,") < 0){
+  if(req.session.user[0].authority_code.indexOf("122,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

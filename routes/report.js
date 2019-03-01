@@ -45,7 +45,7 @@ function culVariance(data,d){
   var cum = 0;//累计
   var saleMoney = [];
   for(var i = 0 ; i < d.length;i++){
-    cum += data[d[i]];
+    cum += data[d[i]]/100;
     saleMoney.push(data[d[i]]);
   }
   var avg = cum/12;
@@ -53,7 +53,7 @@ function culVariance(data,d){
   var continuity1=0,continuity2=0;//continuity1  值大于0的个数   continuity2等于0的个数
   for(var j = 0 ; j < saleMoney.length;j++){
     saleMoney[j]>0?continuity1++:continuity2++;
-    s+=(saleMoney[j]-avg)*(saleMoney[j]-avg);
+    s+=(saleMoney[j]/100-avg)*(saleMoney[j]/100-avg);
   }
   continuity1=continuity1==0?1:continuity1;
   continuity2=continuity2==0?1:continuity2;

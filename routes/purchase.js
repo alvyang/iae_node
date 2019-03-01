@@ -135,6 +135,7 @@ router.post("/editPurchase",function(req,res){
 		remark:req.body.remark,
     batch_number:req.body.batch_number,
     ticket_number:req.body.ticket_number,
+    purchase_other_money:req.body.purchase_other_money,
   }
   purchase.update(params,'purchase_id',function(err,result){
     if(err){
@@ -315,7 +316,7 @@ router.post("/getPurchases",function(req,res){
   });
 });
 function getPurchasesSql(req){
-  var sql = "select p.purchase_id,p.time,p.purchase_number,p.purchase_money,p.purchase_mack_price,p.purchase_price,p.batch_number,"+
+  var sql = "select p.purchase_id,p.time,p.purchase_number,p.purchase_money,p.purchase_mack_price,p.purchase_price,p.batch_number,p.purchase_other_money,"+
             "p.puchase_gross_rate,p.make_money_time,p.send_out_time,p.storage_time,p.remark,bus.business_name,c.contacts_name,"+
             "d.product_id,d.stock,d.product_code,d.product_type,d.buyer,d.product_common_name,p.ticket_number,"+
             "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,"+

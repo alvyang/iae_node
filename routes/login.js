@@ -98,7 +98,10 @@ router.post("/password",function(req,res){
   });
 });
 router.get("/captcha",function(req,res){
-	var captcha = svgCaptcha.create();
+	var captcha = svgCaptcha.create({
+    ignoreChars: 'abcdefjhigklmnopqristuvwxyzABCDEFJHIGKLMNOPQRSTUVWXYZ',
+    size: 4,
+  });
 	req.session.captcha = captcha.text;
   res.type('svg');
   res.status(200).send(captcha.data);

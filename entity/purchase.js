@@ -19,5 +19,6 @@ module.exports = {
 					'purchase_create_time',
 					'purchase_create_userid',
 					'batch_number',
-					'ticket_number']
+					'ticket_number',
+					'purchase_other_money']
 };

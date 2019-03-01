@@ -1,0 +1,191 @@
+var express = require("express");
+var logger = require('../utils/logger');
+var util= require('../utils/global_util.js');
+var router = express.Router();
+
+//编辑报损
+router.post("/editPurchaseLoss",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("116,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var purchaseLoss = DB.get("PurchaseLoss");
+  req.body.purchaseloss_time = new Date(req.body.purchaseloss_time).format("yyyy-MM-dd");
+  var params = {
+    purchaseloss_id:req.body.purchaseloss_id,
+		purchaseloss_time:req.body.purchaseloss_time,
+    purchaseloss_money:req.body.purchaseloss_money
+  }
+  purchaseLoss.update(params,'purchaseloss_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改报损记录出错" + err);
+    }
+    res.json({"code":"000000",message:null});
+  });
+});
+//删除报损
+router.post("/deletePurchasesLoss",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("115,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var purchaseLoss = DB.get("PurchaseLoss");
+  req.body.purchaseloss_delete_flag = 1;
+  purchaseLoss.update(req.body,'purchaseloss_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "删除报损记录出错" + err);
+    }
+    res.json({"code":"000000",message:null});
+    //更新库存
+    var batchStock = DB.get("BatchStock");
+    var sqlstock = "update batch_stock set batch_stock_number=batch_stock_number+"+req.body.purchaseloss_number+" where "+
+              "batch_stock_purchase_id='"+req.body.purchaseloss_purchase_id+"' and batch_stock_drug_id='"+req.body.purchaseloss_drug_id+"'";
+    batchStock.executeSql(sqlstock,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "报损，修改批次库存出错" + err);
+      }
+    });
+  });
+});
+//新增报损记录
+router.post("/getPurchasesLossList",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("114,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var sql = getPurchasesLossListSql(req);
+  var batchStock = DB.get("BatchStock");
+  batchStock.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询报损记录总数出错" + err);
+    }
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by pl.purchaseloss_time desc,pl.purchaseloss_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    batchStock.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "查询报损记录，出错" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
+  });
+});
+function getPurchasesLossListSql(req){
+  var sql = "select pl.*,d.*,bus.business_name,c.contacts_name from purchase_loss pl left join drugs d on pl.purchaseloss_product_code = d.product_code "+
+            "left join contacts c on d.contacts_id = c.contacts_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            "where pl.purchaseloss_delete_flag = '0' and pl.purchaseloss_group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+  if(req.body.data.productCommonName){
+    sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
+  }
+  if(req.body.data.contactId){
+    sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
+  }
+  if(req.body.data.product_code){
+    sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
+  if(req.body.data.time){
+    var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(pl.purchaseloss_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(pl.purchaseloss_time,'%Y-%m-%d') <= '"+end+"'";
+  }
+  return sql;
+}
+//新增报损记录
+router.post("/savePurchasesLoss",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("117,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  if(req.body.purchaseloss_time){
+    req.body.purchaseloss_time = new Date(req.body.purchaseloss_time).format("yyyy-MM-dd");
+  }else{
+    delete req.body.purchaseloss_time;
+  }
+  if(req.body.purchaseloss_batch_stock_time){
+    req.body.purchaseloss_batch_stock_time = new Date(req.body.purchaseloss_batch_stock_time).format("yyyy-MM-dd");
+  }else{
+    delete req.body.purchaseloss_batch_stock_time;
+  }
+  req.body.purchaseloss_group_id = req.session.user[0].group_id;
+  req.body.purchaseloss_user_id = req.session.user[0].id;
+  req.body.purchaseloss_create_time = new Date();
+  var batch_stock_purchase_id = req.body.purchaseloss_purchase_id;
+  var batch_stock_drug_id = req.body.purchaseloss_drug_id;
+  var purchaseLoss = DB.get("PurchaseLoss");
+  purchaseLoss.insert(req.body,'purchaseloss_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "新增报损记录出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+    //更新库存
+    var batchStock = DB.get("BatchStock");
+    var sqlstock = "update batch_stock set batch_stock_number=batch_stock_number-"+req.body.purchaseloss_number+" where "+
+              "batch_stock_purchase_id='"+batch_stock_purchase_id+"' and batch_stock_drug_id='"+batch_stock_drug_id+"'";
+    batchStock.executeSql(sqlstock,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "报损，修改批次库存出错" + err);
+      }
+    });
+  });
+});
+
+//查询报损的批次库存记录
+router.post("/getPurchasesLossDrugs",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("114,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var batchStock = DB.get("BatchStock");
+  var sql = "select d.*,bs.*,bus.business_name,c.contacts_name from drugs d left join batch_stock bs on d.product_id = bs.batch_stock_drug_id "+
+            "left join contacts c on d.contacts_id = c.contacts_id "+
+            "left join business bus on d.product_business = bus.business_id "+
+            " where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+            " and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' and bs.batch_stock_number != 0";
+  if(req.body.data.productCommonName){
+    sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
+  }
+  if(req.body.data.contactId){
+    sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
+  }
+  if(req.body.data.product_makesmakers){
+    sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
+  }
+  if(req.body.data.product_code){
+    sql += " and d.product_code = '"+req.body.data.product_code+"'"
+  }
+  if(req.body.data.business){
+    sql += " and d.product_business = '"+req.body.data.business+"'"
+  }
+  if(req.body.data.time){
+    var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(bs.batch_stock_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(bs.batch_stock_time,'%Y-%m-%d') <= '"+end+"'";
+  }
+  batchStock.countBySql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "报损，查询批次库存，查询总数出错" + err);
+    }
+    req.body.page.totalCount = result;
+    req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+    sql += " order by bs.batch_stock_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    batchStock.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "报损，查询批次库存" + err);
+      }
+      req.body.page.data = result;
+      res.json({"code":"000000",message:req.body.page});
+    });
+  });
+
+});
+
+module.exports = router;

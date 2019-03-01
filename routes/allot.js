@@ -402,7 +402,7 @@ function saveAllotAccountDetail(req,allotId,accountDetail){
   }else{
     bankaccountdetail.account_detail_deleta_flag = '1';
   }
-  bankaccountdetail.account_detail_money = -req.body.allot_return_money;
+  // bankaccountdetail.account_detail_money = -req.body.allot_real_return_money;
   bankaccountdetail.account_detail_time = req.body.allot_return_time;
   bankaccountdetail.account_detail_mark = accountDetail;
   bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
@@ -418,7 +418,7 @@ function saveAllotAccountDetail(req,allotId,accountDetail){
 }
 //编辑调货记录
 router.post("/editAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("59,") > 0 || req.session.user[0].authority_code.indexOf("12303a00-cb9b-11e8-81ff-23b7b224f706,") > 0){
+  if(req.session.user[0].authority_code.indexOf("59,") > 0 || req.session.user[0].authority_code.indexOf("125,") > 0){
     var allot = DB.get("Allot");
     req.body.allot_time = new Date(req.body.allot_time).format("yyyy-MM-dd");
     if(req.body.allot_return_time){
@@ -439,7 +439,8 @@ router.post("/editAllot",function(req,res){
       allot_account_name:req.body.allot_account_name,
       allot_account_number:req.body.allot_account_number,
       allot_account_address:req.body.allot_account_address,
-      allot_type:req.body.allot_type
+      allot_type:req.body.allot_type,
+      allot_real_return_money:req.body.allot_real_return_money
     }
     if(req.body.allot_account_id){
       params.allot_account_id = req.body.allot_account_id;
@@ -476,7 +477,7 @@ router.post("/editAllot",function(req,res){
     }else{
       bankaccountdetail.account_detail_deleta_flag = '1';
     }
-    bankaccountdetail.account_detail_money = -req.body.allot_return_money;
+    bankaccountdetail.account_detail_money = -req.body.allot_real_return_money;
     bankaccountdetail.account_detail_time = req.body.allot_return_time;
     bankaccountdetail.account_detail_mark = req.body.account_detail;
     bankaccountdetail.flag_id = "allot_"+req.body.allot_id;
@@ -522,7 +523,7 @@ router.post("/deleteAllot",function(req,res){
 });
 //导出调货记录
 router.post("/exportAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("61f34560-d801-11e8-b0cc-65c20b1efa48,") < 0){
+  if(req.session.user[0].authority_code.indexOf("129,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -570,7 +571,7 @@ router.post("/exportAllot",function(req,res){
 //获取调货列表
 router.post("/getAllot",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("61,") > 0  || req.session.user[0].authority_code.indexOf("130627a0-cb9b-11e8-81ff-23b7b224f706,") > 0){
+  if(req.session.user[0].authority_code.indexOf("61,") > 0  || req.session.user[0].authority_code.indexOf("126,") > 0){
     var allot = DB.get("Allot");
     var sql = getAllotSql(req);
     allot.countBySql(sql,function(err,result){//查询调货总数

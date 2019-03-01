@@ -265,12 +265,13 @@ function getPurchasesSql(req){
            "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing "+//药品属性
            "from purchase p "+
            "left join refunds r on p.purchase_id = r.purchases_id "+
+           "left join purchase_recovery pr on r.purchases_id = pr.purchaserecovery_purchase_id "+
            "left join bank_account b on r.receiver = b.account_id "+
            "left join drugs d on p.drug_id = d.product_id "+
            "left join contacts c on d.contacts_id = c.contacts_id "+
            "left join business bus on d.product_business = bus.business_id "+
-           "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and r.refund_delete_flag = '0' "+
-           "and p.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+           "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and p.delete_flag = '0' "+
+           "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += " and p.purchase_create_userid = '"+req.session.user[0].id+"' ";
