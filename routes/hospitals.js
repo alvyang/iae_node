@@ -25,6 +25,7 @@ router.post("/saveHospitals",function(req,res){
   var hospitals = DB.get("Hospitals");
   req.body.group_id = req.session.user[0].group_id;
   req.body.hospital_create_userid = req.session.user[0].id;
+  req.body.hospital_type = req.body.hospital_type.join(",");
   req.body.hospital_create_time = new Date();
   hospitals.insert(req.body,'hospital_id',function(err,result){
     if(err){
@@ -38,6 +39,7 @@ router.post("/editHospitals",function(req,res){
   if(req.session.user[0].authority_code.indexOf("29,") > -1){
     var hospitals = DB.get("Hospitals");
   	req.body.group_id = req.session.user[0].group_id;
+    req.body.hospital_type = req.body.hospital_type.join(",");
     delete req.body.hospital_create_time;
     hospitals.update(req.body,'hospital_id',function(err,result){
       if(err){
@@ -97,11 +99,11 @@ router.post("/getHospitals",function(req,res){
 //获取全部医院列表
 router.post("/getAllHospitals",function(req,res){
   var hospitals = DB.get("Hospitals");
-  hospitals.where({
-    group_id:req.session.user[0].group_id,
-    delete_flag:0,
-    hospital_type:req.body.hospital_type
-  },function(err,result){
+  var sql = "select * from hospitals h where h.group_id = '"+req.session.user[0].group_id+"' and h.delete_flag = '0' ";
+  if(req.body.hospital_type){
+    sql += "and h.hospital_type like '%"+req.body.hospital_type+"%'";
+  }
+  hospitals.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询全部医院出错" + err);
     }

@@ -317,9 +317,15 @@ router.post("/editSalesPolicyBatch",function(req,res){
   var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id) values ";
   var drug = req.body.saleDrugs;
   for(var i = 0 ; i < drug.length ;i++){
-    var p = req.body.type=="2"?drug[i].price:drug[i].returnMoney;
+    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
     p=p?p:0;
-    var policyMoney = Math.round(p*req.body.policy_percent)/100;
+    var policyMoney = 0;
+    if(req.body.type=="2"||req.body.type=="3"){
+      policyMoney = Math.round(p*req.body.policy_percent)/100;
+    }else{
+      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
+      policyMoney = Math.round(policyMoney*100)/100;
+    }
     var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.sale_hospital_id;
     sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"'),";
   }

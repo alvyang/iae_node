@@ -350,6 +350,27 @@ function getSalesData(req,sales){
     }else{
       resolve(data);
     }
+  }).then(data=>{//查询调货政策
+    return new Promise((resolve, reject) => {
+      data.hospitalId=data.hospitalId.substring(0,data.hospitalId.length-1);
+      var sql = "select * from hospital_policy_record ap where ap.hospital_policy_group_id = '"+req.session.user[0].group_id+"' and ap.hospital_policy_delete_flag = '0' ";
+      drugs.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "导入销售数据，查询上游特殊政策出错" + err);
+          reject(err);
+        }else{
+          for(var i = 0 ; i < data.salesDrugsData.length;i++){
+            for(var j = 0 ;j < result.length;j++){
+              if(data.salesDrugsData[i].hospital_id == result[j].hospital_policy_hospital_id &&
+                 data.salesDrugsData[i].product_id == result[j].hospital_policy_drug_id && result[j].hospital_policy_return_money){
+                 data.salesDrugsData[i].product_return_money=result[j].hospital_policy_return_money;
+              }
+            }
+          }
+          resolve(data);
+        }
+      });
+    });
   }).then(data=>{//查询批次库存
     return new Promise((resolve, reject) => {
       var batchStock = DB.get("BatchStock");
@@ -547,6 +568,7 @@ router.post("/editSales",function(req,res){
     var params = {
       sale_id:req.body.sale_id,
   		sale_money:req.body.sale_money,
+      sale_price:req.body.sale_price,
   		sale_num:req.body.sale_num,
   		gross_profit:req.body.gross_profit,
   		real_gross_profit:req.body.real_gross_profit,

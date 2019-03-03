@@ -250,9 +250,15 @@ router.post("/editAllotPolicyBatch",function(req,res){
   var sql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id) values ";
   var drug = req.body.allotDrugs;
   for(var i = 0 ; i < drug.length ;i++){
-    var p = req.body.type=="2"?drug[i].price:drug[i].returnMoney;
+    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
     p=p?p:0;
-    var policyMoney = Math.round(p*req.body.policy_percent)/100;
+    var policyMoney = 0;
+    if(req.body.type=="2"||req.body.type=="3"){
+      policyMoney = Math.round(p*req.body.policy_percent)/100;
+    }else{
+      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
+      policyMoney = Math.round(policyMoney*100)/100;
+    }
     var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.allot_hospital_id;
     sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.allot_policy_remark+"','"+req.body.allot_policy_contact_id+"'),";
   }

@@ -450,7 +450,7 @@ function getQuerySql(req){
             "h.hospital_name,b.account_number,b.account_person,c.contacts_name,d.product_type,"+
             "d.product_business,d.product_return_explain,d.product_return_money,d.product_code,"+
             "d.product_return_discount,d.product_common_name,d.product_specifications,d.product_makesmakers,"+
-            "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount "+
+            "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount,hpr.hospital_policy_return_money "+
             "from sales s "+
             "left join refunds r on s.sale_id = r.sales_id "+
             "left join drugs d on s.product_code = d.product_code "+
@@ -458,6 +458,7 @@ function getQuerySql(req){
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on d.contacts_id = c.contacts_id "+
             "left join business bus on d.product_business = bus.business_id "+
+            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
             "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.data.overdue){
