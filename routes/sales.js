@@ -179,12 +179,15 @@ function verData(req,data){
       errData.push(d);
       continue;
     }
-    d.storage_time = new Date(d.storage_time).format("yyyy-MM-dd");
+    if(d.storage_time){
+      d.storage_time = new Date(d.storage_time).format("yyyy-MM-dd");
+    }
     for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
       var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
       if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
         d.sales_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
+        d.sale_other_money_temp = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.sale_num/batchStock[j].purchase_number:0;
         break;
       }
     }
@@ -249,7 +252,9 @@ function verData(req,data){
     d.sale_create_time = new Date().format('yyyy-MM-dd hh:mm:ss');
     d.sale_create_userid = req.session.user[0].id;
     d.sale_policy_money = sales[i].sale_policy_money;
-    d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money,2):"";
+    d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money):"";
+    d.sale_return_money = util.sub(d.sale_return_money,d.sale_other_money_temp,2);
+
     correctData.push(d);
   }
   return {
@@ -282,6 +287,7 @@ function getSalesData(req,sales){
         var salesDrugsData=[];
         for(var i = 1 ;i < sales.length;i++){
           var d = arrayToObject(sales[i]);
+          var f = true;
           for(var j = 0 ; j<result.length;j++){
             if(d.product_code == result[j].product_code){
               result[j].bill_date=d.bill_date;
@@ -293,7 +299,11 @@ function getSalesData(req,sales){
               result[j].storage_time = d.storage_time;
               var temp = JSON.stringify(result[j]);
               salesDrugsData.push(JSON.parse(temp));
+              f = false;
             }
+          }
+          if(f){
+            salesDrugsData.push(d);
           }
         }
         resolve(salesDrugsData);
@@ -302,11 +312,9 @@ function getSalesData(req,sales){
   }).then(salesDrugsData => {
     return new Promise((resolve, reject) => {
       var hospitals = DB.get("Hospitals");
-      hospitals.where({//查询医院id
-        group_id:req.session.user[0].group_id,
-        delete_flag:0,
-        hospital_type:'销售医院'
-      },function(err,result){
+      var sql = "select * from hospitals h where h.group_id = '"+req.session.user[0].group_id+"' and h.delete_flag = '0' "+
+                "and h.hospital_type like '%销售单位%'";
+      hospitals.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "导入销售数据，查询销售医院出错" + err);
           reject(err);
@@ -325,10 +333,10 @@ function getSalesData(req,sales){
       });
     });
   }).then(data=>{//查询调货政策
-    if(data.hospitalId){
-      return new Promise((resolve, reject) => {
-        data.hospitalId=data.hospitalId.substring(0,data.hospitalId.length-1);
-        var sql = "select * from sale_policy ap where ap.sale_hospital_id in ("+data.hospitalId+")";
+    return new Promise((resolve, reject) => {
+      data.hospitalId=data.hospitalId.substring(0,data.hospitalId.length-1);
+      var sql = "select * from sale_policy ap where ap.sale_hospital_id in ("+data.hospitalId+")";
+      if(data.hospitalId){
         drugs.executeSql(sql,function(err,result){
           if(err){
             logger.error(req.session.user[0].realname + "导入销售数据，查询销售政策出错" + err);
@@ -346,13 +354,12 @@ function getSalesData(req,sales){
             resolve(data);
           }
         });
-      });
-    }else{
-      resolve(data);
-    }
+      }else{
+        resolve(data);
+      }
+    });
   }).then(data=>{//查询调货政策
     return new Promise((resolve, reject) => {
-      data.hospitalId=data.hospitalId.substring(0,data.hospitalId.length-1);
       var sql = "select * from hospital_policy_record ap where ap.hospital_policy_group_id = '"+req.session.user[0].group_id+"' and ap.hospital_policy_delete_flag = '0' ";
       drugs.executeSql(sql,function(err,result){
         if(err){
@@ -374,8 +381,9 @@ function getSalesData(req,sales){
   }).then(data=>{//查询批次库存
     return new Promise((resolve, reject) => {
       var batchStock = DB.get("BatchStock");
-      var sql = "select * from batch_stock bs where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
-                "and bs.batch_stock_number > 0";
+      var sql = "select bs.*,p.purchase_number,p.purchase_other_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+                "where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+                "and bs.batch_stock_number > 0 and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' ";
       batchStock.executeSql(sql,function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "由药品id，查询批次库存出错" + err);
@@ -476,6 +484,11 @@ router.post("/saveSales",function(req,res){
   var stock = req.body.stock;
   var productId = req.body.product_id;
   var productReturnMoney = req.body.product_return_money;
+  if(req.body.sale_return_price){//销售回款金额
+    req.body.sale_return_money=util.mul(req.body.sale_return_price,req.body.sale_num);
+    req.body.sale_other_money = req.body.sale_other_money?req.body.sale_other_money:0;
+    req.body.sale_return_money=util.sub(req.body.sale_return_money,req.body.sale_other_money,2);
+  }
   var returnTime={
     product_return_time_type:req.body.product_return_time_type,
     product_return_time_day:req.body.product_return_time_day,
@@ -490,7 +503,7 @@ router.post("/saveSales",function(req,res){
     //新增流水   新增返款记录
     saveSaleHospitalAccountDetail(req,result);
     if(productType == '佣金'){
-      saveRefundsSale(req,productReturnMoney,result,returnTime);
+      saveRefundsSale(req,productReturnMoney,result,returnTime,productType);
     }
     res.json({"code":"000000",message:result});
   });
@@ -507,7 +520,7 @@ router.post("/saveSales",function(req,res){
   }
 });
 //新增 返款记录
-function saveRefundsSale(req,productReturnMoney,id,returnTime){
+function saveRefundsSale(req,productReturnMoney,id,returnTime,productType){
   //新增返款记录  并保存应返金额
   var rst = util.getReturnTime(new Date(req.body.bill_date),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
   var m = {
@@ -577,7 +590,6 @@ router.post("/editSales",function(req,res){
   		bill_date:req.body.bill_date,
   		hospital_id:req.body.hospital_id,
       sale_account_id:req.body.sale_account_id,
-      sale_return_money:req.body.sale_return_money,
       sale_return_price:req.body.sale_return_price,
       sale_contact_id:req.body.sale_contact_id,
       sale_type:req.body.sale_type,
@@ -588,6 +600,14 @@ router.post("/editSales",function(req,res){
       sale_other_money:req.body.sale_other_money,
       sale_return_real_return_money:req.body.sale_return_real_return_money
     }
+    params.sale_return_money = util.mul(req.body.sale_policy_money,req.body.sale_num);
+    if(req.body.product_type=="佣金"){
+      params.sale_return_money=util.sub(params.sale_return_money,req.body.sale_other_money,2);
+    }else if(req.body.product_type=="高打"){
+      var temp = (req.body.purchase_other_money/req.body.purchase_number)*req.body.sale_num;
+      params.sale_return_money=util.sub(params.sale_return_money,temp,2);
+    }
+
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
     }
@@ -596,7 +616,7 @@ router.post("/editSales",function(req,res){
         logger.error(req.session.user[0].realname + "修改销售出错" + err);
       }
       //销售回款时，更新政策
-      updateSalePolicy(req);
+      // updateSalePolicy(req);
       //更新返款金额
       updateRefundsSale(req);
       updateAllotAccountDetail(req);
@@ -745,7 +765,7 @@ function getQuerySql(req){
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,td.tag_ids "+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,td.tag_ids,p.purchase_number,p.purchase_other_money "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code ";
   // if(req.body.data.tag && req.body.data.tag != 'undefined'){
@@ -757,6 +777,7 @@ function getQuerySql(req){
   sql +="left join business bus on d.product_business = bus.business_id "+
         "left join hospitals h on s.hospital_id = h.hospital_id "+
         "left join contacts c on c.contacts_id = d.contacts_id "+
+        "left join purchase p on p.purchase_id = s.sales_purchase_id "+
         "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
         "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限

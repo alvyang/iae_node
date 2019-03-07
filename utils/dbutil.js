@@ -46,7 +46,7 @@ Table.prototype.clearTable=function(values){
                 }
             }
             if(!flag && prop!=null){
-                console.error("-not match property-"+prop);
+                // console.error("-not match property-"+prop);
                 delete values[prop];
             }
         }

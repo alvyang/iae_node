@@ -271,7 +271,7 @@ function getPurchasesSql(req){
            "left join contacts c on d.contacts_id = c.contacts_id "+
            "left join business bus on d.product_business = bus.business_id "+
            "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and p.delete_flag = '0' "+
-           "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
+           "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'  and d.delete_flag = '0' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += " and p.purchase_create_userid = '"+req.session.user[0].id+"' ";
@@ -460,7 +460,7 @@ function getQuerySql(req){
             "left join business bus on d.product_business = bus.business_id "+
             "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
-            "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' ";
+            "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag = '0'";
   if(req.body.data.overdue){
     req.body.data.status="未返";
   }

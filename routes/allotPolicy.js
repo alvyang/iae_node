@@ -46,25 +46,16 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'调货金额',type:'number'
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
-    },{caption:'应付积分',type:'number'
     },{caption:'补点/费用票',type:'number',
       beforeCellWrite:function(row, cellData){
         if(cellData && cellData>0){
-					var t = (cellData/row[18])*row[8];
+					var t = (cellData/row[17])*row[8];
 					return Math.round(t*100)/100;
 				}else{
 					return 0;
 				}
       }
-    },{caption:'应付积分-补点/费用票',type:'number',
-      beforeCellWrite:function(row, cellData){
-        if(row[14] && row[14]>0){
-          var t = (row[14]/row[18])*row[8];
-          return cellData - Math.round(t*100)/100;
-        }else{
-          return cellData;
-        }
-      }
+    },{caption:'应付积分',type:'number'
     },{
       caption:'回积分时间',
       type:'string',
@@ -82,7 +73,7 @@ router.post("/exportAllotRefund",function(req,res){
     }}];
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
-                  'allot_return_price','allot_return_money','purchase_other_money','allot_return_money','allot_return_time',
+                  'allot_return_price','purchase_other_money','allot_return_money','allot_return_time',
                   'allot_policy_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);

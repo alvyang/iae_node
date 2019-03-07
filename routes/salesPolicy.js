@@ -50,30 +50,18 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'购入金额',type:'number'
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
-    },{caption:'应付积分',type:'number'
     },{caption:'费用票/补点',type:'number',
       beforeCellWrite:function(row, cellData){
-        if(row[17] == '佣金' && cellData){
+        if(row[16] == '佣金' && cellData){
           return cellData;
-        }else if(row[17] == '高打' && row[19]){
-          console.log(row[19],row[18],row[7]);
-          var temp = (row[19]/row[18])*row[7];
+        }else if(row[16] == '高打' && row[18]){
+          var temp = (row[18]/row[17])*row[7];
           return Math.round(temp*100)/100;
         }else{
           return 0;
         }
       }
-    },{caption:'应付积分-费用票/补点',type:'number',
-      beforeCellWrite:function(row, cellData){
-        if(row[17] == '佣金' && row[13]){
-          return row[12]-row[13];
-        }else if(row[17] == '高打' && row[19]){
-          var temp = (row[19]/row[18])*row[7];
-          return row[12]-Math.round(temp*100)/100;
-        }else{
-          return 0;
-        }
-      }
+    },{caption:'应付积分',type:'number'
     },{
         caption:'回积分时间',
         type:'string',
@@ -100,7 +88,7 @@ router.post("/exportSalesRefund",function(req,res){
     }];
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','sale_num','sale_price','sale_money','realMoney',
-                  'sale_return_price','sale_return_money','sale_other_money','sale_return_money',
+                  'sale_return_price','sale_other_money','sale_return_money',
                   'sale_return_time','sale_policy_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -414,7 +402,7 @@ function getSalesPolicySql(req){
   //药品连接政策
   var sql = "select * from sale_policy sp left join drugs d on d.product_id = sp.sale_drug_id "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
-            " and d.product_type in ('佣金','高打')";
+            " and d.product_type in ('佣金','高打') and sp.sale_policy_money != '' and sp.sale_policy_money is not null ";
   if(req.body.data.hospitalId){
     sql += " and sp.sale_hospital_id = '"+req.body.data.hospitalId+"' ";
   }

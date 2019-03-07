@@ -58,7 +58,7 @@ function getBusinessConfig(req){
   //全连接查询医院 商业
   var sql = "select * from hospitals h join business b where h.delete_flag = '0' and h.group_id = '"+req.session.user[0].group_id+"' "+
             "and b.business_delete_flag = '0' and b.business_group_id = '"+req.session.user[0].group_id+"' "+
-            "and h.hospital_type='销售医院'";
+            "and h.hospital_type like '%销售单位%'";
   if(req.body.data.business_id){
     sql += "and b.business_id = '"+req.body.data.business_id+"'";
   }
