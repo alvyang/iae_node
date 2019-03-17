@@ -1,8 +1,51 @@
 var express = require("express");
 var util= require('../utils/global_util.js');
 var logger = require('../utils/logger');
+var nodeExcel = require('excel-export');
+var fs = require('fs');
+var parse = require('csv-parse');
 var router = express.Router();
 
+//导出库存
+router.post("/exportStocks",function(req,res){
+  if(req.session.user[0].authority_code.indexOf("144") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  req.body.data = req.body;
+  var drugs = DB.get("Drugs");
+  var sql = getDrugsSql(req);
+  sql += " order by sbus.product_create_time desc "
+  drugs.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导出库存列表出错" + err);
+    }
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'产品编码',type:'string'
+    },{caption:'产品名称',type:'string'
+    },{caption:'产品规格',type:'string'
+    },{caption:'生产厂家',type:'string'
+    },{caption:'包装',type:'string'
+    },{caption:'单位',type:'string'
+    },{caption:'商业',type:'string'
+    },{caption:'库存',type:'string',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:"0";
+      }
+    },{caption:'联系人',type:'string'
+    }];
+    var header = ['product_code', 'product_common_name', 'product_specifications', 'product_makesmakers', 'product_packing',
+                  'product_unit','business_name','batch_stock_number','contacts_name'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+
+});
 //获取药品的所有，批次库存
 router.post("/getBatchStockByDrugId",function(req,res){
   var batchStock = DB.get("BatchStock");

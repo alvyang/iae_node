@@ -267,7 +267,10 @@ function getPurchasesSql(req){
            "left join refunds r on p.purchase_id = r.purchases_id "+
            "left join purchase_recovery pr on r.purchases_id = pr.purchaserecovery_purchase_id "+
            "left join bank_account b on r.receiver = b.account_id "+
-           "left join drugs d on p.drug_id = d.product_id "+
+           "left join drugs d on p.drug_id = d.product_id ";
+var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids from tag_drug tagd "+
+           "where tagd.tag_drug_deleta_flag = '0' and tagd.tag_drug_group_id = '"+req.session.user[0].group_id+"' group by tagd.drug_id ";
+     sql+= "left join ("+tagSql+") td on d.product_id = td.drug_id "+
            "left join contacts c on d.contacts_id = c.contacts_id "+
            "left join business bus on d.product_business = bus.business_id "+
            "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and p.delete_flag = '0' "+
@@ -275,6 +278,9 @@ function getPurchasesSql(req){
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += " and p.purchase_create_userid = '"+req.session.user[0].id+"' ";
+  }
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
+    sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
   }
   if(req.body.data.overdue){
     req.body.data.status="未返";
@@ -453,7 +459,10 @@ function getQuerySql(req){
             "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount,hpr.hospital_policy_return_money "+
             "from sales s "+
             "left join refunds r on s.sale_id = r.sales_id "+
-            "left join drugs d on s.product_code = d.product_code "+
+            "left join drugs d on s.product_code = d.product_code ";
+var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids from tag_drug tagd "+
+            "where tagd.tag_drug_deleta_flag = '0' and tagd.tag_drug_group_id = '"+req.session.user[0].group_id+"' group by tagd.drug_id ";
+      sql+= "left join ("+tagSql+") td on d.product_id = td.drug_id "+
             "left join bank_account b on r.receiver = b.account_id "+
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on d.contacts_id = c.contacts_id "+
@@ -463,6 +472,12 @@ function getQuerySql(req){
             "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag = '0'";
   if(req.body.data.overdue){
     req.body.data.status="未返";
+  }
+  if(req.body.data.tag && req.body.data.tag != 'undefined'){
+    sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
+  }
+  if(req.body.data.hospitalsId){
+    sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
   if(req.body.data.status){
     var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";

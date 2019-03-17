@@ -629,7 +629,7 @@ function getAllotSql(req){
             "left join contacts c on ap.allot_policy_contact_id = c.contacts_id "+
             "left join hospitals h on a.allot_hospital = h.hospital_id "+
             "left join business bus on d.product_business = bus.business_id "+
-            "left join purchase p on p.purchase_id = a.allot_purchase_id ";
+            "left join purchase p on p.purchase_id = a.allot_purchase_id "+
             "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
   if(req.session.user[0].data_authority == "2"){
