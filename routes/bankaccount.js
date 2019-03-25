@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增联系人
 router.post("/saveAccounts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("68,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",68,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -22,7 +22,7 @@ router.post("/saveAccounts",function(req,res){
 });
 //编辑联系人
 router.post("/editAccounts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("70,") > -1){
+  if(req.session.user[0].authority_code.indexOf(",70,") > -1){
     var account = DB.get("Account");
     delete req.body.money;
     delete req.body.bank_create_time;
@@ -39,7 +39,7 @@ router.post("/editAccounts",function(req,res){
 });
 //删除联系人
 router.post("/deleteAccount",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("69,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",69,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -54,7 +54,7 @@ router.post("/deleteAccount",function(req,res){
 });
 //获取银行账号列表
 router.post("/getAccounts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("67,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",67,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

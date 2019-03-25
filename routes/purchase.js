@@ -27,6 +27,7 @@ router.get("/downloadErrorPurchases",function(req,res){
   var header = ['time','product_code','purchase_mack_price','purchase_number','purchase_other_money','make_money_time',
                 'send_out_time','storage_time','batch_number','ticket_number','errorMessage'];
   var d = JSON.parse(req.session.errorSalesData);
+
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -35,7 +36,7 @@ router.get("/downloadErrorPurchases",function(req,res){
 });
 //导入采购记录
 router.post("/importPurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("143,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",143,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -52,7 +53,7 @@ router.post("/importPurchases",function(req,res){
       }
       getPurchasesData(req,output).then(data=>{
         var purchasesData= verData(req,data);
-
+        req.session.errorSalesData = null;
         req.session.errorSalesData = JSON.stringify(purchasesData.errData);//错误的数据
         var sData = purchasesData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+purchasesData.errData.length+"</a>条；"
@@ -251,7 +252,7 @@ function arrayToObject(sales){
 }
 //新增采购记录
 router.post("/savePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("53,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",53,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -347,7 +348,7 @@ function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
 }
 //编辑菜单
 router.post("/editPurchase",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("54,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",54,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -449,7 +450,7 @@ function updateRefundsPurchase(req){
 }
 //删除菜单
 router.post("/deletePurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("55,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",55,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -482,7 +483,7 @@ router.post("/deletePurchases",function(req,res){
 });
 //导出备货列表
 router.post("/exportPurchases",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("57,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",57,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -529,7 +530,7 @@ router.post("/exportPurchases",function(req,res){
 //获取备货列表
 router.post("/getPurchases",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("56,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",56,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

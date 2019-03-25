@@ -2,6 +2,31 @@ var express = require("express");
 var logger = require('../utils/logger');
 var router = express.Router();
 
+//用户组权限授权，用于按功能付费
+router.post("/editGroupAuthority",function(req,res){
+  //联合主键，存在将删除更新为0。不存在插入
+  var sql = "insert into groups_authority values ";
+  for(var i = 0 ; i < req.body.authority_code.length ; i++){
+    sql += "('"+req.body.group_id+"','"+req.body.authority_code[i]+"','0'),";
+  }
+  sql = sql.substring(0,sql.length-1);
+  sql += " ON DUPLICATE KEY UPDATE groups_authority_delete_flag=VALUES(groups_authority_delete_flag);"
+  //更新权限列表时，先将所有权限标记为删除
+  var deleteAllSql = "update groups_authority set groups_authority_delete_flag = '1' where "+
+                    "groups_authority_group_id = '"+req.body.group_id+"' ";
+  var groupsAuthority = DB.get("GroupsAuthority");
+  groupsAuthority.executeSql(deleteAllSql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "组授权时，先将权限标记为删除，出错" + err);
+    }
+    groupsAuthority.executeSql(sql,function(err2,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "组授权出错" + err2);
+      }
+    });
+    res.json({"code":"000000",message:null});
+  });
+});
 //判断用户组是否存在
 router.post("/exitsGroup",function(req,res){
   var group = DB.get("Groups");
@@ -15,7 +40,7 @@ router.post("/exitsGroup",function(req,res){
 });
 //新增组
 router.post("/saveGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("20,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",20,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -33,7 +58,7 @@ router.post("/saveGroups",function(req,res){
 });
 //编辑菜单
 router.post("/editGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("21,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",21,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -52,7 +77,7 @@ router.post("/editGroups",function(req,res){
 });
 //删除菜单
 router.post("/deleteGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("22,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",22,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -67,15 +92,17 @@ router.post("/deleteGroups",function(req,res){
 });
 //获取角色列表
 router.post("/getGroups",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("23,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",23,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
   var group = DB.get("Groups");
-  var sql = "select * from groups g where g.delete_flag = '0' ";
+  var sql = "select g.*,concat(GROUP_CONCAT(ga.groups_authority_id),',') authority_code from groups g left join groups_authority ga on g.group_id = ga.groups_authority_group_id "+
+            "where g.delete_flag = '0' and (ga.groups_authority_delete_flag = '0' || ga.groups_authority_delete_flag is null) ";
   if(req.body.data.group_name){
     sql+="and g.group_name like '%"+req.body.data.group_name+"%'"
   }
+  sql += " group by g.group_id";
   group.countBySql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询用户组列表，统计总数出错" + err);

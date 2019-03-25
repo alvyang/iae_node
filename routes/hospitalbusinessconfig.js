@@ -5,7 +5,7 @@ var router = express.Router();
 
 //编辑配置
 router.post("/editBuninessConfig",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("79,") > -1){
+  if(req.session.user[0].authority_code.indexOf(",79,") > -1){
     var config = DB.get("HospitalBusinessConfig");
   	req.body.hb_group_id = req.session.user[0].group_id;
     req.body.hb_start_time = new Date(req.body.hb_start_time).format('yyyy-MM-dd');
@@ -31,7 +31,7 @@ router.post("/editBuninessConfig",function(req,res){
 });
 //获取商务提成列表
 router.post("/getBuninessConfig",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("79,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",79,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

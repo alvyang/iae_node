@@ -25,6 +25,7 @@ router.get("/downloadErrorAllots",function(req,res){
   }];
   var header = ['allot_time','product_code','batch_number','storage_time','allot_price','allot_number','hospital_name','allot_type','errorMessage'];
   var d = JSON.parse(req.session.errorAllotsData);
+
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -33,7 +34,7 @@ router.get("/downloadErrorAllots",function(req,res){
 });
 //导入销售记录
 router.post("/importAllots",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("101,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",101,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -50,6 +51,7 @@ router.post("/importAllots",function(req,res){
       }
       getAllotsData(req,output).then(allotsDrugsData=>{
         var allotsData= verData(req,allotsDrugsData);
+        req.session.errorAllotsData = null;
         req.session.errorAllotsData = JSON.stringify(allotsData.errData);//错误的数据
         var sData = allotsData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+allotsData.errData.length+"</a>条；"
@@ -335,7 +337,7 @@ function arrayToObject(sales){
 }
 //新增调货记录
 router.post("/saveAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("58,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",58,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -424,7 +426,7 @@ function saveAllotAccountDetail(req,allotId,accountDetail){
 }
 //编辑调货记录
 router.post("/editAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("59,") > 0 || req.session.user[0].authority_code.indexOf("125,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",59,") > 0 || req.session.user[0].authority_code.indexOf(",125,") > 0){
     var allot = DB.get("Allot");
     req.body.allot_time = new Date(req.body.allot_time).format("yyyy-MM-dd");
     if(req.body.allot_return_time){
@@ -503,7 +505,7 @@ router.post("/editAllot",function(req,res){
 });
 //删除菜单
 router.post("/deleteAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("60,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",60,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -532,7 +534,7 @@ router.post("/deleteAllot",function(req,res){
 });
 //导出调货记录
 router.post("/exportAllot",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("129,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",129,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -580,7 +582,7 @@ router.post("/exportAllot",function(req,res){
 //获取调货列表
 router.post("/getAllot",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("61,") > 0  || req.session.user[0].authority_code.indexOf("126,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",61,") > 0  || req.session.user[0].authority_code.indexOf(",126,") > 0){
     var allot = DB.get("Allot");
     var sql = getAllotSql(req);
     allot.countBySql(sql,function(err,result){//查询调货总数

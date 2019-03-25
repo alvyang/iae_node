@@ -43,6 +43,7 @@ router.get("/downloadErrorData",function(req,res){
             'accounting_cost','product_purchase_mode','product_basic_medicine','product_type','product_floor_price','product_high_discount',
             'product_return_money','product_return_explain','product_return_statistics','contacts_name','errorMessage'];
   var d = JSON.parse(req.session.errorDrugsData);
+
   conf.rows = util.formatExcel(header,d);
   var result = nodeExcel.execute(conf);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats');
@@ -51,7 +52,7 @@ router.get("/downloadErrorData",function(req,res){
 });
 //excel 导入药品数据
 router.post("/importDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("100,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",100,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -68,6 +69,7 @@ router.post("/importDrugs",function(req,res){
       }
       getDrugsInsertData(req).then(data => {
         var drugData = getDrugsData(output,data.code,data.business,data.contact);//转换数据
+        req.session.errorDrugsData = null;
         req.session.errorDrugsData = JSON.stringify(drugData.errData);//错误的数据
         var cData = drugData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+cData.length+"</a>条；导入错误<a style='color:red;'>"+drugData.errData.length+"</a>条；"
@@ -321,7 +323,7 @@ function deleteParams(params){
 }
 //新增药品
 router.post("/saveDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("62,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",62,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -376,7 +378,7 @@ function updateQuoteNum(data1,data2,req,drugId){
 }
 //标记为是否配送
 router.post("/distributionFlag",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("63,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",63,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -390,7 +392,7 @@ router.post("/distributionFlag",function(req,res){
 });
 //编辑药品
 router.post("/editDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("63,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",63,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -429,7 +431,7 @@ router.post("/editDrugs",function(req,res){
 });
 //删除菜单
 router.post("/deleteDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("64,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",64,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -444,7 +446,7 @@ router.post("/deleteDrugs",function(req,res){
 });
 //导出药品表
 router.post("/exportDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("122,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",122,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -500,7 +502,7 @@ router.post("/exportDrugs",function(req,res){
 //获取药品列表
 router.post("/getDrugs",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("65,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",65,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -574,7 +576,7 @@ function getDrugsSql(req){
 }
 //获取库存统计
 router.post("/getStockNum",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("65,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",65,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

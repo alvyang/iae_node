@@ -72,6 +72,7 @@ router.post("/login",function(req,res){
 					var sqlCode = "update users set login_time = '"+time+"',version = '"+version+"' where username = '"+req.body.username+"'";
 					user.executeSql(sqlCode);
 				// }
+        result[0].authority_code = ","+result[0].authority_code;
 				req.session.user=result;
 				res.json({"code":"000000",message:result});
 			}

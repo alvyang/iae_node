@@ -6,7 +6,7 @@ var util= require('../utils/global_util.js');
 var router = express.Router();
 //导出调货回款记录
 router.post("/exportAllotRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("137,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",137,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -85,7 +85,7 @@ router.post("/exportAllotRefund",function(req,res){
 //获取调货列表
 router.post("/getAllotReturnMoney",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("61,") > 0  || req.session.user[0].authority_code.indexOf("126,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",61,") > 0  || req.session.user[0].authority_code.indexOf(",126,") > 0){
     var allot = DB.get("Allot");
     var sql = getAllotSql(req);
     allot.countBySql(sql,function(err,result){//查询调货总数
@@ -105,6 +105,12 @@ router.post("/getAllotReturnMoney",function(req,res){
         allot.executeSql(sql,function(err,result){
           if(err){
             logger.error(req.session.user[0].realname + "查询调货列表出错" + err);
+          }
+          for(var i = 0 ; i < result.length ;i++){
+            result[i].allot_policy_money = result[i].allot_policy_money?result[i].allot_policy_money:0;
+            result[i].allot_return_price = result[i].allot_return_price?result[i].allot_return_price:result[i].allot_policy_money;
+            result[i].allot_return_money = result[i].allot_return_money?result[i].allot_return_money:0;
+            result[i].allot_return_money = Math.round(result[i].allot_return_money*100)/100;
           }
           req.body.page.data = result;
           logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
@@ -175,7 +181,7 @@ function getAllotSql(req){
 }
 //调货政策复制
 router.post("/copyAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("133,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",133,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -233,7 +239,7 @@ router.post("/copyAllotPolicy",function(req,res){
 
 //批量新增调货政策
 router.post("/editAllotPolicyBatch",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("133,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",133,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -261,18 +267,31 @@ router.post("/editAllotPolicyBatch",function(req,res){
     }
     res.json({"code":"000000",message:""});
   });
-  // var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
-  //                     "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+req.body.allot_hospital_id+"' "+
-  //                     "and allot_drug_id = '"+req.body.allot_drug_id+"' and (allot_account_id is null or allot_account_id = '') ";
-  // allotPolicy.executeSql(allotHospital,function(err,result){
-  //   if(err){
-  //     logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
-  //   }
-  // });
+  for(var i = 0 ; i < drug.length ;i++){
+    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
+    p=p?p:0;
+    var policyMoney = 0;
+    if(req.body.type=="2"||req.body.type=="3"){
+      policyMoney = Math.round(p*req.body.policy_percent)/100;
+    }else{
+      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
+      policyMoney = Math.round(policyMoney*100)/100;
+    }
+    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.allot_hospital_id;
+    var allotHospital = "update allot set allot_return_price = '"+policyMoney+"',allot_return_money=allot_number*"+policyMoney+" "+
+                        "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+hospitalId+"' "+
+                        "and allot_drug_id = '"+drug[i].id+"' and (allot_account_id is null or allot_account_id = '') "+
+                        "and (allot_return_price is null or allot_return_money is null or allot_return_price = '' or allot_return_money = '')";
+    allotPolicy.executeSql(allotHospital,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+      }
+    });
+  }
 });
 //修改调货政策
 router.post("/editAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("133,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",133,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -286,18 +305,19 @@ router.post("/editAllotPolicy",function(req,res){
     }
     res.json({"code":"000000",message:""});
   });
-  // var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
-  //                     "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+req.body.allot_hospital_id+"' "+
-  //                     "and allot_drug_id = '"+req.body.allot_drug_id+"' and (allot_account_id is null or allot_account_id = '') ";
-  // allotPolicy.executeSql(allotHospital,function(err,result){
-  //   if(err){
-  //     logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
-  //   }
-  // });
+  var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
+                      "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+req.body.allot_hospital_id+"' "+
+                      "and allot_drug_id = '"+req.body.allot_drug_id+"' and (allot_account_id is null or allot_account_id = '') "+
+                      "and (allot_return_price is null or allot_return_money is null or allot_return_price = '' or allot_return_money = '')";
+  allotPolicy.executeSql(allotHospital,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+    }
+  });
 });
 //导出销售政策
 router.post("/exportAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("135,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",135,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -336,7 +356,7 @@ router.post("/exportAllotPolicy",function(req,res){
 });
 //查询销售政策
 router.post("/getAllotPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("132,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",132,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -386,7 +406,7 @@ function getAllotPolicySql(req){
 
 //查询调货未添加政策的药品
 router.post("/getAllotPolicyDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("132,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",132,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

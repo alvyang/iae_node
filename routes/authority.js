@@ -4,7 +4,7 @@ var router = express.Router();
 
 //新增菜单
 router.post("/saveAuthoritys",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("7,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",7,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return;
   }
@@ -21,7 +21,7 @@ router.post("/saveAuthoritys",function(req,res){
 });
 //编辑菜单
 router.post("/editAuthoritys",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("8,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",8,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -57,6 +57,26 @@ function toTree(data, parent_id) {
 router.post("/getAuthoritys",function(req,res){
   var authority = DB.get("Authority");
   authority.where({delete_flag:0},{authority_code:"desc"},function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "查询权限出错" + err);
+      res.json({"code":"100000",message:"查询菜单出错"});
+    }else{
+      for(var i = 0 ; i < result.length ; i++){
+        result[i].label = result[i].authority_name;
+        result[i].id = result[i].authority_id;
+      }
+      res.json({"code":"000000",message:toTree(result,null)});
+    }
+  });
+});
+//获得对外开放的菜单
+router.post("/getGroupAuthoritys",function(req,res){
+  var groupsAuthority = DB.get("GroupsAuthority");
+  var sql = "select * from groups_authority ga left join authority a on ga.groups_authority_id = a.authority_id "+
+            "where ga.groups_authority_delete_flag = '0' and (ga.groups_authority_group_id = '"+req.session.user[0].group_id+"' "+
+            " or ga.groups_authority_group_id = '0') "+
+            "order by a.authority_code desc";
+  groupsAuthority.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "查询权限出错" + err);
       res.json({"code":"100000",message:"查询菜单出错"});

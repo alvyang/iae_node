@@ -16,7 +16,7 @@ router.post("/exitsTag",function(req,res){
 });
 //新增标签
 router.post("/saveTag",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("97,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",97,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -33,7 +33,7 @@ router.post("/saveTag",function(req,res){
 });
 //编辑标签
 router.post("/editTag",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("95,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",95,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -49,7 +49,7 @@ router.post("/editTag",function(req,res){
 });
 //删除标签
 router.post("/deleteTag",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("96,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",96,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -64,7 +64,7 @@ router.post("/deleteTag",function(req,res){
 });
 //获取标签列表
 router.post("/getTags",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("94,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",94,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

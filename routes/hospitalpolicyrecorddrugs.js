@@ -22,7 +22,7 @@ router.post("/getHospitalPolicyById",function(req,res){
 });
 //删除政策
 router.post("/deleteHospitalsPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("141,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",141,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -39,7 +39,7 @@ router.post("/deleteHospitalsPolicy",function(req,res){
 });
 //编辑医院政策
 router.post("/editHospitalPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("140,") > 0 || req.session.user[0].authority_code.indexOf("139,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",140,") > 0 || req.session.user[0].authority_code.indexOf(",139,") > 0){
     var hospitalPolicyRecord = DB.get("HospitalPolicyRecord");
     var sql = "insert into hospital_policy_record(hospital_policy_hospital_id,hospital_policy_drug_id,hospital_policy_price,"+
               "hospital_policy_return_money,hospital_policy_group_id,hospital_policy_create_time,hospital_policy_delete_flag";
@@ -60,7 +60,7 @@ router.post("/editHospitalPolicy",function(req,res){
 });
 //查询销售政策
 router.post("/getHospitalsPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("142,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",142,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -105,7 +105,7 @@ function getHospitalsPolicySql(req){
 }
 //查询销售未添加药品政策
 router.post("/getHospitalsPolicyDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("139,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",139,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

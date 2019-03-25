@@ -19,7 +19,7 @@ router.post("/exitsContactsName",function(req,res){
 });
 //新增联系人
 router.post("/saveContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("32,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",32,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -37,7 +37,7 @@ router.post("/saveContacts",function(req,res){
 });
 //编辑联系人
 router.post("/editContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("33,") > -1){
+  if(req.session.user[0].authority_code.indexOf(",33,") > -1){
     var contacts = DB.get("Contacts");
   	req.body.group_id = req.session.user[0].group_id;
     req.body.contact_type = req.body.contact_type.join(",");
@@ -55,7 +55,7 @@ router.post("/editContacts",function(req,res){
 });
 //删除联系人
 router.post("/deleteContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("34,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",34,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -70,7 +70,7 @@ router.post("/deleteContacts",function(req,res){
 });
 //获取联系人列表
 router.post("/getContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("35,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",35,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

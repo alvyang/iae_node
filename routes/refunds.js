@@ -9,7 +9,7 @@ var router = express.Router();
 
 //新增返款记录
 router.post("/saveRefunds",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("45,") > 0 || req.session.user[0].authority_code.indexOf("47,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",45,") > 0 || req.session.user[0].authority_code.indexOf(",47,") > 0){
     var refunds = DB.get("Refunds");
     if(req.body.refunds_should_time){
       req.body.refunds_should_time = new Date(req.body.refunds_should_time).format('yyyy-MM-dd');
@@ -59,7 +59,7 @@ router.post("/saveRefunds",function(req,res){
 });
 //编辑返款记录
 router.post("/deleteRefunds",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("103,") > 0 || req.session.user[0].authority_code.indexOf("104,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",103,") > 0 || req.session.user[0].authority_code.indexOf(",104,") > 0){
     var refunds = DB.get("Refunds");
     if(!req.body.refunds_id){
       saveRefund={
@@ -88,7 +88,7 @@ router.post("/deleteRefunds",function(req,res){
 });
 //编辑返款记录
 router.post("/editRefunds",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("45,") > 0 || req.session.user[0].authority_code.indexOf("47,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",45,") > 0 || req.session.user[0].authority_code.indexOf(",47,") > 0){
     var refunds = DB.get("Refunds");
     if(req.body.refunds_should_time){
       req.body.refunds_should_time = new Date(req.body.refunds_should_time).format('yyyy-MM-dd');
@@ -137,7 +137,7 @@ router.post("/editRefunds",function(req,res){
 });
 //导出高打返款记录
 router.post("/exportRefundPurchase",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("106,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",106,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -221,7 +221,7 @@ router.post("/exportRefundPurchase",function(req,res){
 //获取高打返款列表
 router.post("/getPurchaseRefunds",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("44,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",44,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -339,7 +339,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
 }
 //导出佣金返款记录
 router.post("/exportRefundSale",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("106,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",106,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -385,6 +385,7 @@ router.post("/exportRefundSale",function(req,res){
         }
       }
     },{caption:'积分',type:'number'
+    },{caption:'特殊积分',type:'number'
     },{caption:'应返积分',type:'number'
     },{
       caption:'实返日期',type:'string',
@@ -403,7 +404,7 @@ router.post("/exportRefundSale",function(req,res){
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','product_packing','sale_price','sale_num',
                   'sale_money','business_name','contacts_name','hospital_name','bill_date','refunds_should_time',
-                  'product_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
+                  'product_return_money','hospital_policy_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
                   'account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -415,7 +416,7 @@ router.post("/exportRefundSale",function(req,res){
 //获取返款
 router.post("/getSaleRefunds",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("46,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",46,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

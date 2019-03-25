@@ -5,7 +5,7 @@ var router = express.Router();
 
 //编辑报损
 router.post("/editPurchaseRecovery",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("112,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",112,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -31,7 +31,7 @@ router.post("/editPurchaseRecovery",function(req,res){
 });
 //删除报损
 router.post("/deletePurchasesRecovery",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("111,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",111,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -55,7 +55,7 @@ router.post("/deletePurchasesRecovery",function(req,res){
 });
 //新增报损记录
 router.post("/getPurchasesRecorveryList",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("110,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",110,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -107,7 +107,7 @@ function getPurchasesLossListSql(req){
 }
 //新增采退记录
 router.post("/savePurchasesrecorvery",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("113,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",113,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -161,7 +161,7 @@ function saveRefundsPurchase(req,productReturnMoney,id){
 }
 //查询报损的批次库存记录
 router.post("/getPurchasesRecorveryDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("110,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",110,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

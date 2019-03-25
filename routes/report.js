@@ -5,7 +5,7 @@ var router = express.Router();
 
 //计算方差，标准差，来获取偏离程度，统计产品销售是否稳定
 router.post("/getSaleVariance",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -120,7 +120,7 @@ function getSaleVariance(req){
 }
 //产品同比分析
 router.post("/getSaleOnYear",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -247,7 +247,7 @@ function getOnYearDate(){
 }
 //产品环比分析
 router.post("/getReportSaleChainRatio",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -360,7 +360,7 @@ function getSaleAble(req){
 }
 //查询利润负债，综合查询
 router.post("/getReportComprehensive",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -438,7 +438,7 @@ function getAllotComprehensive(req,data){
             data[j].allotReturnMoney=data[j].allotReturnMoney?data[j].allotReturnMoney:0;//调货应付款
             data[j].allotReturnMoney+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
           }
-          if(result[i].allot_real_return_money > 0 && result[i].allot_return_time && result[i].allot_account_id && data[j].time == allotTime){
+          if(result[i].allot_real_return_money > 0 && result[i].allot_return_time && data[j].time == allotTime){
             data[j].allotReturnMoney0=data[j].allotReturnMoney0?data[j].allotReturnMoney0:0;//调货已付款
             data[j].allotReturnMoney0+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
           }else if(data[j].time == allotTime){
@@ -457,16 +457,12 @@ function getAllotComprehensive(req,data){
   });
 }
 //将查询出的数据，进行拼接
-function getGroupData(d){
+function getGroupData(data){
   var rd={};
   var st = "";
+  var d = data.d;
   for(var i = 0 ; i < d.length;i++){
     rd[d[i].all_day]=rd[d[i].all_day]?rd[d[i].all_day]:{};
-    if(st.indexOf(d[i].product_code+",") < 0){//同一个药，只加一次
-      st += d[i].product_code+","
-      rd[d[i].all_day].stockMoneyReturn = rd[d[i].all_day].stockMoneyReturn?rd[d[i].all_day].stockMoneyReturn:0;
-      rd[d[i].all_day].stockMoneyReturn += d[i].stockMoney?parseFloat(d[i].stockMoney):0;
-    }
     // var temp = new Date(d[i].sale_return_time).format("yyyy-MM");
     rd[d[i].all_day].saleMoney = rd[d[i].all_day].saleMoney?rd[d[i].all_day].saleMoney:0;
     rd[d[i].all_day].saleMoney += parseFloat(d[i].sale_money);//销售总额
@@ -475,7 +471,7 @@ function getGroupData(d){
       rd[d[i].all_day].sReturnMoney0 = rd[d[i].all_day].sReturnMoney0?rd[d[i].all_day].sReturnMoney0:0//应付
       rd[d[i].all_day].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && d[i].sale_account_id && d[i].sale_policy_money){//销售已付款金额
+    if(d[i].sale_return_time && d[i].sale_policy_money){//销售已付款金额
       rd[d[i].all_day].aReturnMoney0 = rd[d[i].all_day].aReturnMoney0?rd[d[i].all_day].aReturnMoney0:0//已付
       rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//已付
     }else if(d[i].sale_policy_money){//销售未付金额
@@ -495,7 +491,7 @@ function getGroupData(d){
     if(d[i].sale_return_flag == '1'){//按销售返款
       rd[d[i].all_day].arefundsMoney1 = rd[d[i].all_day].arefundsMoney1?rd[d[i].all_day].arefundsMoney1:0;//上游返利  应收金额
       rd[d[i].all_day].arefundsMoney1 += d[i].refunds_should_money?parseFloat(d[i].refunds_should_money):0;
-      if(d[i].refunds_real_money && d[i].refunds_real_time && d[i].receiver){
+      if(d[i].refunds_real_money && d[i].refunds_real_time){
         rd[d[i].all_day].refundsMoney1 = rd[d[i].all_day].refundsMoney1?rd[d[i].all_day].refundsMoney1:0;//上游返利  实收金额
         rd[d[i].all_day].refundsMoney1 += d[i].refunds_real_money?parseFloat(d[i].refunds_real_money):0;
       }else{
@@ -511,14 +507,15 @@ function getGroupData(d){
       var saleRealPurchaseMoney = d[i].refunds_real_money2*d[i].sale_num/d[i].purchase_number;
 
       rd[d[i].all_day].arefundsMoney2 = rd[d[i].all_day].arefundsMoney2?rd[d[i].all_day].arefundsMoney2:0;//上游返利  应收金额
-      rd[d[i].all_day].arefundsMoney2 += salePurchaseMoney;
-
+      if(d[i].purchase_number){
+        rd[d[i].all_day].arefundsMoney2 += salePurchaseMoney;
+      }
       rd[d[i].all_day].refundsMoney2 = rd[d[i].all_day].refundsMoney2?rd[d[i].all_day].refundsMoney2:0;//上游返利  实收金额
       rd[d[i].all_day].srefundsMoney2 = rd[d[i].all_day].srefundsMoney2?rd[d[i].all_day].srefundsMoney2:0;//上游返利  未收金额
 
-      if(d[i].refunds_real_money2 && d[i].refunds_real_time2 && d[i].receiver2){
+      if(d[i].refunds_real_money2 && d[i].refunds_real_time2){//已返
         rd[d[i].all_day].refundsMoney2 += saleRealPurchaseMoney;
-      }else{
+      }else if(d[i].purchase_number){
         rd[d[i].all_day].srefundsMoney2 += salePurchaseMoney;
       }
     }
@@ -539,7 +536,7 @@ function getGroupData(d){
       saleMoney0:Math.round(rd[key].saleMoney0*100)/100,
       aReturnMoney0:Math.round(rd[key].aReturnMoney0*100)/100,
       nReturnMoney0:Math.round(rd[key].nReturnMoney0*100)/100,
-      stockMoneyReturn:Math.round(rd[key].stockMoneyReturn*100)/100,
+      stockMoneyReturn:Math.round(data.stockMoney*100)/100,
       saleMoney1:Math.round(rd[key].saleMoney1*100)/100,
       saleMoney2:Math.round(rd[key].saleMoney2*100)/100
     });
@@ -550,22 +547,21 @@ function getGroupData(d){
 function getComprehensive(req){
   var noDate = new Date();
   //stockSql  查询的是，高打药品库存里还有多少库存，并计算，库存积分
-  var stockSql = "select sum(r.refunds_real_money*bs.batch_stock_number/p.purchase_number) stockMoney,bs.batch_stock_drug_id from batch_stock bs "+
+  var stockSql = "select sum(if(r.refunds_real_money is null or r.refunds_real_money = '',r.refunds_should_money*bs.batch_stock_number/p.purchase_number,r.refunds_real_money*bs.batch_stock_number/p.purchase_number)) stockMoney from batch_stock bs "+
                  "left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
                  "left join refunds r on bs.batch_stock_purchase_id = r.purchases_id "+
-                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' group by bs.batch_stock_drug_id ";
-  //药品sql，及连接查询库存积分
-  var drugStockSql = "select ds.*,stockSql.stockMoney from drugs ds left join ("+stockSql+") stockSql on ds.product_id = stockSql.batch_stock_drug_id "+
-                     "where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
+                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' and p.make_money_time is not null";
+
   //销售查询
   var sql = "select s.*,rs.*,rs1.refunds_should_money as refunds_should_money2,rs1.refunds_real_money as refunds_real_money2,"+
             "rs1.refunds_real_time as refunds_real_time2,rs1.receiver as receiver2,"+
-            "sp.*,ps.purchase_number,d.stockMoney,d.product_type from sales s left join ("+drugStockSql+") d on s.product_code = d.product_code "+
+            "sp.*,ps.purchase_number,d.product_type from sales s left join drugs d on s.product_code = d.product_code "+
             "left join purchase ps on ps.purchase_id = s.sales_purchase_id "+
             "left join refunds rs on rs.sales_id = s.sale_id "+
             "left join refunds rs1 on ps.purchase_id = rs1.purchases_id "+
             "left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id "+
-            "where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' ";
+            "where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.hospitalsId){
     sql+="and s.hospital_id = '"+req.body.hospitalsId+"' ";
   }
@@ -583,14 +579,21 @@ function getComprehensive(req){
       if(err){
         logger.error(req.session.user[0].realname + "综合查询，查询销售额，销售回积分出错" + err);
       }
-      logger.error(req.session.user[0].realname + "allot-getAllot运行时长" + (noDate.getTime()-new Date().getTime()));
-      resolve(result);
+      sales.executeSql(stockSql,function(err,stockMoney){
+        if(err){
+          logger.error(req.session.user[0].realname + "综合查询，查询销售额，销售回积分出错" + err);
+        }
+        resolve({
+          d:result,
+          stockMoney:stockMoney[0].stockMoney
+        });
+      });
     });
   });
 }
 //查询销售按真实毛利率
 router.post("/getSalesByProfitRate",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -627,7 +630,7 @@ router.post("/getSalesByProfitRate",function(req,res){
 });
 //查询销售按销售单位
 router.post("/getSalesByHospital",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -668,7 +671,7 @@ router.post("/getSalesByHospital",function(req,res){
 
 //查询销售按品种
 router.post("/getSalesByProduct",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -710,7 +713,7 @@ router.post("/getSalesByProduct",function(req,res){
 
 //查询佣金外欠金额，按联系人
 router.post("/getSalesReturnByContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -731,7 +734,7 @@ router.post("/getSalesReturnByContacts",function(req,res){
 });
 //查询高打外欠金额，按联系人
 router.post("/getPurchasesReturnByContacts",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -756,7 +759,7 @@ router.post("/getPurchasesReturnByContacts",function(req,res){
 });
 //按标签销售金额、毛利、真实毛利统计
 router.post('/getTagAnalysis',function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -810,7 +813,7 @@ router.post('/getTagAnalysis',function(req,res){
 });
 //查询销售记录
 router.post("/getSalesMonth",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("99,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }

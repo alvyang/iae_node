@@ -8,7 +8,7 @@ var router = express.Router();
 
 //导出库存
 router.post("/exportStocks",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("144") < 0){
+  if(req.session.user[0].authority_code.indexOf(",144") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -88,7 +88,7 @@ router.post("/editBatchStock",function(req,res){
 
 //获取药品列表
 router.post("/getDrugsStockList",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("65") < 0){
+  // if(req.session.user[0].authority_code.indexOf(",65") < 0){
   //   res.json({"code":"111112",message:"无权限"});
   //   return ;
   // }
@@ -167,7 +167,7 @@ function getDrugsSql(req){
 }
 //编辑菜单
 router.post("/editStock",function(req,res){
-  // if(req.session.user[0].authority_code.indexOf("63") < 0){
+  // if(req.session.user[0].authority_code.indexOf(",63") < 0){
   //   res.json({"code":"111112",message:"无权限"});
   //   return ;
   // }

@@ -9,7 +9,7 @@ var router = express.Router();
 
 //导出回款记录
 router.post("/exportSalesRefund",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("136,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",136,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -101,7 +101,7 @@ router.post("/exportSalesRefund",function(req,res){
 //查询销售记录
 router.post("/getSalesReturnMoney",function(req,res){
   var noDate = new Date();
-  if(req.session.user[0].authority_code.indexOf("51,") > 0 || req.session.user[0].authority_code.indexOf("127,") > 0){
+  if(req.session.user[0].authority_code.indexOf(",51,") > 0 || req.session.user[0].authority_code.indexOf(",127,") > 0){
     var sales = DB.get("Sales");
     var sql = getQuerySql(req);
     sales.countBySql(sql,function(err,result){
@@ -122,6 +122,13 @@ router.post("/getSalesReturnMoney",function(req,res){
           if(err){
             logger.error(req.session.user[0].realname + "查询销售记录" + err);
           }
+          for(var i = 0 ; i < result.length ;i++){
+            result[i].sale_policy_money = result[i].sale_policy_money?result[i].sale_policy_money:0;
+            result[i].sale_return_price = result[i].sale_return_price?result[i].sale_return_price:result[i].sale_policy_money;
+            result[i].sale_return_money = result[i].sale_return_money?result[i].sale_return_money:0;
+            result[i].sale_return_money = Math.round(result[i].sale_return_money*100)/100;
+            result[i].product_return_money =  result[i].hospital_policy_return_money?result[i].hospital_policy_return_money:result[i].product_return_money;
+          }
           req.body.page.data = result;
           logger.error(req.session.user[0].realname + "sales-getSales运行时长" + (noDate.getTime()-new Date().getTime()));
           res.json({"code":"000000",message:req.body.page});
@@ -140,7 +147,7 @@ function getQuerySql(req){
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
             "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,r.refunds_real_time,"+
-            "r.refunds_real_money,p.purchase_number,p.purchase_other_money,s.sale_other_money,s.sale_return_real_return_money "+
+            "r.refunds_real_money,p.purchase_number,p.purchase_other_money,s.sale_other_money,s.sale_return_real_return_money,hpr.hospital_policy_return_money "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code "+
             "left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id "+//取上游是否返款
@@ -149,6 +156,7 @@ function getQuerySql(req){
             "left join business bus on d.product_business = bus.business_id "+
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on c.contacts_id = d.contacts_id "+
+            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
             "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
             "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
@@ -211,7 +219,7 @@ function getQuerySql(req){
 }
 //复制销售政策
 router.post("/copySalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("131,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",131,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -271,7 +279,7 @@ router.post("/copySalesPolicy",function(req,res){
 
 //批量新增政策
 router.post("/editSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("131,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",131,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -285,19 +293,20 @@ router.post("/editSalesPolicy",function(req,res){
     }
     res.json({"code":"000000",message:""});
   });
-  //
-  // var saleHospital = "update sales set sale_return_price = '"+req.body.sale_policy_money+"',sale_return_money=sale_num*"+req.body.sale_policy_money+" "+
-  //                     "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+req.body.sale_hospital_id+"' "+
-  //                     "and product_code = '"+req.body.product_code+"' and (sale_account_id is null or sale_account_id = '') ";
-  // salePolicy.executeSql(saleHospital,function(err,result){
-  //   if(err){
-  //     logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
-  //   }
-  // });
+
+  var saleHospital = "update sales set sale_return_price = '"+req.body.sale_policy_money+"',sale_return_money=sale_num*"+req.body.sale_policy_money+" "+
+                      "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+req.body.sale_hospital_id+"' "+
+                      "and product_code = '"+req.body.product_code+"' and (sale_account_id is null or sale_account_id = '') "+
+                      "and (sale_return_price is null or sale_return_money is null or sale_return_price = '' or sale_return_money = '')";
+  salePolicy.executeSql(saleHospital,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
+    }
+  });
 });
 //修改销售政策
 router.post("/editSalesPolicyBatch",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("131,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",131,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -326,18 +335,31 @@ router.post("/editSalesPolicyBatch",function(req,res){
     res.json({"code":"000000",message:""});
   });
 
-  // var saleHospital = "update sales set sale_return_price = '"+req.body.sale_policy_money+"',sale_return_money=sale_num*"+req.body.sale_policy_money+" "+
-  //                     "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+req.body.sale_hospital_id+"' "+
-  //                     "and product_code = '"+req.body.product_code+"' and (sale_account_id is null or sale_account_id = '') ";
-  // salePolicy.executeSql(saleHospital,function(err,result){
-  //   if(err){
-  //     logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
-  //   }
-  // });
+  for(var i = 0 ; i < drug.length ;i++){
+    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
+    p=p?p:0;
+    var policyMoney = 0;
+    if(req.body.type=="2"||req.body.type=="3"){
+      policyMoney = Math.round(p*req.body.policy_percent)/100;
+    }else{
+      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
+      policyMoney = Math.round(policyMoney*100)/100;
+    }
+    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.sale_hospital_id;
+    var saleHospital = "update sales set sale_return_price = '"+policyMoney+"',sale_return_money=sale_num*"+policyMoney+" "+
+                        "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+hospitalId+"' "+
+                        "and product_code = '"+drug[i].product_code+"' and (sale_account_id is null or sale_account_id = '') "+
+                        "and (sale_return_price is null or sale_return_money is null or sale_return_price = '' or sale_return_money = '')";
+    salePolicy.executeSql(saleHospital,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
+      }
+    });
+  }
 });
 //导出
 router.post("/exportSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("134,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",134,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -376,7 +398,7 @@ router.post("/exportSalesPolicy",function(req,res){
 });
 //查询销售政策
 router.post("/getSalesPolicy",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("130,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",130,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
@@ -425,7 +447,7 @@ function getSalesPolicySql(req){
 }
 //查询销售未添加药品政策
 router.post("/getSalesPolicyDrugs",function(req,res){
-  if(req.session.user[0].authority_code.indexOf("118,") < 0){
+  if(req.session.user[0].authority_code.indexOf(",118,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
