@@ -14,8 +14,8 @@ router.get("/downloadErrorSales",function(req,res){
   conf.name = "mysheet";
   conf.cols = [{caption:'销售日期',type:'string'
   },{caption:'产品编号',type:'string'
-  },{caption:'销售单价',type:'string'
-  },{caption:'销售数量',type:'string'
+  },{caption:'销售单价',type:'number'
+  },{caption:'销售数量',type:'number'
   },{caption:'批号',type:'string'
   },{caption:'该批号入库时间（高打品种必填）',type:'string'
   },{caption:'销往单位',type:'string'
@@ -55,6 +55,8 @@ router.post("/importSales",function(req,res){
         var sData = salesData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+salesData.errData.length+"</a>条；"
         if(sData.length<1){
+          var message = req.session.user[0].realname+"导入销售记录，数据导入错误"+salesData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           res.json({"code":"000000",message:importMessage});
           return;
         }
@@ -117,6 +119,8 @@ router.post("/importSales",function(req,res){
           if(err){
             logger.error(req.session.user[0].realname + "批量插入销售记录出错" + err);
           }
+          var message = req.session.user[0].realname+"导入销售记录，数据导入成功"+sData.length+"条；导入错误"+salesData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           if(updateFlag){
             sales.executeSql(updateStockSql,function(err,result){//更新库存
               if(err){
@@ -425,7 +429,8 @@ router.post("/exportSales",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var sales = DB.get("Sales");
   var sql = getQuerySql(req);
   sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_create_time asc";
@@ -456,6 +461,8 @@ router.post("/exportSales",function(req,res){
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出销售记录。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -501,6 +508,8 @@ router.post("/saveSales",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增销售记录出错" + err);
     }
+    var message = req.session.user[0].realname+"新增销售记录。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     //新增流水   新增返款记录
     saveSaleHospitalAccountDetail(req,result);
     if(productType == '佣金'){
@@ -613,10 +622,13 @@ router.post("/editSales",function(req,res){
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
     }
+    var front_sale = req.body.front_sale;
     sales.update(params,'sale_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改销售出错" + err);
       }
+      var message = req.session.user[0].realname+"修改销售记录。";
+      util.saveLogs(req.session.user[0].group_id,front_sale,JSON.stringify(params),message);
       //销售回款时，更新政策
       // updateSalePolicy(req);
       //更新返款金额
@@ -709,6 +721,8 @@ router.post("/deleteSales",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除销售出错" + err);
     }
+    var message = req.session.user[0].realname+"删除销售记录。id："+req.body.sale_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 

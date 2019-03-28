@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util= require('../utils/global_util.js');
 var router = express.Router();
 
 //新增医院回款
@@ -17,6 +18,8 @@ router.post("/saveReturnMoney",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增医院回款出错" + err);
     }
+    var message = req.session.user[0].realname+"新增医院回款。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -29,10 +32,13 @@ router.post("/editReturnMoney",function(req,res){
     delete req.body.return_money_create_time;
   	req.body.return_money_group_id = req.session.user[0].group_id;
     req.body.return_money_time = new Date(req.body.return_money_time).format("yyyy-MM-dd");
+    var front_message = req.body.front_message;
     hospitalReturnMoney.update(req.body,'return_money_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改医院回款出错" + err);
       }
+      var message = req.session.user[0].realname+"修改医院回款。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -51,6 +57,8 @@ router.post("/deleteReturnMoney",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除医院回款出错" + err);
     }
+    var message = req.session.user[0].realname+"删除医院回款。id："+req.body.return_money_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

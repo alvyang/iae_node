@@ -1,7 +1,25 @@
 // var wechat = require('../utils/wechat_util.js');
 var crypto = require('crypto');
 var pinyin = require('node-pinyin');
+var logger = require('../utils/logger');
+var uuid=require("node-uuid");
 
+//保存日志
+exports.saveLogs = function(arg1,arg2,arg3,arg4){
+  var log = DB.get("Log");
+  var temp = {
+    log_group_id:arg1,
+    log_front_message:arg2,
+    log_after_message:arg3,
+    log_remark:arg4,
+    log_create_time:new Date()
+  }
+  log.insert(temp,'log_id',function(err,result){
+    if(err){
+      logger.error("新增日志出错" + err);
+    }
+  });
+}
 //获取返款日期
 exports.getReturnTime=function(startDate,returnType,day,dayNum){
   var month = startDate.getMonth();

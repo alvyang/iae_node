@@ -10,10 +10,13 @@ router.post("/editBuninessConfig",function(req,res){
   	req.body.hb_group_id = req.session.user[0].group_id;
     req.body.hb_start_time = new Date(req.body.hb_start_time).format('yyyy-MM-dd');
     if(req.body.hb_config_id){
+      var front_message = req.body.front_message;
       config.update(req.body,'hb_config_id',function(err,result){
         if(err){
           logger.error(req.session.user[0].realname + "修改商业配置出错" + err);
         }
+        var message = req.session.user[0].realname+"修改商业配置。id："+req.body.hb_config_id;
+        util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
         res.json({"code":"000000",message:null});
       });
     }else{
@@ -22,6 +25,8 @@ router.post("/editBuninessConfig",function(req,res){
         if(err){
           logger.error(req.session.user[0].realname + "新增商业配置出错" + err);
         }
+        var message = req.session.user[0].realname+"新增商业配置。id："+result;
+        util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
         res.json({"code":"000000",message:result});
       });
     }

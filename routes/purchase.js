@@ -14,9 +14,9 @@ router.get("/downloadErrorPurchases",function(req,res){
   conf.name = "mysheet";
   conf.cols = [{caption:'备货日期',type:'string'
   },{caption:'产品编号',type:'string'
-  },{caption:'备货单价',type:'string'
-  },{caption:'备货数量',type:'string'
-  },{caption:'补点/费用票',type:'string'
+  },{caption:'备货单价',type:'number'
+  },{caption:'备货数量',type:'number'
+  },{caption:'补点/费用票',type:'number'
   },{caption:'打款时间',type:'string'
   },{caption:'发货时间',type:'string'
   },{caption:'入库时间',type:'string'
@@ -59,6 +59,8 @@ router.post("/importPurchases",function(req,res){
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+purchasesData.errData.length+"</a>条；"
         if(sData.length<1){
           res.json({"code":"000000",message:importMessage});
+          var message = req.session.user[0].realname+"导入采进记录，数据导入错误"+purchasesData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           return;
         }
         //新增采购记录
@@ -99,6 +101,8 @@ router.post("/importPurchases",function(req,res){
           if(err){
             logger.error(req.session.user[0].realname + "批量插入采购出错" + err);
           }
+          var message = req.session.user[0].realname+"导入采进记录，数据导入成功"+sData.length+"条；导入错误"+purchasesData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           purchase.executeSql(refundSql,function(err,result){//更新库存
             if(err){
               logger.error(req.session.user[0].realname + "批量插入采购记录，批量添加返款记录" + err);
@@ -288,6 +292,8 @@ router.post("/savePurchases",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增采购记录出错" + err);
     }
+    var message = req.session.user[0].realname+"新增采进记录。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     //新增高打返款记录
     saveRefundsPurchase(req,productReturnMoney,result,returnTime);
     updateStatchStock(req,result);
@@ -382,10 +388,13 @@ router.post("/editPurchase",function(req,res){
     ticket_number:req.body.ticket_number,
     purchase_other_money:req.body.purchase_other_money,
   }
+  var front_purchase = req.body.front_purchase;
   purchase.update(params,'purchase_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改采购记录出错" + err);
     }
+    var message = req.session.user[0].realname+"修改采进记录。";
+    util.saveLogs(req.session.user[0].group_id,front_purchase,JSON.stringify(params),message);
     //更新高打返款记录金额
     updateRefundsPurchase(req);
     res.json({"code":"000000",message:null});
@@ -468,6 +477,8 @@ router.post("/deletePurchases",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除采购记录出错" + err);
     }
+    var message = req.session.user[0].realname+"删除采进记录。id："+req.body.purchase_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 
@@ -488,7 +499,8 @@ router.post("/exportPurchases",function(req,res){
     return ;
   }
   var purchase = DB.get("Purchase");
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var sql = getPurchasesSql(req);
   sql += " order by p.time desc,p.purchase_create_time asc";
   purchase.executeSql(sql,function(err,result){
@@ -522,6 +534,8 @@ router.post("/exportPurchases",function(req,res){
     var header = ['time', 'product_supplier', 'product_common_name', 'product_specifications', 'product_makesmakers','product_unit','product_packing','purchase_number','purchase_mack_price','purchase_money','purchase_price','puchase_gross_rate'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出采进记录。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -575,6 +589,9 @@ function getPurchasesSql(req){
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and p.purchase_create_userid = '"+req.session.user[0].id+"'";
+  }
+  if(req.body.data.batch_number){
+    sql += "and p.batch_number = '"+req.body.data.batch_number+"'";
   }
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";

@@ -12,7 +12,8 @@ router.post("/exportStocks",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var drugs = DB.get("Drugs");
   var sql = getDrugsSql(req);
   sql += " order by sbus.product_create_time desc "
@@ -30,9 +31,9 @@ router.post("/exportStocks",function(req,res){
     },{caption:'包装',type:'string'
     },{caption:'单位',type:'string'
     },{caption:'商业',type:'string'
-    },{caption:'库存',type:'string',
+    },{caption:'库存',type:'number',
       beforeCellWrite:function(row, cellData){
-        return cellData?cellData:"0";
+        return cellData?cellData:0;
       }
     },{caption:'联系人',type:'string'
     }];
@@ -40,6 +41,8 @@ router.post("/exportStocks",function(req,res){
                   'product_unit','business_name','batch_stock_number','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出库存记录。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -70,6 +73,8 @@ router.post("/deleteBatchStock",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除批次库存出错" + err);
     }
+    var message = req.session.user[0].realname+"删除库存记录。id："+req.body.batch_stock_purchase_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

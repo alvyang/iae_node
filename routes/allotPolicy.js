@@ -10,7 +10,8 @@ router.post("/exportAllotRefund",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var allot = DB.get("Allot");
   var sql = getAllotSql(req);
   sql += " order by a.allot_time desc,a.allot_create_time desc";
@@ -77,6 +78,8 @@ router.post("/exportAllotRefund",function(req,res){
                   'allot_policy_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出调货政策。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -203,6 +206,8 @@ router.post("/copyAllotPolicy",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "复制调货政策，复制销售出错" + err);
       }
+      var message = req.session.user[0].realname+"复制调货政策。"+req.body.hospital_id+"到"+req.body.hospital_id_copy;
+      util.saveLogs(req.session.user[0].group_id,"-","-",message);
       res.json({"code":"000000",message:""});
     });
 
@@ -265,6 +270,8 @@ router.post("/editAllotPolicyBatch",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "更新调货医院药品政策，出错" + err);
     }
+    var message = req.session.user[0].realname+"（批量）新增、修改调货政策。"+drug.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:""});
   });
   for(var i = 0 ; i < drug.length ;i++){
@@ -303,6 +310,10 @@ router.post("/editAllotPolicy",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "更新调货医院药品政策，出错" + err);
     }
+    var message = req.session.user[0].realname+"新增、修改调货政策。";
+    var front_message = req.body.front_message?req.body.front_message:"-";
+    delete req.body.front_message;
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:""});
   });
   var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
@@ -321,7 +332,8 @@ router.post("/exportAllotPolicy",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var salePolicy = DB.get("SalePolicy");
   var sql = getAllotPolicySql(req);
   sql += " order by dsp.product_create_time asc";
@@ -339,8 +351,8 @@ router.post("/exportAllotPolicy",function(req,res){
     },{caption:'单位',type:'string'
     },{caption:'商业',type:'string'
     },{caption:'中标价',type:'number'
-    },{caption:'积分',type:'string'
-    },{caption:'调货积分',type:'string'
+    },{caption:'积分',type:'number'
+    },{caption:'调货积分',type:'number'
     },{caption:'积分备注',type:'string'
     },{caption:'业务员',type:'string'
     }];
@@ -349,6 +361,8 @@ router.post("/exportAllotPolicy",function(req,res){
                   'allot_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出调货政策。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');

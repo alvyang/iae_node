@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //新增角色
@@ -16,6 +17,8 @@ router.post("/saveRoles",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增角色出错" + err);
     }
+    var message = req.session.user[0].realname+"新增角色。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -25,10 +28,13 @@ router.post("/editRoles",function(req,res){
     var role = DB.get("Role");
   	req.body.group_id = req.session.user[0].group_id;
     delete req.body.role_create_time;
+    var front_message = req.body.front_message;
     role.update(req.body,'role_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改角色出错" + err);
       }
+      var message = req.session.user[0].realname+"修改角色。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -50,6 +56,7 @@ router.post("/editAuthority",function(req,res){
     var deleteAllSql = "update role_authority set role_authority_delete_flag = '1' where "+
                       "role_authority_group_id = '"+req.session.user[0].group_id+"' "+
                       "and role_id = '"+req.body.role_id+"'";
+    var front_message = req.body.front_message;
     roleAuthority.executeSql(deleteAllSql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "授权时，先将权限票房为删除，出错" + err);
@@ -58,6 +65,8 @@ router.post("/editAuthority",function(req,res){
         if(err){
           logger.error(req.session.user[0].realname + "授权出错" + err2);
         }
+        var message = req.session.user[0].realname+"角色重新授权。";
+        util.saveLogs(req.session.user[0].group_id,front_message,req.body.authority_code.toString(),message);
       });
       res.json({"code":"000000",message:null});
     });
@@ -73,10 +82,13 @@ router.post("/deleteRoles",function(req,res){
   }
   var role = DB.get("Role");
   req.body.delete_flag = 1;
+  delete req.body.role_create_time;
   role.update(req.body,'role_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "删除角色出错" + err);
     }
+    var message = req.session.user[0].realname+"删除角色。id："+req.body.role_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

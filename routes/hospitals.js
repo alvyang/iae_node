@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 //验证产品编码是否存在
 router.post("/exitsHospitlsName",function(req,res){
@@ -31,6 +32,8 @@ router.post("/saveHospitals",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "查询医院出错" + err);
     }
+    var message = req.session.user[0].realname+"新增销往单位。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -41,10 +44,13 @@ router.post("/editHospitals",function(req,res){
   	req.body.group_id = req.session.user[0].group_id;
     req.body.hospital_type = req.body.hospital_type.join(",");
     delete req.body.hospital_create_time;
+    var front_message = req.body.front_message;
     hospitals.update(req.body,'hospital_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改医院出错" + err);
       }
+      var message = req.session.user[0].realname+"修改销往单位。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -63,6 +69,8 @@ router.post("/deleteHospitals",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除医院出错" + err);
     }
+    var message = req.session.user[0].realname+"删除销往单位。id："+req.body.hospital_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

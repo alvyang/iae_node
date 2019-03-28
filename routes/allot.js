@@ -17,8 +17,8 @@ router.get("/downloadErrorAllots",function(req,res){
   },{caption:'产品编号',type:'string'
   },{caption:'批号',type:'string'
   },{caption:'该批号入库时间（高打品种必填）',type:'string'
-  },{caption:'调货单价',type:'string'
-  },{caption:'调货数量',type:'string'
+  },{caption:'调货单价',type:'number'
+  },{caption:'调货数量',type:'number'
   },{caption:'调货单位',type:'string'
   },{caption:'调货类型',type:'string'
   },{caption:'错误信息',type:'string'
@@ -56,6 +56,8 @@ router.post("/importAllots",function(req,res){
         var sData = allotsData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+sData.length+"</a>条；导入错误<a style='color:red;'>"+allotsData.errData.length+"</a>条；"
         if(sData.length<1){
+          var message = req.session.user[0].realname+"导入调货记录，数据导入错误"+allotsData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           res.json({"code":"000000",message:importMessage});
           return;
         }
@@ -111,6 +113,9 @@ router.post("/importAllots",function(req,res){
               logger.error(req.session.user[0].realname + "批量插入调货记录,批量插入流水出错" + err);
             }
           });
+          //添加日志
+          var message = req.session.user[0].realname+"导入调货记录，数据导入成功"+sData.length+"条；导入错误"+allotsData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           res.json({"code":"000000",message:importMessage});
         });
       });
@@ -374,6 +379,8 @@ router.post("/saveAllot",function(req,res){
     saveAllotAccountDetail(req,result,accountDetail);
     //更新调货医院--药品 政策信息
     // updateAllotPolicy(req,contactId,allotPolicyRemark);
+    var message = req.session.user[0].realname+"新增调货记录。id："+result
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
   });
   //添加完调货记录后，更新库存。
   var batchStock = DB.get("BatchStock");
@@ -458,13 +465,13 @@ router.post("/editAllot",function(req,res){
 
     var contactId = req.body.allot_policy_contact_id;
     var allotPolicyRemark = req.body.allot_policy_remark;
-    delete req.body.allot_policy_contact_id;
-    delete req.body.allot_policy_remark;
-    delete req.body.allot_create_time;
+    var front_allot_message = req.body.front_allot_message;
     allot.update(params,'allot_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改调货记录出错" + err);
       }
+      var message = req.session.user[0].realname+"修改调货（调货应付）记录。id："+params.allot_id;
+      util.saveLogs(req.session.user[0].group_id,front_allot_message,JSON.stringify(params),message);
       res.json({"code":"000000",message:null});
     });
 
@@ -515,12 +522,10 @@ router.post("/deleteAllot",function(req,res){
   var stock = parseInt(req.body.stock);
   var productId = req.body.product_id;
   var allotNumber = parseInt(req.body.allot_number);
-  delete req.body.product_type;
-  delete req.body.stock;
-  delete req.body.product_id;
-  delete req.body.allot_number;
   allot.update(req.body,'allot_id',function(err,result){
     res.json({"code":"000000",message:null});
+    var message = req.session.user[0].realname+"删除调货记录。id："+req.body.allot_id
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
   });
   //添加完调货记录后，更新库存。
   var batchStock = DB.get("BatchStock");
@@ -538,7 +543,8 @@ router.post("/exportAllot",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var allot = DB.get("Allot");
   var sql = getAllotSql(req);
   sql += " order by a.allot_time desc,a.allot_create_time desc";
@@ -574,6 +580,8 @@ router.post("/exportAllot",function(req,res){
                   'product_makesmakers','product_unit','allot_type','business_name','allot_number','allot_price','allot_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出调货记录。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');

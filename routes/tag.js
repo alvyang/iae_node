@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //验证标签是否存在
@@ -28,6 +29,8 @@ router.post("/saveTag",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增标签出错" + err);
     }
+    var message = req.session.user[0].realname+"新增标签。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -40,10 +43,13 @@ router.post("/editTag",function(req,res){
   var tag = DB.get("Tag");
   req.body.tag_group_id = req.session.user[0].group_id;
   delete req.body.tag_create_time;
+  var front_message = req.body.front_message;
   tag.update(req.body,'tag_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改标签出错" + err);
     }
+    var message = req.session.user[0].realname+"修改标签。";
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -59,6 +65,8 @@ router.post("/deleteTag",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除标签出错" + err);
     }
+    var message = req.session.user[0].realname+"删除标签。id："+req.body.tag_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

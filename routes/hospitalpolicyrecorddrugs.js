@@ -34,6 +34,8 @@ router.post("/deleteHospitalsPolicy",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除医院政策出错" + err);
     }
+    var message = req.session.user[0].realname+"删除医院特殊政策记录。医院id："+req.body.hospital_id+"。药品id："+req.body.product_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:""});
   });
 });
@@ -51,6 +53,10 @@ router.post("/editHospitalPolicy",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "更新销售特殊政策，出错" + err);
       }
+      var front_message = req.body.front_message?req.body.front_message:"-";
+      delete req.body.front_message;
+      var message = req.session.user[0].realname+"新增、修改医院特殊政策记录。医院id："+req.body.hospital_policy_hospital_id+"。药品id："+req.body.hospital_policy_drug_id;
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:""});
     });
   }else{

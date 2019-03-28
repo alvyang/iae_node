@@ -22,10 +22,13 @@ router.post("/editPurchaseRecovery",function(req,res){
     purchaserecovery_money:req.body.purchaserecovery_money,
     purchaserecovery_return_money_time:req.body.purchaserecovery_return_money_time
   }
+  var front_purchaserecovery = req.body.front_purchaserecovery;
   purchaseRecovery.update(params,'purchaserecovery_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改采退记录出错" + err);
     }
+    var message = req.session.user[0].realname+"修改采退记录。";
+    util.saveLogs(req.session.user[0].group_id,front_purchaserecovery,JSON.stringify(params),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -41,6 +44,8 @@ router.post("/deletePurchasesRecovery",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除采退记录出错" + err);
     }
+    var message = req.session.user[0].realname+"删采退记录。id："+req.body.purchaserecovery_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
     //更新库存
     var batchStock = DB.get("BatchStock");
@@ -131,6 +136,8 @@ router.post("/savePurchasesrecorvery",function(req,res){
       logger.error(req.session.user[0].realname + "新增采进记录出错" + err);
     }
     res.json({"code":"000000",message:result});
+    var message = req.session.user[0].realname+"新增采退记录。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     saveRefundsPurchase(req,productReturnMoney,result);
     //更新库存
     var batchStock = DB.get("BatchStock");

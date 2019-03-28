@@ -16,10 +16,13 @@ router.post("/editPurchaseLoss",function(req,res){
 		purchaseloss_time:req.body.purchaseloss_time,
     purchaseloss_money:req.body.purchaseloss_money
   }
+  var front_purchaseloss = req.body.front_purchaseloss;
   purchaseLoss.update(params,'purchaseloss_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改报损记录出错" + err);
     }
+    var message = req.session.user[0].realname+"修改报损记录。";
+    util.saveLogs(req.session.user[0].group_id,front_purchaseloss,JSON.stringify(params),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -35,6 +38,8 @@ router.post("/deletePurchasesLoss",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除报损记录出错" + err);
     }
+    var message = req.session.user[0].realname+"删除报损记录。id："+req.body.purchaseloss_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
     //更新库存
     var batchStock = DB.get("BatchStock");
@@ -125,6 +130,8 @@ router.post("/savePurchasesLoss",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增报损记录出错" + err);
     }
+    var message = req.session.user[0].realname+"新增报损记录。id："+req.body.purchaseloss_id;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
     //更新库存
     var batchStock = DB.get("BatchStock");

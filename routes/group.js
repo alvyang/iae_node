@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //用户组权限授权，用于按功能付费
@@ -15,6 +16,7 @@ router.post("/editGroupAuthority",function(req,res){
   var deleteAllSql = "update groups_authority set groups_authority_delete_flag = '1' where "+
                     "groups_authority_group_id = '"+req.body.group_id+"' ";
   var groupsAuthority = DB.get("GroupsAuthority");
+  var front_authority_code = req.body.front_authority_code;
   groupsAuthority.executeSql(deleteAllSql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "组授权时，先将权限标记为删除，出错" + err);
@@ -23,6 +25,8 @@ router.post("/editGroupAuthority",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "组授权出错" + err2);
       }
+      var message = req.session.user[0].realname+"用户组重新授权。";
+      util.saveLogs(req.session.user[0].group_id,front_authority_code,req.body.authority_code.toString(),message);
     });
     res.json({"code":"000000",message:null});
   });
@@ -53,6 +57,8 @@ router.post("/saveGroups",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户组出错" + err);
     }
+    var message = req.session.user[0].realname+"新增用户组。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -68,10 +74,13 @@ router.post("/editGroups",function(req,res){
   req.body.end_time = new Date(req.body.end_time).format('yyyy-MM-dd');
   var sql = "update groups set `group_code`='"+req.body.group_code+"',`group_name` = '"+req.body.group_name+"', `start_time` = '"+req.body.start_time+"', `end_time` = '"+req.body.end_time+"'";
   sql += " where group_id = '"+req.body.group_id+"'";
+  var front_message = req.body.front_message;
   group.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改用户组出错" + err);
     }
+    var message = req.session.user[0].realname+"修改用户组。";
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -87,6 +96,8 @@ router.post("/deleteGroups",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除用户组出错" + err);
     }
+    var message = req.session.user[0].realname+"删除用户组。id："+req.body.group_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

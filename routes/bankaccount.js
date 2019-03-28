@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util= require('../utils/global_util.js');
 var router = express.Router();
 
 //新增联系人
@@ -9,7 +10,6 @@ router.post("/saveAccounts",function(req,res){
     return ;
   }
   var account = DB.get("Account");
-  delete req.body.money;
   req.body.account_group_id = req.session.user[0].group_id;
   req.body.bank_create_userid = req.session.user[0].id;
   req.body.bank_create_time = new Date();
@@ -17,6 +17,8 @@ router.post("/saveAccounts",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增银行账号出错" + err);
     }
+    var message = req.session.user[0].realname+"新增积分账户。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -24,13 +26,14 @@ router.post("/saveAccounts",function(req,res){
 router.post("/editAccounts",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",70,") > -1){
     var account = DB.get("Account");
-    delete req.body.money;
-    delete req.body.bank_create_time;
+    var front_account = req.body.front_account;
   	req.body.account_group_id = req.session.user[0].group_id;
     account.update(req.body,'account_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改银行账号出错" + err);
       }
+      var message = req.session.user[0].realname+"修改积分账户。";
+      util.saveLogs(req.session.user[0].group_id,front_account,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -49,6 +52,8 @@ router.post("/deleteAccount",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除银行账号出错" + err);
     }
+    var message = req.session.user[0].realname+"删除积分账户。id："+req.body.account_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

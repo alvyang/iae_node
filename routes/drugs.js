@@ -74,6 +74,8 @@ router.post("/importDrugs",function(req,res){
         var cData = drugData.correctData;//正确的数据
         var importMessage = "数据导入成功<a style='color:red;'>"+cData.length+"</a>条；导入错误<a style='color:red;'>"+drugData.errData.length+"</a>条；"
         if(cData.length<1){
+          var message = req.session.user[0].realname+"导入药品记录，数据导入错误"+drugData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           res.json({"code":"000000",message:importMessage});
           return;
         }
@@ -103,6 +105,8 @@ router.post("/importDrugs",function(req,res){
           if(err){
             logger.error(req.session.user[0].realname + "批量添加药品出错" + err);
           }
+          var message = req.session.user[0].realname+"导入药品记录，数据导入成功"+cData.length+"条；导入错误"+drugData.errData.length+"条；";
+          util.saveLogs(req.session.user[0].group_id,"-","-",message);
           res.json({"code":"000000",message:importMessage});
         });
       });
@@ -345,6 +349,8 @@ router.post("/saveDrugs",function(req,res){
     }else{
       updateQuoteNum(tagIds,tagIdsTemp,req,result);
     }
+    var message = req.session.user[0].realname+"新增药品记录。id："+req.body.product_id;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -387,6 +393,8 @@ router.post("/distributionFlag",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "标记药品是否配送出错" + err);
     }
+    var message = req.session.user[0].realname+"药品配送/不配送。id："+req.body.product_id;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -410,12 +418,16 @@ router.post("/editDrugs",function(req,res){
   delete req.body.tag_ids;
   delete req.body.product_create_time;
   var drugs = DB.get("Drugs");
+  var front_message = req.body.front_message;
   drugs.update(req.body,'product_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改药品出错" + err);
+
     }else{
       updateQuoteNum(tagIds,tagIdsTemp,req,req.body.product_id);
     }
+    var message = req.session.user[0].realname+"修改药品记录。id："+req.body.product_id;
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
   if(flag == "true"){
@@ -441,6 +453,8 @@ router.post("/deleteDrugs",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除药品出错" + err);
     }
+    var message = req.session.user[0].realname+"删除药品记录。id："+req.body.product_id
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -450,7 +464,8 @@ router.post("/exportDrugs",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var drugs = DB.get("Drugs");
   var sql = getDrugsSql(req);
   sql += " order by sbus.product_create_time asc ";
@@ -466,7 +481,7 @@ router.post("/exportDrugs",function(req,res){
     },{caption:'产品规格',type:'string'
     },{caption:'生产厂家',type:'string'
     },{caption:'单位',type:'string'
-    },{caption:'包装',type:'string'
+    },{caption:'包装',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'商业',type:'string'
     },{caption:'采购员',type:'string'
@@ -494,6 +509,8 @@ router.post("/exportDrugs",function(req,res){
                   'product_basic_medicine','tag_names','accounting_cost','gross_interest_rate'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出药品记录。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -581,7 +598,10 @@ router.post("/getStockNum",function(req,res){
     return ;
   }
   var drugs = DB.get("Drugs");
-  var sql = "select sum(d.stock*d.product_mack_price) mpn,sum(d.stock) sn from drugs d where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
+  var stockNumSql = "select sum(bs.batch_stock_number) bn,bs.batch_stock_drug_id from batch_stock bs where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+                    " group by bs.batch_stock_drug_id ";
+  var sql = "select sum(st.bn*d.product_mack_price) mpn,sum(st.bn) sn from drugs d left join ("+stockNumSql+") st on d.product_id = st.batch_stock_drug_id "+
+            " where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(req.body.data.productCommonName){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }

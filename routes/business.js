@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //新增联系人
@@ -16,6 +17,8 @@ router.post("/saveBusiness",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增商业出错" + err);
     }
+    var message = req.session.user[0].realname+"新增商业。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -25,10 +28,13 @@ router.post("/editBusiness",function(req,res){
     var business = DB.get("Business");
   	req.body.business_group_id = req.session.user[0].group_id;
     delete req.body.business_create_time;
+    var front_message = req.body.front_message;
     business.update(req.body,'business_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改商业出错" + err);
       }
+      var message = req.session.user[0].realname+"修改商业。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -47,6 +53,8 @@ router.post("/deleteBusiness",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除商业出错" + err);
     }
+    var message = req.session.user[0].realname+"删除商业。id："+req.body.business_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

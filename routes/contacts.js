@@ -1,5 +1,6 @@
 var express = require("express");
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //验证产品编码是否存在
@@ -32,6 +33,8 @@ router.post("/saveContacts",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增联系人出错" + err);
     }
+    var message = req.session.user[0].realname+"新增联系人。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -43,10 +46,13 @@ router.post("/editContacts",function(req,res){
     req.body.contact_type = req.body.contact_type.join(",");
     delete req.body.contact_create_time;
     delete req.body.contact_create_time;
+    var front_message = req.body.front_message;
     contacts.update(req.body,'contacts_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改联系人出错" + err);
       }
+      var message = req.session.user[0].realname+"修改联系人。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
   }else{
@@ -65,6 +71,8 @@ router.post("/deleteContacts",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除联系人出错" + err);
     }
+    var message = req.session.user[0].realname+"删除联系人。id："+req.body.contacts_id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

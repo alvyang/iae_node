@@ -1,6 +1,7 @@
 var express = require("express");
 var crypto = require('crypto');
 var logger = require('../utils/logger');
+var util = require('../utils/global_util');
 var router = express.Router();
 
 //判断用户是否存在
@@ -31,6 +32,8 @@ router.post("/saveUsers",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "新增用户出错" + err);
     }
+    var message = req.session.user[0].realname+"新增用户。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
@@ -52,10 +55,13 @@ router.post("/editUsers",function(req,res){
   delete req.body.role_id;
   delete req.body.role_name;
   delete req.body.user_create_time;
+  var front_message = req.body.front_message;
   user.update(req.body,'id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改用户出错" + err);
     }
+    var message = req.session.user[0].realname+"修改用户。";
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -67,10 +73,13 @@ router.post("/editUserRole",function(req,res){
   }
   var user = DB.get("Users");
 	req.body.group_id = req.session.user[0].group_id;
+  var front_role_id = req.body.front_role_id;
   user.update(req.body,'id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "修改用户权限出错" + err);
     }
+    var message = req.session.user[0].realname+"用户重新授权。";
+    util.saveLogs(req.session.user[0].group_id,front_role_id,req.body.role_id,message);
     res.json({"code":"000000",message:null});
   });
 });
@@ -86,6 +95,8 @@ router.post("/deleteUsers",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "删除用户出错" + err);
     }
+    var message = req.session.user[0].realname+"删除用户。id："+req.body.id;
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:null});
   });
 });

@@ -7,13 +7,93 @@ var parse = require('csv-parse');
 var XLSX = require("xlsx");
 var router = express.Router();
 
+//销售付款，更新返款状态
+router.post("/editSalesPay",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",49,") > 0 || req.session.user[0].authority_code.indexOf(",128,") > 0){
+    var sales = DB.get("Sales");
+    req.body.bill_date = new Date(req.body.bill_date).format('yyyy-MM-dd');
+    var params = {
+      sale_id:req.body.sale_id,
+  		sale_money:req.body.sale_money,
+      sale_price:req.body.sale_price,
+  		sale_num:req.body.sale_num,
+  		gross_profit:req.body.gross_profit,
+  		real_gross_profit:req.body.real_gross_profit,
+  		accounting_cost:req.body.accounting_cost,
+  		cost_univalent:req.body.cost_univalent,
+  		bill_date:req.body.bill_date,
+  		hospital_id:req.body.hospital_id,
+      sale_account_id:req.body.sale_account_id,
+      sale_return_price:req.body.sale_return_price,
+      sale_contact_id:req.body.sale_contact_id,
+      sale_type:req.body.sale_type,
+      sale_account_name:req.body.sale_account_name,
+      sale_account_number:req.body.sale_account_number,
+      sale_account_address:req.body.sale_account_address,
+      batch_number:req.body.batch_number,
+      sale_other_money:req.body.sale_other_money,
+      sale_return_real_return_money:req.body.sale_return_real_return_money
+    }
+    params.sale_return_money = req.body.sale_return_money?req.body.sale_return_money:util.mul(req.body.sale_policy_money,req.body.sale_num);
+    if(req.body.product_type=="佣金"){
+      params.sale_return_money=util.sub(params.sale_return_money,req.body.sale_other_money,2);
+    }else if(req.body.product_type=="高打"){
+      var temp = (req.body.purchase_other_money/req.body.purchase_number)*req.body.sale_num;
+      temp = temp?temp:0;
+      params.sale_return_money=util.sub(params.sale_return_money,temp,2);
+    }
+
+    if(req.body.sale_return_time){
+      params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
+    }
+    var front_message = req.body.front_sale_pay;
+    sales.update(params,'sale_id',function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改销售出错" + err);
+      }
+      var message = req.session.user[0].realname+"修改销售应付。id："+params.sale_id;
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(params),message);
+      //销售回款时，更新政策
+      // updateSalePolicy(req);
+      updateAllotAccountDetail(req);
+      res.json({"code":"000000",message:null});
+    });
+  }else{
+    res.json({"code":"111112",message:"无权限"});
+  }
+});
+//添加调货，并直接返款，则添加流水账信息
+function updateAllotAccountDetail(req){
+  var bankaccountdetail={};
+  if(req.body.sale_account_id){
+    bankaccountdetail.account_detail_deleta_flag = '0';
+    bankaccountdetail.account_id = req.body.sale_account_id;
+  }
+  bankaccountdetail.account_detail_money = -req.body.sale_return_real_return_money;
+  if(req.body.sale_return_time){
+    bankaccountdetail.account_detail_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
+  }
+  bankaccountdetail.account_detail_mark = req.body.bill_date+req.body.hospital_name+"销售"+
+                                          req.body.product_common_name+"付积分"+req.body.sale_return_real_return_money;
+  bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
+  bankaccountdetail.flag_id = "sale_hospital_"+req.body.sale_id;
+  bankaccountdetail.account_detail_create_time = new Date();
+  bankaccountdetail.account_detail_create_userid = req.session.user[0].id;
+  var accountDetail = DB.get("AccountDetail");
+  accountDetail.update(bankaccountdetail,'flag_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改返款修改流水出错" + err);
+    }
+  });
+}
 //导出回款记录
 router.post("/exportSalesRefund",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",136,") < 0){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var sales = DB.get("Sales");
   var sql = getQuerySql(req);
   sql += " order by s.bill_date desc,s.hospital_id asc,s.sale_create_time asc";
@@ -92,6 +172,8 @@ router.post("/exportSalesRefund",function(req,res){
                   'sale_return_time','sale_policy_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出销售应付。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -240,6 +322,8 @@ router.post("/copySalesPolicy",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "复制销售政策，复制销售出错" + err);
       }
+      var message = req.session.user[0].realname+"复制销售政策。"+req.body.hospital_id+"到"+req.body.hospital_id_copy;
+      util.saveLogs(req.session.user[0].group_id,"-","-",message);
       res.json({"code":"000000",message:""});
     });
 
@@ -291,6 +375,11 @@ router.post("/editSalesPolicy",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "更新销售医院药品政策，出错" + err);
     }
+
+    var message = req.session.user[0].realname+"新增、修改销售政策。";
+    var front_message = req.body.front_message?req.body.front_message:"-";
+    delete req.body.front_message;
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:""});
   });
 
@@ -332,6 +421,8 @@ router.post("/editSalesPolicyBatch",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "批量新增销售医院药品政策，出错" + err);
     }
+    var message = req.session.user[0].realname+"（批量）新增、修改销售政策。"+drug.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:""});
   });
 
@@ -363,7 +454,8 @@ router.post("/exportSalesPolicy",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var salePolicy = DB.get("SalePolicy");
   var sql = getSalesPolicySql(req);
   sql += " order by dsp.product_create_time asc";
@@ -391,6 +483,8 @@ router.post("/exportSalesPolicy",function(req,res){
                   'sale_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出销售政策。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');

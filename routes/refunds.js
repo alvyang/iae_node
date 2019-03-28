@@ -61,7 +61,7 @@ router.post("/saveRefunds",function(req,res){
 router.post("/deleteRefunds",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",103,") > 0 || req.session.user[0].authority_code.indexOf(",104,") > 0){
     var refunds = DB.get("Refunds");
-    if(!req.body.refunds_id){
+    if(!req.body.refunds_id){//这个if里，更新用到，现在貌似没什么用。。。。。
       saveRefund={
         sales_id:req.body.sales_id,
         purchases_id:req.body.purchases_id,
@@ -78,6 +78,8 @@ router.post("/deleteRefunds",function(req,res){
         if(err){
           logger.error(req.session.user[0].realname + "删除返款记录出错" + err);
         }
+        var message = req.session.user[0].realname+"删除积分应收记录。id："+req.body.refunds_id;
+        util.saveLogs(req.session.user[0].group_id,"-","-",message);
         res.json({"code":"000000",message:null});
       });
     }
@@ -103,10 +105,13 @@ router.post("/editRefunds",function(req,res){
     var accountDetail = req.body.account_detail;
     delete req.body.account_detail;
     delete req.body.refund_create_time;
+    var front_message = req.body.front_message;
     refunds.update(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改返款记录出错" + err);
       }
+      var message = req.session.user[0].realname+"修改积分应收记录。";
+      util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
     });
 
@@ -141,7 +146,8 @@ router.post("/exportRefundPurchase",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var refunds = DB.get("Refunds");
   var sql = getPurchasesSql(req);
   sql += " order by p.time desc,p.purchase_create_time desc  ";
@@ -213,6 +219,8 @@ router.post("/exportRefundPurchase",function(req,res){
                   'account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出采进应收记录。导出"+conf.rows.length+"条。";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
@@ -257,7 +265,7 @@ router.post("/getPurchaseRefunds",function(req,res){
 function getPurchasesSql(req){
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用采购记录，左连接返款记录
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
- var sql = "select p.purchase_id,p.purchase_price,p.purchase_number,p.purchase_money,p.time,p.make_money_time,p.send_out_time,"+
+ var sql = "select p.purchase_id,p.purchase_price,p.purchase_number,p.batch_number,p.purchase_money,p.time,p.make_money_time,p.send_out_time,"+
            "b.account_number,b.account_person,c.contacts_name,bus.business_name,r.refunds_should_time,r.refunds_should_money,"+
            "p.purchase_mack_price,r.refunds_id,r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.refunds_remark,r.receiver,"+
            "d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.product_return_explain,"+
@@ -281,6 +289,9 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
   }
   if(req.body.data.tag && req.body.data.tag != 'undefined'){
     sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
+  }
+  if(req.body.data.batch_number){
+    sql += "and p.batch_number = '"+req.body.data.batch_number+"'";
   }
   if(req.body.data.overdue){
     req.body.data.status="未返";
@@ -343,7 +354,8 @@ router.post("/exportRefundSale",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  req.body.data = req.body;
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
   var refunds = DB.get("Refunds");
   var sql = getQuerySql(req);
   sql += " order by s.bill_date desc,s.sale_create_time desc ";
@@ -408,6 +420,8 @@ router.post("/exportRefundSale",function(req,res){
                   'account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出销售应收记录。导出"+conf.rows.length+"条。";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats');
     res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
     res.end(result, 'binary');
