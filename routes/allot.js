@@ -459,10 +459,11 @@ router.post("/editAllot",function(req,res){
     if(req.body.allot_account_id){
       params.allot_account_id = req.body.allot_account_id;
     }
-    params.allot_return_money=util.mul(req.body.allot_number,req.body.allot_policy_money);
-    var temp = req.body.allot_number*req.body.purchase_other_money/req.body.purchase_number;
-    params.allot_return_money = util.sub(params.allot_return_money,temp,2);
-
+    if(req.body.purchase_other_money && req.body.purchase_number){
+      params.allot_return_money=util.mul(req.body.allot_number,req.body.allot_policy_money);
+      var temp = req.body.allot_number*req.body.purchase_other_money/req.body.purchase_number;
+      params.allot_return_money = util.sub(params.allot_return_money,temp,2);
+    }
     var contactId = req.body.allot_policy_contact_id;
     var allotPolicyRemark = req.body.allot_policy_remark;
     var front_allot_message = req.body.front_allot_message;

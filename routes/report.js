@@ -419,7 +419,11 @@ function getPurchaseComprehensive(req,data){
 }
 //查询调货记录，返款等记录
 function getAllotComprehensive(req,data){
-  var sql = "select * from allot a where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' ";
+  var sql = "select a.*,p.purchase_number,r.refunds_should_money,r.refunds_real_money from allot a left join purchase p on a.allot_purchase_id = p.purchase_id "+
+            "left join refunds r on r.purchases_id = p.purchase_id "+
+            "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' "+
+            "and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' "+
+            "and r.refund_delete_flag = '0'";
   //查询近12个月日期
   var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
                 "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
@@ -431,12 +435,22 @@ function getAllotComprehensive(req,data){
         logger.error(req.session.user[0].realname + "综合查询，查询调货相关部分出错" + err);
       }
       for(var i = 0 ; i < result.length ;i++){
-        var temp = new Date(result[i].allot_return_time).format("yyyy-MM");
         var allotTime = new Date(result[i].allot_time).format("yyyy-MM");
         for(var j = 0 ; j<data.length;j++){
           if(data[j].time == allotTime){
             data[j].allotReturnMoney=data[j].allotReturnMoney?data[j].allotReturnMoney:0;//调货应付款
             data[j].allotReturnMoney+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
+          }
+          if(result[i].refunds_should_money && result[i].purchase_number && data[j].time == allotTime){
+            data[j].allotShouldReturn = data[j].allotShouldReturn?data[j].allotShouldReturn:0;
+            data[j].allotShouldReturn += result[i].refunds_should_money*result[i].allot_number/result[i].purchase_number;
+            if(result[i].refunds_real_money && result[i].refunds_real_money > 0){
+              data[j].allotRealReturn = data[j].allotRealReturn?data[j].allotRealReturn:0;
+              data[j].allotRealReturn += result[i].refunds_real_money*result[i].allot_number/result[i].purchase_number;
+            }else{
+              data[j].allotNoReturn = data[j].allotNoReturn?data[j].allotNoReturn:0;
+              data[j].allotNoReturn += result[i].refunds_should_money*result[i].allot_number/result[i].purchase_number;
+            }
           }
           if(result[i].allot_real_return_money > 0 && result[i].allot_return_time && data[j].time == allotTime){
             data[j].allotReturnMoney0=data[j].allotReturnMoney0?data[j].allotReturnMoney0:0;//调货已付款
@@ -451,6 +465,9 @@ function getAllotComprehensive(req,data){
         data[i].allotReturnMoney=Math.round(data[i].allotReturnMoney*100)/100;
         data[i].allotReturnMoney0=Math.round(data[i].allotReturnMoney0*100)/100;
         data[i].allotReturnMoney1=Math.round(data[i].allotReturnMoney1*100)/100;
+        data[i].allotShouldReturn=Math.round(data[i].allotShouldReturn*100)/100;
+        data[i].allotRealReturn=Math.round(data[i].allotRealReturn*100)/100;
+        data[i].allotNoReturn=Math.round(data[i].allotNoReturn*100)/100;
       }
       resolve(data);
     });
@@ -722,8 +739,8 @@ router.post("/getSalesReturnByContacts",function(req,res){
             "and s.delete_flag = '0' and r.refund_delete_flag='0' and r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
 
   sql = "select sd.*,d.contacts_id from ("+sql+") sd left join drugs d on sd.product_code = d.product_code where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
-  sql = "select c.contacts_name,sum(sdc.refunds_should_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
-        "group by c.contacts_name,c.contacts_phone having sum(sdc.refunds_should_money) > 0 order by sum(sdc.refunds_should_money) desc ";
+  sql = "select c.contacts_id,c.contacts_name,sum(sdc.refunds_should_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(sdc.refunds_should_money) > 0 order by sum(sdc.refunds_should_money) desc ";
   var sales = DB.get("Sales");
   sales.executeSql(sql,function(err,result){
     if(err){
@@ -745,8 +762,8 @@ router.post("/getPurchasesReturnByContacts",function(req,res){
               "and pr.delete_flag = '0' and pr.group_id = '"+req.session.user[0].group_id+"'";
   //连接查询联系人、药品信息
   var sql = "select p.*,d.contacts_id from ("+prsql+") p left join drugs d on p.drug_id = d.product_id where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
-  sql = "select c.contacts_name,sum(pd.refunds_should_money) rsm,c.contacts_phone from ("+sql+") pd left join contacts c on c.contacts_id = pd.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
-        "group by c.contacts_name,c.contacts_phone having sum(pd.refunds_should_money) > 0 order by sum(pd.refunds_should_money) desc ";
+  sql = "select c.contacts_id,c.contacts_name,sum(pd.refunds_should_money) rsm,c.contacts_phone from ("+sql+") pd left join contacts c on c.contacts_id = pd.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(pd.refunds_should_money) > 0 order by sum(pd.refunds_should_money) desc ";
 
   var sales = DB.get("Sales");
   sales.executeSql(sql,function(err,result){
