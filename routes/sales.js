@@ -256,7 +256,7 @@ function verData(req,data){
     d.group_id = req.session.user[0].group_id;
     d.sale_create_time = new Date().format('yyyy-MM-dd hh:mm:ss');
     d.sale_create_userid = req.session.user[0].id;
-    d.sale_policy_money = sales[i].sale_policy_money;
+    d.sale_policy_money = sales[i].sale_policy_money?sales[i].sale_policy_money:"";
     d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money):"";
     d.sale_return_money = util.sub(d.sale_return_money,d.sale_other_money_temp,2);
 

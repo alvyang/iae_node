@@ -281,8 +281,11 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
      sql+= "left join ("+tagSql+") td on d.product_id = td.drug_id "+
            "left join contacts c on d.contacts_id = c.contacts_id "+
            "left join business bus on d.product_business = bus.business_id "+
-           "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.make_money_time is not null and p.delete_flag = '0' "+
+           "where p.group_id = '"+req.session.user[0].group_id+"' and p.purchase_return_flag='2' and p.delete_flag = '0' "+
            "and r.refund_delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'  and d.delete_flag = '0' ";
+  if(req.body.data.makeMoneyFlag == "2"){
+    sql += "and p.make_money_time is not null ";
+  }
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += " and p.purchase_create_userid = '"+req.session.user[0].id+"' ";
@@ -328,8 +331,11 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
   if(req.body.data.refundser){
     //查询出与该返款人相关的所有联系人id
     var contactIdSql = "select cp.drug_id from purchase cp left join refunds cr on cp.purchase_id = cr.purchases_id "+
-                       "where cp.purchase_return_flag='2' and cp.make_money_time is not null and cp.delete_flag = '0' and cp.group_id = '"+req.session.user[0].group_id+"' ";
-        contactIdSql += "and cr.refundser = '"+req.body.data.refundser+"'";
+                       "where cp.purchase_return_flag='2' and cp.delete_flag = '0' and cp.group_id = '"+req.session.user[0].group_id+"' ";
+    if(req.body.data.makeMoneyFlag == "2"){
+      contactIdSql += "and cp.make_money_time is not null ";
+    }
+    contactIdSql += "and cr.refundser = '"+req.body.data.refundser+"'";
     contactIdSql = "select cdc.contacts_id from ("+contactIdSql+") csr left join "+
                    "(select cd.product_id,cc.contacts_id from drugs cd left join contacts cc on cd.contacts_id = cc.contacts_id) cdc "+
                    "on csr.drug_id = cdc.product_id where d.contacts_id = cdc.contacts_id";

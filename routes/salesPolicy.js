@@ -104,8 +104,8 @@ router.post("/exportSalesRefund",function(req,res){
     for(var i = 0 ; i< result.length;i++){
       if(result[i].product_type == '佣金' && result[i].refunds_real_time && result[i].refunds_real_money){
         	result[i].realMoney = util.div(result[i].refunds_real_money,result[i].sale_num,2);
-      }else if(result[i].product_type == '高打' && result[i].refunds_real_time && result[i].refunds_real_money){
-         result[i].realMoney = util.div(result[i].refunds_real_money,result[i].purchase_number,2);
+      }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && result[i].refunds_real_money1){
+         result[i].realMoney = util.div(result[i].refunds_real_money1,result[i].purchase_number,2);
       }else{
          result[i].realMoney = 0;
       }
@@ -132,18 +132,35 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'政策积分',type:'number'
     },{caption:'费用票/补点',type:'number',
       beforeCellWrite:function(row, cellData){
-        if(row[16] == '佣金' && cellData){
+        if(row[17] == '佣金' && cellData){
           return cellData;
-        }else if(row[16] == '高打' && row[18]){
-          var temp = (row[18]/row[17])*row[7];
+        }else if(row[17] == '高打' && row[19]){
+          var temp = (row[19]/row[18])*row[7];
           return Math.round(temp*100)/100;
         }else{
           return 0;
         }
       }
-    },{caption:'应付积分',type:'number'
+    },{caption:'应付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var temp = 0;
+        if(row[17] == '佣金' && cellData){
+          temp = row[12];
+        }else if(row[17] == '高打' && row[19]){
+          var temp = (row[19]/row[18])*row[7];
+          temp = Math.round(temp*100)/100;
+        }
+        var t = row[11]*row[7]-temp;
+        t = Math.round(t*100)/100;
+        if(cellData != t){
+          return t;
+        }else{
+          return cellData;
+        }
+      }
+    },{caption:'实付积分',type:'number'
     },{
-        caption:'回积分时间',
+        caption:'付积分时间',
         type:'string',
         beforeCellWrite:function(row, cellData){
           if(cellData){
@@ -152,7 +169,7 @@ router.post("/exportSalesRefund",function(req,res){
             return "";
           }
         }
-    },{caption:'回积分备注',type:'string'
+    },{caption:'付积分备注',type:'string'
     },{caption:'',type:'string',
       beforeCellWrite:function(row, cellData){
         return "";
@@ -168,7 +185,7 @@ router.post("/exportSalesRefund",function(req,res){
     }];
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','sale_num','sale_price','sale_money','realMoney',
-                  'sale_return_price','sale_other_money','sale_return_money',
+                  'sale_return_price','sale_other_money','sale_return_money','sale_return_real_return_money',
                   'sale_return_time','sale_policy_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -210,6 +227,9 @@ router.post("/getSalesReturnMoney",function(req,res){
             result[i].sale_return_money = result[i].sale_return_money?result[i].sale_return_money:0;
             result[i].sale_return_money = Math.round(result[i].sale_return_money*100)/100;
             result[i].product_return_money =  result[i].hospital_policy_return_money?result[i].hospital_policy_return_money:result[i].product_return_money;
+
+            result[i].refunds_real_time = result[i].refunds_real_time1?result[i].refunds_real_time1:result[i].refunds_real_time;
+            result[i].refunds_real_money = result[i].refunds_real_money1?result[i].refunds_real_money1:result[i].refunds_real_money;
           }
           req.body.page.data = result;
           logger.error(req.session.user[0].realname + "sales-getSales运行时长" + (noDate.getTime()-new Date().getTime()));
@@ -229,16 +249,18 @@ function getQuerySql(req){
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
             "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,r.refunds_real_time,"+
-            "r.refunds_real_money,p.purchase_number,p.purchase_other_money,s.sale_other_money,s.sale_return_real_return_money,hpr.hospital_policy_return_money "+
+            "r.refunds_real_money,p.purchase_number,p.purchase_other_money,s.sale_other_money,s.sale_return_real_return_money,hpr.hospital_policy_return_money,"+
+            "rs1.refunds_real_time as refunds_real_time1,rs1.refunds_real_money as refunds_real_money1 "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code "+
             "left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id "+//取上游是否返款
             "left join purchase p on p.purchase_id = s.sales_purchase_id "+//取上游备货数量，计算实返金额
-            "left join refunds r on r.sales_id = s.sale_id or r.purchases_id = s.sales_purchase_id "+
+            "left join refunds r on r.sales_id = s.sale_id "+
+            "left join refunds rs1 on s.sales_purchase_id = rs1.purchases_id "+
+            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
             "left join business bus on d.product_business = bus.business_id "+
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on c.contacts_id = d.contacts_id "+
-            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
             "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
             "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限

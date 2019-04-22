@@ -42,7 +42,7 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'生产厂家',type:'string'
     },{caption:'单位',type:'string'
     },{caption:'商业',type:'string'
-    },{caption:'调货数量',type:'number'
+    },{caption:'调货数量',type:'number'//8
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
     },{caption:'实收上游积分(单价)',type:'number'
@@ -50,15 +50,32 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'补点/费用票',type:'number',
       beforeCellWrite:function(row, cellData){
         if(cellData && cellData>0){
-					var t = (cellData/row[17])*row[8];
+					var t = (cellData/row[18])*row[8];
 					return Math.round(t*100)/100;
 				}else{
 					return 0;
 				}
       }
-    },{caption:'应付积分',type:'number'
+    },{caption:'应付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        if(row[13] && row[13] > 0){
+					var t = (row[13]/row[18])*row[8];//其它积分
+					t = Math.round(t*100)/100;
+
+					var temp = row[8]*row[12] - t;
+					temp = Math.round(temp*100)/100;
+					if(cellData != temp){
+						return temp;
+					}else{
+						return cellData;
+					}
+				}else{
+					return cellData;
+				}
+      }
+    },{caption:'实付积分',type:'number'
     },{
-      caption:'回积分时间',
+      caption:'付积分时间',
       type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
@@ -67,14 +84,14 @@ router.post("/exportAllotRefund",function(req,res){
           return "";
         }
       }
-    },{caption:'回积分备注',type:'string'
+    },{caption:'付积分备注',type:'string'
     },{caption:'',type:'string',
       beforeCellWrite:function(row, cellData){
         return "";
     }}];
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
-                  'allot_return_price','purchase_other_money','allot_return_money','allot_return_time',
+                  'allot_return_price','purchase_other_money','allot_return_money','allot_real_return_money','allot_return_time',
                   'allot_policy_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);

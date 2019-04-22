@@ -358,6 +358,7 @@ function getSaleAble(req){
     });
   });
 }
+
 //查询利润负债，综合查询
 router.post("/getReportComprehensive",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",99,") < 0){
@@ -380,7 +381,10 @@ router.post("/getReportComprehensive",function(req,res){
 function getPurchaseComprehensive(req,data){
   var sql = "select * from purchase p left join refunds r on p.purchase_id = r.purchases_id "+
             "where p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' "+
-            "and p.purchase_return_flag='2' and p.make_money_time is not null and r.refund_delete_flag = '0' ";
+            "and p.purchase_return_flag='2' and r.refund_delete_flag = '0' ";
+  if(req.body.makeMoneyFlag == "2"){
+    sql += "and p.make_money_time is not null ";
+  }
   //查询近12个月日期
   var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
                 "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
@@ -419,11 +423,18 @@ function getPurchaseComprehensive(req,data){
 }
 //查询调货记录，返款等记录
 function getAllotComprehensive(req,data){
-  var sql = "select a.*,p.purchase_number,r.refunds_should_money,r.refunds_real_money from allot a left join purchase p on a.allot_purchase_id = p.purchase_id "+
-            "left join refunds r on r.purchases_id = p.purchase_id "+
+  var sql = "select a.*,p.purchase_number,r.refunds_should_money,r.refunds_real_money "+
+            "from allot a left join purchase p on a.allot_purchase_id = p.purchase_id "+
+            "left join drugs d on d.product_id = a.allot_drug_id "+
+            "left join refunds r on r.purchases_id = p.purchase_id and r.refund_delete_flag = '0' "+
             "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' "+
-            "and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' "+
-            "and r.refund_delete_flag = '0'";
+            "and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' ";
+  if(req.body.hospitalsId){
+    sql+="and a.allot_hospital = '"+req.body.hospitalsId+"' ";
+  }
+  if(req.body.business){
+    sql+="and d.product_business = '"+req.body.business+"' ";
+  }
   //查询近12个月日期
   var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
                 "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
@@ -454,7 +465,7 @@ function getAllotComprehensive(req,data){
           }
           if(result[i].allot_real_return_money > 0 && result[i].allot_return_time && data[j].time == allotTime){
             data[j].allotReturnMoney0=data[j].allotReturnMoney0?data[j].allotReturnMoney0:0;//调货已付款
-            data[j].allotReturnMoney0+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
+            data[j].allotReturnMoney0+=result[i].allot_real_return_money?parseFloat(result[i].allot_real_return_money):0;
           }else if(data[j].time == allotTime){
             data[j].allotReturnMoney1=data[j].allotReturnMoney1?data[j].allotReturnMoney1:0;//调货未付款
             data[j].allotReturnMoney1+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
@@ -490,7 +501,7 @@ function getGroupData(data){
     }
     if(d[i].sale_return_time && d[i].sale_policy_money){//销售已付款金额
       rd[d[i].all_day].aReturnMoney0 = rd[d[i].all_day].aReturnMoney0?rd[d[i].all_day].aReturnMoney0:0//已付
-      rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//已付
+      rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
     }else if(d[i].sale_policy_money){//销售未付金额
       rd[d[i].all_day].nReturnMoney0 = rd[d[i].all_day].nReturnMoney0?rd[d[i].all_day].nReturnMoney0:0//未付
       rd[d[i].all_day].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
@@ -567,18 +578,20 @@ function getComprehensive(req){
   var stockSql = "select sum(if(r.refunds_real_money is null or r.refunds_real_money = '',r.refunds_should_money*bs.batch_stock_number/p.purchase_number,r.refunds_real_money*bs.batch_stock_number/p.purchase_number)) stockMoney from batch_stock bs "+
                  "left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
                  "left join refunds r on bs.batch_stock_purchase_id = r.purchases_id "+
-                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' and p.make_money_time is not null";
-
+                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' ";
+ if(req.body.makeMoneyFlag == "2"){
+   stockSql += "and p.make_money_time is not null ";
+ }
   //销售查询
   var sql = "select s.*,rs.*,rs1.refunds_should_money as refunds_should_money2,rs1.refunds_real_money as refunds_real_money2,"+
             "rs1.refunds_real_time as refunds_real_time2,rs1.receiver as receiver2,"+
             "sp.*,ps.purchase_number,d.product_type from sales s left join drugs d on s.product_code = d.product_code "+
             "left join purchase ps on ps.purchase_id = s.sales_purchase_id "+
-            "left join refunds rs on rs.sales_id = s.sale_id "+
-            "left join refunds rs1 on ps.purchase_id = rs1.purchases_id "+
+            "left join refunds rs on rs.sales_id = s.sale_id and rs.refund_delete_flag = '0' "+
+            "left join refunds rs1 on ps.purchase_id = rs1.purchases_id and rs1.refund_delete_flag = '0' "+
             "left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id "+
             "where s.delete_flag='0' and s.group_id = '"+req.session.user[0].group_id+"' "+
-            "and d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"'";
+            "and d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   if(req.body.hospitalsId){
     sql+="and s.hospital_id = '"+req.body.hospitalsId+"' ";
   }
@@ -757,9 +770,12 @@ router.post("/getPurchasesReturnByContacts",function(req,res){
   }
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用采购记录，左连接返款记录
   //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
-  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' and pr.make_money_time is not null "+
+  var prsql = "select * from purchase pr left join refunds r on pr.purchase_id = r.purchases_id where pr.purchase_return_flag='2' "+
               "and r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '') "+
               "and pr.delete_flag = '0' and pr.group_id = '"+req.session.user[0].group_id+"'";
+  if(req.body.makeMoneyFlag == "2"){
+    prsql += "and pr.make_money_time is not null ";
+  }
   //连接查询联系人、药品信息
   var sql = "select p.*,d.contacts_id from ("+prsql+") p left join drugs d on p.drug_id = d.product_id where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   sql = "select c.contacts_id,c.contacts_name,sum(pd.refunds_should_money) rsm,c.contacts_phone from ("+sql+") pd left join contacts c on c.contacts_id = pd.contacts_id where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
