@@ -6,5 +6,5 @@ module.exports = {
 					'hospital_id','sale_type','sale_return_flag','sale_tax_rate','sale_create_time','sale_create_userid',
 					'sale_account_id','sale_return_money','sale_return_real_return_money','sale_return_time','sale_return_price','sale_contact_id',
 					'sale_account_name','sale_account_number','sale_account_address','batch_number','sales_purchase_id',
-					'sale_other_money']
+					'sale_other_money','sale_remark']
 };

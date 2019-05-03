@@ -73,7 +73,7 @@ router.post("/importSales",function(req,res){
         var bankDetailSqlValue="";
         //新增返款记录sql
         var refundSql = "insert into refunds(refunds_id,refund_create_time,refund_create_userid,sales_id,refunds_should_money,"+
-                        "refunds_should_time) VALUES ";
+                        "refunds_should_time,refunds_policy_money) VALUES ";
         var refundSqlValue = "";
         var batchStockOject={};//记录批次库存
         for(var i = 0 ; i < sData.length;i++){
@@ -99,7 +99,7 @@ router.post("/importSales",function(req,res){
               srm = util.mul(sData[i].product_return_money,sData[i].sale_num,2);
             }
             var rst = util.getReturnTime(new Date(sData[i].bill_date),sData[i].product_return_time_type,sData[i].product_return_time_day,sData[i].product_return_time_day_num);
-            refundSqlValue+="('"+uuid.v1()+"','"+createTime+"','"+createUserId+"','"+sData[i].sale_id+"','"+srm+"','"+rst.format("yyyy-MM-dd")+"'),";
+            refundSqlValue+="('"+uuid.v1()+"','"+createTime+"','"+createUserId+"','"+sData[i].sale_id+"','"+srm+"','"+rst.format("yyyy-MM-dd")+"','"+sData[i].product_return_money+"'),";
           }
           if(sData[i].product_type == '佣金' || sData[i].product_type == '高打'){//添加销售医院流水
             bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_hospital_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
@@ -193,6 +193,7 @@ function verData(req,data){
         d.sales_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
         d.sale_other_money_temp = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.sale_num/batchStock[j].purchase_number:0;
+        d.batch_number = d.batch_number + "("+d.storage_time+")";
         break;
       }
     }
@@ -243,8 +244,8 @@ function verData(req,data){
       d.real_gross_profit = util.mul(d.sale_num,util.sub(d.sale_price,sales[i].accounting_cost),2);
     }
     d.sale_money = util.mul(d.sale_num,d.sale_price,2);
-    d.accounting_cost = sales[i].accounting_cost;
-    d.cost_univalent = sales[i].product_mack_price;
+    d.accounting_cost = sales[i].accounting_cost?sales[i].accounting_cost:"";
+    d.cost_univalent = sales[i].product_mack_price?sales[i].product_mack_price:"";
     d.product_id = sales[i].product_id;
     d.sale_return_flag = sales[i].product_return_statistics;
     d.product_return_time_type = sales[i].product_return_time_type;
@@ -537,6 +538,7 @@ function saveRefundsSale(req,productReturnMoney,id,returnTime,productType){
     refund_create_time:new Date(),
     refund_create_userid:req.session.user[0].id,
     refunds_should_time:rst.format("yyyy-MM-dd"),
+    refunds_policy_money:productReturnMoney,
     sales_id:id,
   }
   if(productReturnMoney){
@@ -607,10 +609,15 @@ router.post("/editSales",function(req,res){
       sale_account_number:req.body.sale_account_number,
       sale_account_address:req.body.sale_account_address,
       batch_number:req.body.batch_number,
-      sale_other_money:req.body.sale_other_money,
-      sale_return_real_return_money:req.body.sale_return_real_return_money
+      sale_other_money:req.body.sale_other_money
+
     }
-    params.sale_return_money = req.body.sale_return_money?req.body.sale_return_money:util.mul(req.body.sale_policy_money,req.body.sale_num);
+    var t = req.body.sale_return_price?req.body.sale_return_price:req.body.sale_policy_money;
+    t = t?t:0;
+    if(req.body.sale_return_real_return_money){
+      params.sale_return_real_return_money=req.body.sale_return_real_return_money;
+    }
+    params.sale_return_money = util.mul(t,req.body.sale_num);
     if(req.body.product_type=="佣金"){
       params.sale_return_money=util.sub(params.sale_return_money,req.body.sale_other_money,2);
     }else if(req.body.product_type=="高打"){

@@ -5,6 +5,7 @@ module.exports = {
           'refunds_should_time',
           'refunds_should_money',
           'refunds_real_time',
+					'refunds_policy_money',
           'refunds_real_money',
           'refundser',
           'receiver',

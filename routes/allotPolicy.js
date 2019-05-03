@@ -84,7 +84,7 @@ router.post("/exportAllotRefund",function(req,res){
           return "";
         }
       }
-    },{caption:'付积分备注',type:'string'
+    },{caption:'备注',type:'string'
     },{caption:'',type:'string',
       beforeCellWrite:function(row, cellData){
         return "";
@@ -92,7 +92,7 @@ router.post("/exportAllotRefund",function(req,res){
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
                   'allot_return_price','purchase_other_money','allot_return_money','allot_real_return_money','allot_return_time',
-                  'allot_policy_remark','purchase_number'];
+                  'allot_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出调货政策。"+conf.rows.length+"条";
@@ -147,7 +147,7 @@ router.post("/getAllotReturnMoney",function(req,res){
 function getAllotSql(req){
   //连接查询调货记录和医院信息
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
-            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,"+
+            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,a.allot_remark,"+
             "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+

@@ -215,7 +215,7 @@ router.post("/exportRefundPurchase",function(req,res){
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','product_packing','purchase_price','purchase_number',
                   'purchase_money','business_name','contacts_name','make_money_time','send_out_time','refunds_should_time',
-                  'product_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
+                  'refunds_policy_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
                   'account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -270,7 +270,7 @@ function getPurchasesSql(req){
            "p.purchase_mack_price,r.refunds_id,r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.refunds_remark,r.receiver,"+
            "d.product_code,d.product_business,d.product_floor_price,d.product_high_discount,d.product_return_explain,"+
            "d.product_type,d.product_return_money,d.product_return_discount,d.product_common_name,d.product_specifications,"+
-           "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing "+//药品属性
+           "d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,r.refunds_policy_money "+//药品属性
            "from purchase p "+
            "left join refunds r on p.purchase_id = r.purchases_id "+
            "left join purchase_recovery pr on r.purchases_id = pr.purchaserecovery_purchase_id "+
@@ -297,10 +297,10 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
     sql += "and p.batch_number = '"+req.body.data.batch_number+"'";
   }
   if(req.body.data.overdue){
-    req.body.data.status="未返";
+    req.body.data.status="未收";
   }
   if(req.body.data.status){
-    var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
+    var s = req.body.data.status=="已收"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     sql += " and "+s;
   }
   if(req.body.data.returnTime){
@@ -422,7 +422,7 @@ router.post("/exportRefundSale",function(req,res){
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','product_packing','sale_price','sale_num',
                   'sale_money','business_name','contacts_name','hospital_name','bill_date','refunds_should_time',
-                  'product_return_money','hospital_policy_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
+                  'refunds_policy_money','hospital_policy_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
                   'account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -474,7 +474,7 @@ function getQuerySql(req){
   //返款记录需要手动修改的时候保存，所以，在查询所有返款时，要用销售记录，左连接返款记录
   var sql = "select s.sale_id,s.sale_price,s.sale_num,s.sale_money,s.bill_date,r.refunds_id,r.refunds_should_time,r.refunds_should_money,"+
             "r.refunds_real_time,r.refunds_real_money,r.service_charge,r.refundser,r.receiver,r.refunds_remark,bus.business_name,"+
-            "h.hospital_name,b.account_number,b.account_person,c.contacts_name,d.product_type,"+
+            "h.hospital_name,b.account_number,b.account_person,c.contacts_name,d.product_type,r.refunds_policy_money,"+
             "d.product_business,d.product_return_explain,d.product_return_money,d.product_code,"+
             "d.product_return_discount,d.product_common_name,d.product_specifications,d.product_makesmakers,"+
             "d.product_unit,d.product_packing,d.product_mack_price,d.product_floor_price,d.product_high_discount,hpr.hospital_policy_return_money "+
@@ -492,7 +492,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
             "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag = '0'";
   if(req.body.data.overdue){
-    req.body.data.status="未返";
+    req.body.data.status="未收";
   }
   if(req.body.data.tag && req.body.data.tag != 'undefined'){
     sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
@@ -501,7 +501,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
     sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
   if(req.body.data.status){
-    var s = req.body.data.status=="已返"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
+    var s = req.body.data.status=="已收"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     sql += " and "+s;
   }
   //数据权限

@@ -168,6 +168,7 @@ function verData(req,data){
         d.allot_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
         d.allot_other_money_temp = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.allot_number/batchStock[j].purchase_number:0;
+        d.batch_number = d.batch_number + "("+d.storage_time+")";
         break;
       }
     }
@@ -455,7 +456,8 @@ router.post("/editAllot",function(req,res){
       allot_account_address:req.body.allot_account_address,
       allot_type:req.body.allot_type,
       allot_real_return_money:req.body.allot_real_return_money,
-      allot_return_money:req.body.allot_return_money
+      allot_return_money:req.body.allot_return_money,
+      allot_remark:req.body.allot_remark
     }
     if(req.body.allot_account_id){
       params.allot_account_id = req.body.allot_account_id;
@@ -629,7 +631,7 @@ router.post("/getAllot",function(req,res){
 function getAllotSql(req){
   //连接查询调货记录和医院信息
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
-            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,"+
+            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,a.allot_remark,"+
             "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,a.allot_type,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+

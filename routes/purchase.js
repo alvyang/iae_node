@@ -69,7 +69,7 @@ router.post("/importPurchases",function(req,res){
                   "purchase_create_userid,batch_number,ticket_number,purchase_other_money) VALUES ";
         //新增返款记录sql
         var refundSql = "insert into refunds(refunds_id,refund_create_time,refund_create_userid,purchases_id,refunds_should_money,"+
-                        "refunds_should_time) VALUES ";
+                        "refunds_should_time,refunds_policy_money) VALUES ";
         var refundSqlValue = "";
         //新增返款流水和医院销售回款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
@@ -84,7 +84,7 @@ router.post("/importPurchases",function(req,res){
                  "'"+sData[i].puchase_gross_rate+"','"+sData[i].purchase_return_flag+"','"+sData[i].purchase_create_time+"','"+sData[i].purchase_create_userid+"',"+
                  "'"+sData[i].batch_number+"','"+sData[i].ticket_number+"','"+sData[i].purchase_other_money+"'),";
 
-          refundSqlValue+="('"+uuid.v1()+"','"+sData[i].purchase_create_time+"','"+sData[i].purchase_create_userid+"','"+sData[i].purchases_id+"','"+sData[i].refunds_should_money+"','"+sData[i].refunds_should_time+"'),";
+          refundSqlValue+="('"+uuid.v1()+"','"+sData[i].purchase_create_time+"','"+sData[i].purchase_create_userid+"','"+sData[i].purchases_id+"','"+sData[i].refunds_should_money+"','"+sData[i].refunds_should_time+"','"+sData[i].product_return_money+"'),";
           bankDetailSqlValue += "('"+uuid.v1()+"','1','"+sData[i].group_id+"','purchase_"+sData[i].purchases_id+"','"+sData[i].purchase_create_time+"','"+sData[i].purchase_create_userid+"'),";
           if(sData[i].storage_time){
             stockSql += "('"+sData[i].product_id+"','"+sData[i].purchases_id+"','"+sData[i].purchase_number+"','"+sData[i].storage_time+"','"+sData[i].batch_number+"','0','"+sData[i].group_id+"'),";
@@ -181,6 +181,7 @@ function verData(req,purchases){
     d.puchase_gross_rate = (100 - purchases[i].product_discount).toFixed(0);
     d.purchase_return_flag = purchases[i].product_return_statistics;
     d.purchase_price = purchases[i].product_price;
+    d.product_return_money = purchases[i].product_return_money;
     if(purchases[i].product_return_money){
       d.refunds_should_money = util.mul(purchases[i].product_return_money,purchases[i].purchase_number,2);
     }else{
@@ -218,6 +219,7 @@ function getPurchasesData(req,purchases){
         var purchasesDrugsData=[];
         for(var i = 1 ;i < purchases.length;i++){
           var d = arrayToObject(purchases[i]);
+          var f = true;
           for(var j = 0 ; j<result.length;j++){
             if(d.product_code == result[j].product_code){
               result[j].time=d.time;
@@ -231,7 +233,11 @@ function getPurchasesData(req,purchases){
               result[j].ticket_number = d.ticket_number;
               var temp = JSON.stringify(result[j]);
               purchasesDrugsData.push(JSON.parse(temp));
+              f = false;
             }
+          }
+          if(f){
+            purchasePayDrugsData.push(d);
           }
         }
         resolve(purchasesDrugsData);
@@ -322,6 +328,7 @@ function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
   var m = {
     refund_create_time:new Date(),
     refund_create_userid:req.session.user[0].id,
+    refunds_policy_money:productReturnMoney,
     purchases_id:id,
   }
   if(req.body.make_money_time){
@@ -397,9 +404,35 @@ router.post("/editPurchase",function(req,res){
     util.saveLogs(req.session.user[0].group_id,front_purchase,JSON.stringify(params),message);
     //更新高打返款记录金额
     updateRefundsPurchase(req);
+    //更新库存
+    updateStock(req);
+    //如果修改了补点/费用票，更新应付记录
+    updatePay(req);
     res.json({"code":"000000",message:null});
   });
 
+});
+//更新调货 销售应付
+function updatePay(req){
+  var t = req.body.purchase_other_money/req.body.purchase_number;
+  t = t?t:0;
+  var saleSql = "update sales set sale_return_money =  sale_num*(sale_return_price-"+t+") where sales_purchase_id = '"+req.body.purchase_id+"'";
+  var allotSql = "update allot set allot_return_money =  allot_number*(allot_return_price-"+t+") where allot_purchase_id = '"+req.body.purchase_id+"'";
+  var sales = DB.get("Sales");
+  sales.executeSql(saleSql,function(err,result){//查询现有库存
+    if(err){
+      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，更新销售记录应付" + err);
+    }
+  });
+  sales.executeSql(allotSql,function(err,result){//查询现有库存
+    if(err){
+      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，更新销售调货应付" + err);
+    }
+  });
+
+}
+//更新库存
+function updateStock(req){
   if(req.body.storage_time || req.body.storage_time_temp){//入库更新库存
     var stock = 0;
     if(req.body.storage_time_temp && req.body.storage_time){
@@ -409,7 +442,7 @@ router.post("/editPurchase",function(req,res){
     }else if(!req.body.storage_time_temp && req.body.storage_time){
       stock = parseInt(req.body.purchase_number);
     }
-
+    //更新库存
     var batchStock = DB.get("BatchStock");
     var  getStock = "select bs.batch_stock_number from batch_stock bs where "+
                     "bs.batch_stock_purchase_id = '"+req.body.purchase_id+"' and bs.batch_stock_drug_id = '"+req.body.product_id+"' "+
@@ -431,7 +464,7 @@ router.post("/editPurchase",function(req,res){
       });
     });
   }
-});
+}
 //更新返款金额
 function updateRefundsPurchase(req){
   var returnTime={
