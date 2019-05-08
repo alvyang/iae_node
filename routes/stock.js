@@ -54,7 +54,7 @@ router.post("/getBatchStockByDrugId",function(req,res){
   var batchStock = DB.get("BatchStock");
   var sql = "select bs.*,p.purchase_number,p.purchase_other_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
             "where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
-            "and bs.batch_stock_drug_id = '"+req.body.productId+"' and bs.batch_stock_number > 0 "+
+            "and bs.batch_stock_drug_id = '"+req.body.productId+"' "+
             "and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' ";
   batchStock.executeSql(sql,function(err,result){
     if(err){

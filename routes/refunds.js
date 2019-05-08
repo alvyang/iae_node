@@ -188,7 +188,7 @@ router.post("/exportRefundPurchase",function(req,res){
         }
       }
     },{
-      caption:'应返日期',type:'string',
+      caption:'应收日期',type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
           return new Date(cellData).format("yyyy-MM-dd");
@@ -197,9 +197,9 @@ router.post("/exportRefundPurchase",function(req,res){
         }
       }
     },{caption:'积分',type:'number'
-    },{caption:'应返积分',type:'number'
+    },{caption:'应收积分',type:'number'
     },{
-      caption:'实返日期',type:'string',
+      caption:'实收日期',type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
           return new Date(cellData).format("yyyy-MM-dd");
@@ -207,7 +207,20 @@ router.post("/exportRefundPurchase",function(req,res){
           return "";
         }
       }
-    },{caption:'实返积分',type:'number'
+    },{caption:'实收积分',type:'number'
+    },{caption:'其它积分',type:'number'
+    },{caption:'未收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t = row[15]?row[15]:0;
+        if(row[17]){
+          t = t - row[17];
+        }
+        if(row[18]){
+          t = t - row[18];
+        }
+        t = t?Math.round(t*100)/100:0;
+        return t;
+      }
     },{caption:'返积分人',type:'string'
     },{caption:'收积分账号',type:'string'
     },{caption:'备注',type:'string'
@@ -215,8 +228,8 @@ router.post("/exportRefundPurchase",function(req,res){
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','product_packing','purchase_price','purchase_number',
                   'purchase_money','business_name','contacts_name','make_money_time','send_out_time','refunds_should_time',
-                  'refunds_policy_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
-                  'account_number','refunds_remark'];
+                  'refunds_policy_money','refunds_should_money','refunds_real_time','refunds_real_money','service_charge',
+                  'refunds_real_money','refundser','account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出采进应收记录。导出"+conf.rows.length+"条。";
@@ -394,7 +407,7 @@ router.post("/exportRefundSale",function(req,res){
         }
       }
     },{
-      caption:'应返日期',type:'string',
+      caption:'应收日期',type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
           return new Date(cellData).format("yyyy-MM-dd");
@@ -404,9 +417,9 @@ router.post("/exportRefundSale",function(req,res){
       }
     },{caption:'积分',type:'number'
     },{caption:'特殊积分',type:'number'
-    },{caption:'应返积分',type:'number'
+    },{caption:'应收积分',type:'number'
     },{
-      caption:'实返日期',type:'string',
+      caption:'实收日期',type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
           return new Date(cellData).format("yyyy-MM-dd");
@@ -414,7 +427,20 @@ router.post("/exportRefundSale",function(req,res){
           return "";
         }
       }
-    },{caption:'实返积分',type:'number'
+    },{caption:'实收积分',type:'number'
+    },{caption:'其它积分',type:'number'
+    },{caption:'未收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t = row[16]?row[16]:0 ;
+        if(row[18]){
+          t = t - row[18];
+        }
+        if(row[19]){
+          t = t - row[19];
+        }
+        t = t?Math.round(t*100)/100:0;
+        return t;
+      }
     },{caption:'返积分人',type:'string'
     },{caption:'收积分账号',type:'string'
     },{caption:'备注',type:'string'
@@ -422,8 +448,8 @@ router.post("/exportRefundSale",function(req,res){
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','product_packing','sale_price','sale_num',
                   'sale_money','business_name','contacts_name','hospital_name','bill_date','refunds_should_time',
-                  'refunds_policy_money','hospital_policy_return_money','refunds_should_money','refunds_real_time','refunds_real_money','refundser',
-                  'account_number','refunds_remark'];
+                  'refunds_policy_money','hospital_policy_return_money','refunds_should_money','refunds_real_time',
+                  'refunds_real_money','service_charge','refunds_real_money','refundser','account_number','refunds_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出销售应收记录。导出"+conf.rows.length+"条。";

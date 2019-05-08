@@ -70,7 +70,7 @@ router.post("/importPurchasePay",function(req,res){
                             "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
         var createUserId = req.session.user[0].id;
         for(var i = 0 ; i < sData.length ;i++){
-          var createTime = new Date().format('yyyy-MM-dd');
+          var createTime = new Date().format('yyyy-MM-dd  hh:mm:ss');
           sData[i].purchase_pay_id = uuid.v1();
           sql += "('"+sData[i].purchase_pay_id+"','"+sData[i].purchase_pay_group_id+"','"+sData[i].purchase_pay_create_time+"',"+
                  "'"+sData[i].purchase_pay_drug_id+"','"+sData[i].purchase_pay_create_userid+"','"+sData[i].purchase_pay_contract_time+"',"+
@@ -144,7 +144,7 @@ function verData(req,purchases){
     d.purchase_pay_should_time = rst.format("yyyy-MM-dd");
     d.purchase_pay_group_id = req.session.user[0].group_id;
     d.purchase_pay_create_userid = req.session.user[0].id;
-    d.purchase_pay_create_time = new Date().format("yyyy-MM-dd");
+    d.purchase_pay_create_time = new Date().format("yyyy-MM-dd  hh:mm:ss");
     if(purchases[i].product_return_money){
       d.purchase_pay_should_money = util.mul(purchases[i].product_return_money,purchases[i].purchase_pay_number,2);
     }else{

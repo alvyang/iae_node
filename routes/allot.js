@@ -74,7 +74,7 @@ router.post("/importAllots",function(req,res){
         for(var i = 0 ; i < sData.length;i++){
           //批量插入调货记录
           var allotId = uuid.v1();
-          var createTime = new Date().format('yyyy-MM-dd');
+          var createTime = new Date().format('yyyy-MM-dd  hh:mm:ss');
           insertAllotSql+="('"+allotId+"','"+sData[i].allot_time+"','"+sData[i].allot_price+"','"+sData[i].allot_number+"',"+
                           "'"+sData[i].allot_hospital+"','"+sData[i].allot_drug_id+"','"+sData[i].allot_money+"',"+
                           "'"+sData[i].allot_group_id+"','"+sData[i].allot_create_userid+"','"+createTime+"',"+
