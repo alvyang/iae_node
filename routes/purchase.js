@@ -177,7 +177,7 @@ function verData(req,purchases){
     d.time = new Date(d.time).format("yyyy-MM-dd");
     d.group_id = req.session.user[0].group_id;
     d.purchase_create_userid = req.session.user[0].id;
-    d.purchase_create_time = new Date().format("yyyy-MM-dd  hh:mm:ss");
+    d.purchase_create_time = new Date().format("yyyy-MM-dd hh:mm:ss");
     d.puchase_gross_rate = (100 - purchases[i].product_discount).toFixed(0);
     d.purchase_return_flag = purchases[i].product_return_statistics;
     d.purchase_price = purchases[i].product_price;
@@ -237,7 +237,7 @@ function getPurchasesData(req,purchases){
             }
           }
           if(f){
-            purchasePayDrugsData.push(d);
+            purchasesDrugsData.push(d);
           }
         }
         resolve(purchasesDrugsData);

@@ -207,7 +207,7 @@ function verData(req,data){
     d.allot_create_userid = req.session.user[0].id;
     d.allot_return_money = d.allot_return_price?util.mul(d.allot_number,d.allot_return_price):"";
     d.allot_return_money = util.sub(d.allot_return_money,d.allot_other_money_temp,2);
-    d.allot_create_time = new Date().format('yyyy-MM-dd  hh:mm:ss');
+    d.allot_create_time = new Date().format('yyyy-MM-dd hh:mm:ss');
     correctData.push(d);
   }
   return {
@@ -566,6 +566,7 @@ router.post("/exportAllot",function(req,res){
           return new Date(cellData).format('yyyy-MM-dd');
         }
     },{caption:'调货单位',type:'string'
+    },{caption:'单位区域',type:'string'
     },{caption:'产品编码',type:'string'
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
@@ -580,7 +581,7 @@ router.post("/exportAllot",function(req,res){
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
     }];
-    var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
+    var header = ['allot_time', 'hospital_name','hospital_area', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','allot_type','business_name','allot_number','allot_price','allot_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -635,7 +636,7 @@ function getAllotSql(req){
             "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,a.allot_type,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
-            "h.hospital_name,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,"+
+            "h.hospital_name,h.hospital_area,ap.allot_hospital_id,ap.allot_drug_id,ap.allot_policy_money,ap.allot_policy_remark,"+
             "ap.allot_policy_contact_id,c.contacts_name,bus.business_name,p.purchase_number,p.purchase_other_money "+
             "from allot a "+
             "left join drugs d on a.allot_drug_id = d.product_id "+

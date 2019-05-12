@@ -568,6 +568,9 @@ function getDrugsSql(req){
   if(req.body.data.business){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
+  if(req.body.data.product_specifications){
+    sql += " and d.product_specifications = '"+req.body.data.product_specifications+"'"
+  }
   if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
     sql += " and (d.product_price-d.accounting_cost)*100/d.product_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }

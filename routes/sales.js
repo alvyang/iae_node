@@ -448,7 +448,8 @@ router.post("/exportSales",function(req,res){
         beforeCellWrite:function(row, cellData){
           return new Date(cellData).format('yyyy-MM-dd');
         }
-    },{caption:'销售机构',type:'string'
+    },{caption:'销往单位',type:'string'
+    },{caption:'单位区域',type:'string'
     },{caption:'产品编码',type:'string'
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
@@ -459,7 +460,7 @@ router.post("/exportSales",function(req,res){
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
     }];
-    var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money'];
+    var header = ['bill_date', 'hospital_name','hospital_area', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出销售记录。"+conf.rows.length+"条";
@@ -788,7 +789,8 @@ function getQuerySql(req){
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,td.tag_ids,p.purchase_number,p.purchase_other_money "+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,"+
+            "td.tag_ids,p.purchase_number,p.purchase_other_money,h.hospital_area "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code ";
   // if(req.body.data.tag && req.body.data.tag != 'undefined'){

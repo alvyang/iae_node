@@ -27,6 +27,7 @@ router.post("/saveHospitals",function(req,res){
   req.body.group_id = req.session.user[0].group_id;
   req.body.hospital_create_userid = req.session.user[0].id;
   req.body.hospital_type = req.body.hospital_type.join(",");
+  req.body.hospital_area = req.body.hospital_area.join("/");
   req.body.hospital_create_time = new Date();
   hospitals.insert(req.body,'hospital_id',function(err,result){
     if(err){
@@ -43,6 +44,7 @@ router.post("/editHospitals",function(req,res){
     var hospitals = DB.get("Hospitals");
   	req.body.group_id = req.session.user[0].group_id;
     req.body.hospital_type = req.body.hospital_type.join(",");
+    req.body.hospital_area = req.body.hospital_area.join("/");
     delete req.body.hospital_create_time;
     var front_message = req.body.front_message;
     hospitals.update(req.body,'hospital_id',function(err,result){
