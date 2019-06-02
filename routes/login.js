@@ -52,7 +52,9 @@ router.post("/login",function(req,res){
         return ;
 			}
 			var startTime = new Date(result[0].start_time);
+      startTime.setDate(startTime.getDate()+1);
 			var endTime = new Date(result[0].end_time);
+      endTime.setDate(endTime.getDate()+1);
 			var nowDate = new Date();
 			if(nowDate < startTime || nowDate > endTime){
 				res.json({"code":"100002",message:{

@@ -173,7 +173,9 @@ function verData(req,d){
     }
     d[i].allocation_time = new Date(d[i].allocation_time).format("yyyy-MM-dd");
     d[i].allocation_group_id = req.session.user[0].group_id;
-    d[i].allocation_create_time = new Date().format("yyyy-MM-dd hh:mm:ss");
+    var createTime = new Date();
+    createTime.setTime(createTime.getTime()+i*1000);
+    d[i].allocation_create_time = createTime.format('yyyy-MM-dd hh:mm:ss');
     d[i].allocation_create_userid = req.session.user[0].id;
     d[i].allocation_front_business_name = d[i].allocation_front_business_name?d[i].allocation_front_business_name:"";
     d[i].allocation_after_business_name = d[i].allocation_after_business_name?d[i].allocation_after_business_name:"";

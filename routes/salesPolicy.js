@@ -104,6 +104,7 @@ router.post("/exportSalesRefund",function(req,res){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
     }
     for(var i = 0 ; i< result.length;i++){
+      result[i].sale_return_price = result[i].sale_return_price?result[i].sale_return_price:result[i].sale_policy_money;
       if(result[i].product_type == '佣金' && result[i].refunds_real_time && result[i].refunds_real_money){
         	result[i].realMoney = util.div(result[i].refunds_real_money,result[i].sale_num,2);
       }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && result[i].refunds_real_money1){
@@ -533,6 +534,10 @@ router.post("/getSalesPolicy",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询销售医院药品政策分页列表，出错" + err);
       }
+      for(var i = 0 ; i<result.length;i++){
+        result[i].product_price=result[i].hospital_policy_price?result[i].hospital_policy_price:result[i].product_price;
+        result[i].product_return_money=result[i].hospital_policy_return_money?result[i].hospital_policy_return_money:result[i].product_return_money;
+      }
       req.body.page.data = result;
       res.json({"code":"000000",message:req.body.page});
     });
@@ -541,6 +546,7 @@ router.post("/getSalesPolicy",function(req,res){
 function getSalesPolicySql(req){
   //药品连接政策
   var sql = "select * from sale_policy sp left join drugs d on d.product_id = sp.sale_drug_id "+
+            " left join hospital_policy_record hpr on sp.sale_drug_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_hospital_id = sp.sale_hospital_id "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type in ('佣金','高打') and sp.sale_policy_money != '' and sp.sale_policy_money is not null ";
   if(req.body.data.hospitalId){
@@ -582,6 +588,10 @@ router.post("/getSalesPolicyDrugs",function(req,res){
       if(err){
         logger.error(req.session.user[0].realname + "查询销售医院药品政策，选择未添加药品分页列表，出错" + err);
       }
+      for(var i = 0 ; i<result.length;i++){
+        result[i].product_price=result[i].hospital_policy_price?result[i].hospital_policy_price:result[i].product_price;
+        result[i].product_return_money=result[i].hospital_policy_return_money?result[i].hospital_policy_return_money:result[i].product_return_money;
+      }
       req.body.page.data = result;
       res.json({"code":"000000",message:req.body.page});
     });
@@ -591,6 +601,7 @@ function getSalesPolicyDrugsSql(req){
   //药品连接政策
   var sql = "select * from drugs d left join sale_policy sp on d.product_id = sp.sale_drug_id "+
             " and (sp.sale_hospital_id = '"+req.body.data.hospitalId+"' or sp.sale_hospital_id is null) "+
+            " left join hospital_policy_record hpr on d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_hospital_id = '"+req.body.data.hospitalId+"' "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type in ('佣金','高打') and (sp.sale_policy_money is null or sp.sale_policy_money ='') ";
   if(req.body.data.productCommonName){

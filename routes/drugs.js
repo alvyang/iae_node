@@ -87,7 +87,10 @@ router.post("/importDrugs",function(req,res){
         for(var i = 0 ; i < cData.length; i++){
           cData[i].product_id = uuid.v1();
           cData[i].group_id = req.session.user[0].group_id;
-          cData[i].product_create_time = new Date().format("yyyy-MM-dd hh:mm:ss");
+          var createTime = new Date();
+          createTime.setTime(createTime.getTime()+i*1000);
+          cData[i].product_create_time = createTime.format('yyyy-MM-dd hh:mm:ss');
+
           cData[i].product_create_userid = req.session.user[0].id;
           cData[i].product_return_discount = util.div(cData[i].product_return_money,cData[i].product_price,4)*100;
           sql += "('"+cData[i].product_id+"','"+cData[i].product_common_name+"','"+cData[i].product_code+"','"+cData[i].product_specifications+"',"+
@@ -167,8 +170,8 @@ function getDrugsData(drugs,code,business,contacts){
   for(var i = 1 ;i < drugs.length;i++){
       var d = arrayToObject(drugs[i]);
       //非空验证
-      if(!drugs[i][0] || !drugs[i][1] || !drugs[i][2] || !drugs[i][3] || !drugs[i][4]|| !drugs[i][15] || !drugs[i][20]){
-        d.errorMessage = "产品名称、产品编码、产品规格、生产企业、产品税率、品种类型、返款统计为必填项";
+      if(!drugs[i][0] || !drugs[i][1] || !drugs[i][2] || !drugs[i][3] || !drugs[i][15] || !drugs[i][20]){
+        d.errorMessage = "产品名称、产品编码、产品规格、生产企业、品种类型、返款统计为必填项";
         errData.push(d);
         continue;
       }

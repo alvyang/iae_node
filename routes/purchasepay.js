@@ -70,7 +70,9 @@ router.post("/importPurchasePay",function(req,res){
                             "flag_id,account_detail_create_time,account_detail_create_userid) VALUES ";
         var createUserId = req.session.user[0].id;
         for(var i = 0 ; i < sData.length ;i++){
-          var createTime = new Date().format('yyyy-MM-dd  hh:mm:ss');
+          var createTime = new Date();
+          createTime.setTime(createTime.getTime()+i*1000);
+          createTime = createTime.format('yyyy-MM-dd hh:mm:ss');
           sData[i].purchase_pay_id = uuid.v1();
           sql += "('"+sData[i].purchase_pay_id+"','"+sData[i].purchase_pay_group_id+"','"+sData[i].purchase_pay_create_time+"',"+
                  "'"+sData[i].purchase_pay_drug_id+"','"+sData[i].purchase_pay_create_userid+"','"+sData[i].purchase_pay_contract_time+"',"+

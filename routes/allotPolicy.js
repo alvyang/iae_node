@@ -20,6 +20,7 @@ router.post("/exportAllotRefund",function(req,res){
       logger.error(req.session.user[0].realname + "导出调货回款记录出错" + err);
     }
     for(var i = 0 ; i< result.length;i++){
+      result[i].allot_return_price = result[i].allot_return_price?result[i].allot_return_price:result[i].allot_policy_money;
       if(result[i].refunds_real_time && result[i].refunds_real_money){
          result[i].realMoney = util.div(result[i].refunds_real_money,result[i].purchase_number,2);
       }else{

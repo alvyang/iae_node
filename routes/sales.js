@@ -78,7 +78,9 @@ router.post("/importSales",function(req,res){
         var batchStockOject={};//记录批次库存
         for(var i = 0 ; i < sData.length;i++){
           var groupId = req.session.user[0].group_id;
-          var createTime = new Date().format('yyyy-MM-dd hh:mm:ss');
+          var createTime = new Date();
+          createTime.setTime(createTime.getTime()+i*1000);
+          createTime = createTime.format('yyyy-MM-dd hh:mm:ss');
           var createUserId = req.session.user[0].id;
           sData[i].sale_id = uuid.v1();
           //批量插入销售记录拼接sql

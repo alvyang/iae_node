@@ -7,7 +7,7 @@ var router = express.Router();
 //判断用户是否存在
 router.post("/exitsUsers",function(req,res){
   var user = DB.get("Users");
-  req.body.group_id = req.session.user[0].group_id;
+  // req.body.group_id = req.session.user[0].group_id;
   req.body.delete_flag = 0;
   user.where(req.body,function(err,result){
     if(err){

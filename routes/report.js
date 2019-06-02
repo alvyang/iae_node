@@ -564,24 +564,63 @@ function getGroupData(data){
       saleMoney0:Math.round(rd[key].saleMoney0*100)/100,
       aReturnMoney0:Math.round(rd[key].aReturnMoney0*100)/100,
       nReturnMoney0:Math.round(rd[key].nReturnMoney0*100)/100,
-      stockMoneyReturn:Math.round(data.stockMoney*100)/100,
+      // stockMoneyReturn:Math.round(data.stockMoney*100)/100,
       saleMoney1:Math.round(rd[key].saleMoney1*100)/100,
       saleMoney2:Math.round(rd[key].saleMoney2*100)/100
     });
   }
   return rdTemp;
 }
+router.post("/getBatchStock",function(req,res){
+  //stockSql  查询的是，高打药品库存里还有多少库存，并计算，库存积分
+  //
+  var stockSql = "select bs.*,d.*,b.business_name,r.refunds_real_money,r.refunds_should_money,p.purchase_number,"+
+                 "if(r.refunds_real_money is null or r.refunds_real_money = '',r.refunds_should_money*bs.batch_stock_number/p.purchase_number,r.refunds_real_money*bs.batch_stock_number/p.purchase_number) debt,"+
+                 "r.refunds_should_money*bs.batch_stock_number/p.purchase_number shouldReturn,"+
+                 "r.refunds_real_money*bs.batch_stock_number/p.purchase_number realReturn "+
+                 "from batch_stock bs "+
+                 "left join drugs d on bs.batch_stock_drug_id = d.product_id "+
+                 "left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+                 "left join refunds r on bs.batch_stock_purchase_id = r.purchases_id "+
+                 "left join business b on d.product_business = b.business_id "+
+                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
+                 "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+                 "and bs.batch_stock_number != '0' ";
+   if(req.body.data.productCommonName){
+     stockSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
+   }
+   if(req.body.data.product_code){
+     stockSql += " and d.product_code like '%"+req.body.data.product_code+"%' ";
+   }
+
+   var sales = DB.get("Sales");
+   sales.countBySql(stockSql,function(err,result){//查询调货总数
+     if(err){
+       logger.error(req.session.user[0].realname + "查询库存负债总数出错" + err);
+     }
+     req.body.page.totalCount = result;
+     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
+     var sumSql = "select sum(if(num.refunds_real_money is null or num.refunds_real_money = '',num.refunds_should_money*num.batch_stock_number/num.purchase_number,num.refunds_real_money*num.batch_stock_number/num.purchase_number)) stockMoney "+
+                  "from ("+stockSql+") num ";
+     sales.executeSql(sumSql,function(err,m){//查询调货应返金额
+      if(err){
+        logger.error(req.session.user[0].realname + "查询库存负债总额出错" + err);
+      }
+      req.body.page.numMoney = m&&m[0]?Math.round(m[0].stockMoney*100)/100:0;
+      stockSql += "order by bs.batch_stock_time desc,d.product_create_time desc,bs.batch_stock_drug_id desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sales.executeSql(stockSql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "查询库存列表" + err);
+        }
+        req.body.page.data = result;
+        res.json({"code":"000000",message:req.body.page});
+      });
+    });
+   });
+});
 //查询佣金类型的各项数据   这个表里的sql，超级复杂
 function getComprehensive(req){
   var noDate = new Date();
-  //stockSql  查询的是，高打药品库存里还有多少库存，并计算，库存积分
-  var stockSql = "select sum(if(r.refunds_real_money is null or r.refunds_real_money = '',r.refunds_should_money*bs.batch_stock_number/p.purchase_number,r.refunds_real_money*bs.batch_stock_number/p.purchase_number)) stockMoney from batch_stock bs "+
-                 "left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
-                 "left join refunds r on bs.batch_stock_purchase_id = r.purchases_id "+
-                 "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' ";
- if(req.body.makeMoneyFlag == "2"){
-   stockSql += "and p.make_money_time is not null ";
- }
   //销售查询
   var sql = "select s.*,rs.*,rs1.refunds_should_money as refunds_should_money2,rs1.refunds_real_money as refunds_real_money2,"+
             "rs1.refunds_real_time as refunds_real_time2,rs1.receiver as receiver2,"+
@@ -609,14 +648,8 @@ function getComprehensive(req){
       if(err){
         logger.error(req.session.user[0].realname + "综合查询，查询销售额，销售回积分出错" + err);
       }
-      sales.executeSql(stockSql,function(err,stockMoney){
-        if(err){
-          logger.error(req.session.user[0].realname + "综合查询，查询销售额，销售回积分出错" + err);
-        }
-        resolve({
-          d:result,
-          stockMoney:stockMoney[0].stockMoney
-        });
+      resolve({
+        d:result,
       });
     });
   });
@@ -758,6 +791,93 @@ router.post("/getSalesReturnByContacts",function(req,res){
   sales.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "报表查询佣金欠款金额按人员，出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
+//查询佣金外欠金额，按联系人
+router.post("/getSalesReturnPayByContacts",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
+  var sql = "select s.*,sp.sale_policy_contact_id from sales s left join drugs d on s.product_code = d.product_code "+
+            "left join sale_policy sp on s.hospital_id = sp.sale_hospital_id and d.product_id = sp.sale_drug_id "+//取上游是否返款
+            "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+            "and s.sale_return_time is null";
+  sql = "select c.contacts_id,c.contacts_name,sum(sdc.sale_return_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.sale_policy_contact_id "+
+        "where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(sdc.sale_return_money) > 0 order by sum(sdc.sale_return_money) desc ";
+  var sales = DB.get("Sales");
+  sales.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "报表查询佣金应付金额按联系人，出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
+//查询调货应付金额，按调货联系人
+router.post("/getAllotsReturnPayByContacts",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  //返款类型1：按销售返款 2：表示是采购（高打）返款 3：无返款
+  var sql = "select a.*,ap.allot_policy_contact_id from allot a left join drugs d on a.allot_drug_id = d.product_id "+
+            "left join allot_policy ap on a.allot_hospital = ap.allot_hospital_id and d.product_id = ap.allot_drug_id "+//取上游是否返款
+            "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+            "and a.allot_return_time is null";
+  sql = "select c.contacts_id,c.contacts_name,sum(sdc.allot_return_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.allot_policy_contact_id "+
+        "where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(sdc.allot_return_money) > 0 order by sum(sdc.allot_return_money) desc ";
+  var allot = DB.get("Allot");
+  allot.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "报表查询调货应付金额按联系人，出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
+//招商预付外欠金额，按联系人
+router.post("/getPurchasePaysReturnByContacts",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var sql = "select p.*,d.contacts_id from purchase_pay p left join drugs d on p.purchase_pay_drug_id = d.product_id "+
+            "where p.purchase_pay_delete_flag = '0' and p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+            "and p.purchase_pay_real_time is null";
+  sql = "select c.contacts_id,c.contacts_name,sum(sdc.purchase_pay_should_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.contacts_id "+
+        "where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(sdc.purchase_pay_should_money) > 0 order by sum(sdc.purchase_pay_should_money) desc ";
+  var allot = DB.get("Allot");
+  allot.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "报表查询预付招商外欠金额按联系人，出错" + err);
+    }
+    res.json({"code":"000000",message:result});
+  });
+});
+//招商预付应付金额，按业务员
+router.post("/getPurchasePayPaysReturnByContacts",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var sql = "select p.* from purchase_pay p "+
+            "where p.purchase_pay_delete_flag = '0' and p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' "+
+            "and p.purchase_pay_real_pay_time is null";
+  sql = "select c.contacts_id,c.contacts_name,sum(sdc.purchase_pay_should_pay_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.purchase_pay_contact_id "+
+        "where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+
+        "group by c.contacts_id,c.contacts_name,c.contacts_phone having sum(sdc.purchase_pay_should_pay_money) > 0 order by sum(sdc.purchase_pay_should_pay_money) desc ";
+  var allot = DB.get("Allot");
+  allot.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "报表查询预付招商应付金额按业务员，出错" + err);
     }
     res.json({"code":"000000",message:result});
   });
