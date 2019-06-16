@@ -77,9 +77,10 @@ router.post("/importAllocation",function(req,res){
         allocation.executeSql(insertAllocationSql,function(err,result){//批量插入调货记录sql
           if(err){
             logger.error(req.session.user[0].realname + "批量插入调拨记录出错" + err);
+          }else{
+            //批量更新库存
+            updateStockBatch(req,aData);
           }
-          //批量更新库存
-          updateStockBatch(req,aData);
           //添加日志
           var message = req.session.user[0].realname+"导入调拨记录，数据导入成功"+aData.length+"条；导入错误"+allocationData.errData.length+"条；";
           util.saveLogs(req.session.user[0].group_id,"-","-",message);

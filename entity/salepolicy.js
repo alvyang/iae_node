@@ -6,5 +6,7 @@ module.exports = {
 					'sale_policy_money',
 					'sale_policy_remark',
 					'sale_policy_contact_id',
+					'sale_policy_formula',
+					'sale_policy_percent',
 					'sale_policy_delete_flag']
 };

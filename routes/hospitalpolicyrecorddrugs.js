@@ -58,12 +58,41 @@ router.post("/editHospitalPolicy",function(req,res){
       var message = req.session.user[0].realname+"新增、修改医院特殊政策记录。医院id："+req.body.hospital_policy_hospital_id+"。药品id："+req.body.hospital_policy_drug_id;
       util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:""});
+      updateSalePolicy(req);
     });
   }else{
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
 });
+//更新销售政策
+function updateSalePolicy(req){
+  var getSalePolicySql = "select sp.*,d.product_return_money,d.product_price from sale_policy sp left join drugs d on sp.sale_drug_id = d.product_id where sp.sale_drug_id = '"+req.body.hospital_policy_drug_id+"' and sp.sale_hospital_id = '"+req.body.hospital_policy_hospital_id+"' "+
+                         "and sp.sale_policy_money != '' and sp.sale_policy_money is not null";
+  var salePolicy = DB.get("SalePolicy");
+  salePolicy.executeSql(getSalePolicySql,function(err,d){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改药品医院特殊销售价，政策，查询销售政策出错" + err);
+    }
+    var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_contact_id) values ";
+    for(var i = 0 ; i < d.length ;i++){
+      var price = req.body.hospital_policy_price?req.body.hospital_policy_price:d[i].product_price;
+      var returnMoney = req.body.hospital_policy_return_money?req.body.hospital_policy_return_money:d[i].product_return_money;
+      var t =  util.getShouldPayMoney(d[i].sale_policy_formula,price,returnMoney,d[i].sale_policy_percent,0,d[i].sale_policy_money);
+      t = Math.round(t*100)/100;
+      copySql += "('"+d[i].sale_hospital_id+"','"+d[i].sale_drug_id+"','"+t+"','"+d[i].sale_policy_contact_id+"'),";
+    }
+    copySql = copySql.substring(0,copySql.length-1);
+    copySql += " ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+    salePolicy.executeSql(copySql,function(err,d){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改药品医院特殊销售价，政策，修改销售政策出错" + err);
+      }
+      var message = req.session.user[0].realname+"修改药品医院特殊销售价，政策，更新销售政策";
+      util.saveLogs(req.session.user[0].group_id,"-","-",message);
+    });
+  });
+}
 //查询销售政策
 router.post("/getHospitalsPolicy",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",142,") < 0){
@@ -138,7 +167,7 @@ function getHospitalsPolicyDrugs(req){
   var sql = "select * from drugs d left join hospital_policy_record sp on d.product_id = sp.hospital_policy_drug_id "+
             " and (sp.hospital_policy_hospital_id = '"+req.body.data.hospitalId+"' or sp.hospital_policy_hospital_id is null) "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
-            " and d.product_type in ('佣金') and ((sp.hospital_policy_return_money is null or sp.hospital_policy_return_money ='') "+
+            " and ((sp.hospital_policy_return_money is null or sp.hospital_policy_return_money ='') "+
             " and (sp.hospital_policy_price is null or sp.hospital_policy_price ='') "+
             " or (sp.hospital_policy_delete_flag is null or sp.hospital_policy_delete_flag ='1')) ";
   if(req.body.data.productCommonName){

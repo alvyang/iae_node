@@ -92,7 +92,7 @@ router.post("/importDrugs",function(req,res){
           cData[i].product_create_time = createTime.format('yyyy-MM-dd hh:mm:ss');
 
           cData[i].product_create_userid = req.session.user[0].id;
-          cData[i].product_return_discount = util.div(cData[i].product_return_money,cData[i].product_price,4)*100;
+          cData[i].product_return_discount = cData[i].product_return_money&&cData[i].product_price?util.div(cData[i].product_return_money,cData[i].product_price,4)*100:"";
           sql += "('"+cData[i].product_id+"','"+cData[i].product_common_name+"','"+cData[i].product_code+"','"+cData[i].product_specifications+"',"+
                  "'"+cData[i].product_makesmakers+"','"+cData[i].product_supplier+"','"+cData[i].product_tax_rate+"','"+cData[i].buyer+"',"+
                  "'"+cData[i].product_business+"','"+cData[i].product_packing+"','"+cData[i].product_unit+"','"+cData[i].product_basic_medicine+"',"+
@@ -241,8 +241,8 @@ function getDrugsData(drugs,code,business,contacts){
       //生成助记码
       d.product_name_pinyin = util.getFirstLetter(drugs[i][0]);
       //计算扣率和毛利率
-      d.product_discount =  util.div(drugs[i][11],drugs[i][10],4)*100;
-      d.gross_interest_rate = util.sub(100,util.div(drugs[i][12],drugs[i][10],4)*100,4);
+      d.product_discount =  drugs[i][11]&&drugs[i][10]?util.div(drugs[i][11],drugs[i][10],4)*100:"";
+      d.gross_interest_rate = drugs[i][12]&&drugs[i][10]?util.sub(100,util.div(drugs[i][12],drugs[i][10],4)*100,4):"";
 
       //将生产企业，修改为供货单位
       d.product_supplier = d.product_makesmakers;
@@ -252,7 +252,7 @@ function getDrugsData(drugs,code,business,contacts){
         var t2 = util.sub(1,drugs[i][17]/100);
         d.product_return_money = util.mul(t1,t2,2);//返款金额
       }
-      d.product_return_discount = util.div(drugs[i][18],drugs[i][10],2);//返款率
+      d.product_return_discount = drugs[i][18]&&drugs[i][10]?util.div(drugs[i][18],drugs[i][10],2):"";//返款率
       correctData.push(d);
   }
   return {
@@ -433,6 +433,9 @@ router.post("/editDrugs",function(req,res){
     util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:null});
   });
+  //修改药品信息后，更新政策
+  updateSalePolicy(req);
+  updateAllotPolicy(req);
   if(flag == "true"){
     var sales = DB.get("Sales");
     var sql = "update sales set sale_return_flag = '"+req.body.product_return_statistics+"' where product_code = '"+req.body.product_code+"'";
@@ -444,6 +447,71 @@ router.post("/editDrugs",function(req,res){
   }
 
 });
+//更新销售政策
+function updateAllotPolicy(req){
+  var getAllotPolicySql = "select * from allot_policy ap where ap.allot_drug_id = '"+req.body.product_id+"' and ap.allot_policy_money != '' and ap.allot_policy_money is not null";
+  var allotPolicy = DB.get("AllotPolicy");
+  allotPolicy.executeSql(getAllotPolicySql,function(err,d){//查询所有，政策相关的调货记录，用于更新调货政策
+    if(err){
+      logger.error(req.session.user[0].realname + "修改药品，查询调货政策出错" + err);
+    }
+    var copySql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_contact_id) values ";
+    for(var i = 0 ; i < d.length ;i++){//查询已有医院政策
+      var t =  util.getShouldPayMoney(d[i].allot_policy_formula,req.body.product_price,req.body.product_return_money,d[i].allot_policy_percent,0,d[i].allot_policy_money);
+      t = Math.round(t*100)/100;
+      copySql += "('"+d[i].allot_hospital_id+"','"+d[i].allot_drug_id+"','"+t+"','"+d[i].allot_policy_contact_id+"'),";
+    }
+    copySql = copySql.substring(0,copySql.length-1);
+    copySql += " ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money)";
+    allotPolicy.executeSql(copySql,function(err,d){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改药品，修改调货政策出错" + err);
+      }
+      var message = req.session.user[0].realname+"修改药品，更新调货政策";
+      util.saveLogs(req.session.user[0].group_id,"-","-",message);
+    });
+  });
+}
+//更新销售政策
+function updateSalePolicy(req){
+  var getSalePolicySql = "select * from sale_policy sp where sp.sale_drug_id = '"+req.body.product_id+"' and sp.sale_policy_money != '' and sp.sale_policy_money is not null";
+  var getHospitalPolicy = "select * from hospital_policy_record hpr where hpr.hospital_policy_group_id = '"+req.session.user[0].group_id+"' and hpr.hospital_policy_delete_flag ='0' and hpr.hospital_policy_drug_id = '"+req.body.product_id+"'";
+  var salePolicy = DB.get("SalePolicy");
+  salePolicy.executeSql(getSalePolicySql,function(err,d){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改药品，查询销售政策出错" + err);
+    }
+    salePolicy.executeSql(getHospitalPolicy,function(err,hospitalRecord){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改药品，查询销售特殊政策政策出错" + err);
+      }
+      var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_contact_id) values ";
+      for(var i = 0 ; i < d.length ;i++){
+        var price = req.body.product_price?req.body.product_price:0;
+        var returnMoney = req.body.product_return_money?req.body.product_return_money:0;
+        for(var j = 0 ; j < hospitalRecord.length;j++){
+          if(d[i].sale_hospital_id == hospitalRecord[j].hospital_policy_hospital_id){
+            price = hospitalRecord[j].hospital_policy_price?hospitalRecord[j].hospital_policy_price:price;
+            returnMoney = hospitalRecord[j].hospital_policy_return_money?hospitalRecord[j].hospital_policy_return_money:returnMoney;
+          }
+        }
+        var t =  util.getShouldPayMoney(d[i].sale_policy_formula,price,returnMoney,d[i].sale_policy_percent,0,d[i].sale_policy_money);
+        t = Math.round(t*100)/100;
+        copySql += "('"+d[i].sale_hospital_id+"','"+d[i].sale_drug_id+"','"+t+"','"+d[i].sale_policy_contact_id+"'),";
+      }
+      copySql = copySql.substring(0,copySql.length-1);
+      copySql += " ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+      salePolicy.executeSql(copySql,function(err,d){
+        if(err){
+          logger.error(req.session.user[0].realname + "修改药品，修改销售政策出错" + err);
+        }
+        var message = req.session.user[0].realname+"修改药品，更新销售政策";
+        util.saveLogs(req.session.user[0].group_id,"-","-",message);
+      });
+    });
+  });
+}
+
 //删除菜单
 router.post("/deleteDrugs",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",64,") < 0){

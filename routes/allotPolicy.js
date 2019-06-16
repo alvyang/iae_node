@@ -22,7 +22,8 @@ router.post("/exportAllotRefund",function(req,res){
     for(var i = 0 ; i< result.length;i++){
       result[i].allot_return_price = result[i].allot_return_price?result[i].allot_return_price:result[i].allot_policy_money;
       if(result[i].refunds_real_time && result[i].refunds_real_money){
-         result[i].realMoney = util.div(result[i].refunds_real_money,result[i].purchase_number,2);
+        var temp = result[i].refunds_real_money/result[i].purchase_number;
+         result[i].realMoney = Math.round(temp*100)/100;
       }else{
          result[i].realMoney = 0;
       }
@@ -48,32 +49,8 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'调货金额',type:'number'
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
-    },{caption:'补点/费用票',type:'number',
-      beforeCellWrite:function(row, cellData){
-        if(cellData && cellData>0){
-					var t = (cellData/row[18])*row[8];
-					return Math.round(t*100)/100;
-				}else{
-					return 0;
-				}
-      }
-    },{caption:'应付积分',type:'number',
-      beforeCellWrite:function(row, cellData){
-        if(row[13] && row[13] > 0){
-					var t = (row[13]/row[18])*row[8];//其它积分
-					t = Math.round(t*100)/100;
-
-					var temp = row[8]*row[12] - t;
-					temp = Math.round(temp*100)/100;
-					if(cellData != temp){
-						return temp;
-					}else{
-						return cellData;
-					}
-				}else{
-					return cellData;
-				}
-      }
+    },{caption:'补点/费用票',type:'number'
+    },{caption:'应付积分',type:'number'
     },{caption:'实付积分',type:'number'
     },{
       caption:'付积分时间',
@@ -92,7 +69,7 @@ router.post("/exportAllotRefund",function(req,res){
     }}];
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
-                  'allot_return_price','purchase_other_money','allot_return_money','allot_real_return_money','allot_return_time',
+                  'allot_return_price','allot_other_money','allot_return_money','allot_real_return_money','allot_return_time',
                   'allot_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -148,7 +125,7 @@ router.post("/getAllotReturnMoney",function(req,res){
 function getAllotSql(req){
   //连接查询调货记录和医院信息
   var sql = "select d.product_id,d.stock,d.product_code,d.product_common_name,d.product_specifications,d.product_makesmakers,d.product_unit,"+
-            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,a.allot_remark,"+
+            "d.product_price,d.product_mack_price,d.product_packing,d.product_return_money,a.allot_remark,a.allot_should_pay_percent,a.allot_other_money,a.allot_should_pay_formula,"+
             "a.allot_account_name,a.allot_account_number,a.allot_account_address,a.allot_purchase_id,a.batch_number,"+
             "a.allot_id,a.allot_time,a.allot_number,a.allot_account_id,a.allot_return_flag,a.allot_hospital,"+
             "a.allot_return_price,a.allot_return_time,a.allot_mack_price,a.allot_price,a.allot_money,a.allot_return_money,"+
@@ -213,13 +190,15 @@ router.post("/copyAllotPolicy",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "复制调货政策，查询已选择销售出错" + err);
     }
-    var copySql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id) values ";
+    var copySql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id,allot_policy_formula,allot_policy_percent) values ";
     var allotHospital = "update allot set ";
+    var ids = "";
     for(var i = 0 ; i < d.length ;i++){//查询已有医院政策
-      copySql += "('"+req.body.hospital_id_copy+"','"+d[i].allot_drug_id+"','"+d[i].allot_policy_money+"','"+d[i].allot_policy_remark+"','"+d[i].allot_policy_contact_id+"'),";
+      ids += "'"+d[i].allot_drug_id+"',";
+      copySql += "('"+req.body.hospital_id_copy+"','"+d[i].allot_drug_id+"','"+d[i].allot_policy_money+"','"+d[i].allot_policy_remark+"','"+d[i].allot_policy_contact_id+"','"+d[i].allot_policy_formula+"','"+d[i].allot_policy_percent+"'),";
     }
     copySql = copySql.substring(0,copySql.length-1);
-    copySql += " ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id)";
+    copySql += " ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id),allot_policy_formula=VALUES(allot_policy_formula),allot_policy_percent=VALUES(allot_policy_percent)";
     allotPolicy.executeSql(copySql,function(err,d){
       if(err){
         logger.error(req.session.user[0].realname + "复制调货政策，复制销售出错" + err);
@@ -229,36 +208,59 @@ router.post("/copyAllotPolicy",function(req,res){
       res.json({"code":"000000",message:""});
     });
 
-    var getAllotSql = "select * from allot a where a.allot_group_id = '"+req.session.user[0].group_id+"' "+
-                      "and a.allot_delete_flag = '0' and (a.allot_account_id is null or a.allot_account_id = '') "+
-                      "and a.allot_hospital = '"+req.body.hospital_id_copy+"'";
-    allotPolicy.executeSql(getAllotSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
-      if(err){
-        logger.error(req.session.user[0].realname + "更新政策前，查询要更新的记录更新出错" + err);
-      }
-      var allotHospital = "insert into allot (allot_id,allot_return_price,allot_return_money) values "
-      var updateFlag = false;
-      for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
-        for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
-          if(d[m].allot_drug_id == result[j].allot_drug_id){
-            updateFlag=true;
-            var t = util.mul(d[m].allot_policy_money,result[j].allot_number,2);
-            allotHospital+="('"+result[j].allot_id+"','"+d[m].allot_policy_money+"','"+t+"'),";
-          }
-        }
-      }
-      if(updateFlag){//判断是否更新
-        allotHospital = allotHospital.substring(0,allotHospital.length-1);
-        allotHospital +=" on duplicate key update allot_return_price=values(allot_return_price),allot_return_money=values(allot_return_money)";
-        allotPolicy.executeSql(allotHospital,function(err,result){//更新记录
-          if(err){
-            logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
-          }
-        });
-      }
-    });
+    if(ids){
+      ids = ids.substring(0,ids.length-1);
+      var hospitalIds = "'"+req.body.hospital_id_copy+"'";
+      updatePay(req,d,ids,hospitalIds)
+    }
   });
 });
+
+//更新下游应付
+function updatePay(req,d,ids,hospitalId){
+  var getAllotSql = "select *,d.product_return_money,r.refunds_real_money,p.purchase_number from allot a left join drugs d on d.product_id = a.allot_drug_id "+
+                    "left join purchase p on p.purchase_id = a.allot_purchase_id "+//取上游备货数量，计算实返金额
+                    "left join refunds r on r.purchases_id = a.allot_purchase_id  "+
+                    "where a.allot_group_id = '"+req.session.user[0].group_id+"' "+
+                    "and a.allot_delete_flag = '0' and (a.allot_account_id is null or a.allot_account_id = '') "+
+                    "and a.allot_hospital in ("+hospitalId+") and d.product_id in ("+ids+") "+
+                    "and (allot_return_price is null or allot_return_money is null or allot_return_price = '' or allot_return_money = '' or allot_return_price = '0' or allot_return_money = '0')";
+  var allotPolicy = DB.get("AllotPolicy");
+  allotPolicy.executeSql(getAllotSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策前，查询要更新的记录更新出错" + err);
+    }
+    var allotHospital = "insert into allot (allot_id,allot_return_price,allot_return_money,allot_should_pay_formula,allot_should_pay_percent) values "
+    var updateFlag = false;
+    for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
+      for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+        if(d[m].allot_drug_id == result[j].allot_drug_id){
+          updateFlag=true;
+          var t = util.mul(d[m].allot_policy_money,result[j].allot_number,2);
+          var temp = result[j].allot_other_money/result[j].allot_number;
+          var realReturnMoney = result[j].refunds_real_money/result[j].purchase_number;
+          realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+          var policyMoney = util.getShouldPayMoney(d[m].allot_policy_formula,result[j].allot_price,realReturnMoney,d[m].allot_policy_percent,temp,d[m].allot_policy_money);
+          var policyPrice = util.getShouldPayMoney(d[m].allot_policy_formula,result[j].allot_price,realReturnMoney,d[m].allot_policy_percent,0,d[m].allot_policy_money);
+          policyPrice = Math.round(policyPrice*100)/100;
+          var t = policyMoney*result[j].allot_number;
+          t = Math.round(t*100)/100;
+
+          allotHospital+="('"+result[j].allot_id+"','"+policyPrice+"','"+t+"','"+d[m].allot_policy_formula+"','"+d[m].allot_policy_percent+"'),";
+        }
+      }
+    }
+    if(updateFlag){//判断是否更新
+      allotHospital = allotHospital.substring(0,allotHospital.length-1);
+      allotHospital +=" on duplicate key update allot_return_price=values(allot_return_price),allot_return_money=values(allot_return_money),allot_should_pay_formula=values(allot_should_pay_formula),allot_should_pay_percent=values(allot_should_pay_percent)";
+      allotPolicy.executeSql(allotHospital,function(err,result){//更新记录
+        if(err){
+          logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+        }
+      });
+    }
+  });
+}
 
 //批量新增调货政策
 router.post("/editAllotPolicyBatch",function(req,res){
@@ -267,23 +269,23 @@ router.post("/editAllotPolicyBatch",function(req,res){
     return ;
   }
   var allotPolicy = DB.get("AllotPolicy");
-  var sql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id) values ";
+  var sql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id,allot_policy_formula,allot_policy_percent) values ";
   var drug = req.body.allotDrugs;
+  var ids = "",hospitalIds="";
   for(var i = 0 ; i < drug.length ;i++){
-    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
-    p=p?p:0;
-    var policyMoney = 0;
-    if(req.body.type=="2"||req.body.type=="3"){
-      policyMoney = Math.round(p*req.body.policy_percent)/100;
-    }else{
-      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
-      policyMoney = Math.round(policyMoney*100)/100;
-    }
+    var policyMoney = util.getShouldPayMoney(req.body.allot_policy_formula,drug[i].price,drug[i].returnMoney,req.body.allot_policy_percent,0,0);
+    drug[i].allot_policy_money = Math.round(policyMoney*100)/100;
+    drug[i].allot_policy_formula = req.body.allot_policy_formula;
+    drug[i].allot_policy_percent = req.body.allot_policy_percent;
+    drug[i].allot_drug_id = drug[i].id;
+    ids = "'"+drug[i].id+"',";
     var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.allot_hospital_id;
-    sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.allot_policy_remark+"','"+req.body.allot_policy_contact_id+"'),";
+    hospitalIds = "'"+hospitalId + "',";
+    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.allot_hospital_id;
+    sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.allot_policy_remark+"','"+req.body.allot_policy_contact_id+"','"+req.body.allot_policy_formula+"','"+req.body.allot_policy_percent+"'),";
   }
   sql = sql.substring(0,sql.length-1);
-  sql +=" ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id)";
+  sql +=" ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id),allot_policy_formula=VALUES(allot_policy_formula),allot_policy_percent=VALUES(allot_policy_percent)";
   allotPolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "更新调货医院药品政策，出错" + err);
@@ -292,26 +294,11 @@ router.post("/editAllotPolicyBatch",function(req,res){
     util.saveLogs(req.session.user[0].group_id,"-","-",message);
     res.json({"code":"000000",message:""});
   });
-  for(var i = 0 ; i < drug.length ;i++){
-    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
-    p=p?p:0;
-    var policyMoney = 0;
-    if(req.body.type=="2"||req.body.type=="3"){
-      policyMoney = Math.round(p*req.body.policy_percent)/100;
-    }else{
-      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
-      policyMoney = Math.round(policyMoney*100)/100;
-    }
-    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.allot_hospital_id;
-    var allotHospital = "update allot set allot_return_price = '"+policyMoney+"',allot_return_money=allot_number*"+policyMoney+" "+
-                        "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+hospitalId+"' "+
-                        "and allot_drug_id = '"+drug[i].id+"' and (allot_account_id is null or allot_account_id = '') "+
-                        "and (allot_return_price is null or allot_return_money is null or allot_return_price = '' or allot_return_money = '')";
-    allotPolicy.executeSql(allotHospital,function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
-      }
-    });
+
+  if(ids){
+    ids = ids.substring(0,ids.length-1);
+    hospitalIds = hospitalIds.substring(0,hospitalIds.length-1);
+    updatePay(req,drug,ids,hospitalIds)
   }
 });
 //修改调货政策
@@ -321,9 +308,9 @@ router.post("/editAllotPolicy",function(req,res){
     return ;
   }
   var allotPolicy = DB.get("AllotPolicy");
-  var sql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id";
-      sql+=") values ('"+req.body.allot_hospital_id+"','"+req.body.allot_drug_id+"','"+req.body.allot_policy_money+"','"+req.body.allot_policy_remark+"','"+req.body.allot_policy_contact_id+"'";
-      sql +=") ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id)";
+  var sql = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_remark,allot_policy_contact_id,allot_policy_formula,allot_policy_percent";
+      sql+=") values ('"+req.body.allot_hospital_id+"','"+req.body.allot_drug_id+"','"+req.body.allot_policy_money+"','"+req.body.allot_policy_remark+"','"+req.body.allot_policy_contact_id+"','"+req.body.allot_policy_formula+"','"+req.body.allot_policy_percent+"'";
+      sql +=") ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_remark=VALUES(allot_policy_remark),allot_policy_contact_id=VALUES(allot_policy_contact_id),allot_policy_formula=VALUES(allot_policy_formula),allot_policy_percent=VALUES(allot_policy_percent)";
   allotPolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "更新调货医院药品政策，出错" + err);
@@ -334,15 +321,11 @@ router.post("/editAllotPolicy",function(req,res){
     util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
     res.json({"code":"000000",message:""});
   });
-  var allotHospital = "update allot set allot_return_price = '"+req.body.allot_policy_money+"',allot_return_money=allot_number*"+req.body.allot_policy_money+" "+
-                      "where allot_group_id = '"+req.session.user[0].group_id+"' and allot_hospital = '"+req.body.allot_hospital_id+"' "+
-                      "and allot_drug_id = '"+req.body.allot_drug_id+"' and (allot_account_id is null or allot_account_id = '') "+
-                      "and (allot_return_price is null or allot_return_money is null or allot_return_price = '' or allot_return_money = '')";
-  allotPolicy.executeSql(allotHospital,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
-    }
-  });
+
+  var tempData = [req.body];
+  var ids = "'"+req.body.allot_drug_id+"'";
+  var hospitals = "'"+req.body.allot_hospital_id+"'";
+  updatePay(req,tempData,ids,hospitals);
 });
 //导出销售政策
 router.post("/exportAllotPolicy",function(req,res){

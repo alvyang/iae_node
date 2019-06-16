@@ -4,6 +4,45 @@ var pinyin = require('node-pinyin');
 var logger = require('../utils/logger');
 var uuid=require("node-uuid");
 
+//计算应付
+exports.getShouldPayMoney = function(formula,price,money,percent,otherMoney,sp){
+  otherMoney=otherMoney?otherMoney:0;
+  price = price?price:0;
+  money = money?money:0;
+  percent = percent?percent:0;
+  sp = sp?sp:0;
+  var shouldPay = 0;
+  switch (formula) {
+    case "1":
+      shouldPay = price*percent/100;
+      break;
+    case "2":
+      shouldPay = price*percent/100-otherMoney;
+      break;
+    case "3":
+      shouldPay = money*percent/100;
+      break;
+    case "4":
+      shouldPay = money*percent/100-otherMoney;
+      break;
+    case "5":
+      shouldPay = money - price*percent/100;
+      break;
+    case "6":
+      shouldPay = money - price*percent/100-otherMoney;
+      break;
+    case "7":
+      var temp = price*percent/100;
+      shouldPay = money > temp?temp:money;
+      break;
+    case "8":
+      shouldPay = sp;
+      break;
+    default:
+      shouldPay = 0
+  }
+  return shouldPay;
+}
 //保存日志
 exports.saveLogs = function(arg1,arg2,arg3,arg4){
   var log = DB.get("Log");

@@ -34,6 +34,8 @@ router.post("/editSalesPay",function(req,res){
       sale_other_money:req.body.sale_other_money,
       sale_return_real_return_money:req.body.sale_return_real_return_money,
       sale_return_money:req.body.sale_return_money,
+      sale_should_pay_percent:req.body.sale_should_pay_percent,
+      sale_should_pay_formula:req.body.sale_should_pay_formula,
       sale_remark:req.body.sale_remark
     }
     // params.sale_return_money = req.body.sale_return_money?req.body.sale_return_money:util.mul(req.body.sale_policy_money,req.body.sale_num);
@@ -104,7 +106,7 @@ router.post("/exportSalesRefund",function(req,res){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
     }
     for(var i = 0 ; i< result.length;i++){
-      result[i].sale_return_price = result[i].sale_return_price?result[i].sale_return_price:result[i].sale_policy_money;
+      // result[i].sale_return_price = result[i].sale_return_price?result[i].sale_return_price:result[i].sale_policy_money;
       if(result[i].product_type == '佣金' && result[i].refunds_real_time && result[i].refunds_real_money){
         	result[i].realMoney = util.div(result[i].refunds_real_money,result[i].sale_num,2);
       }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && result[i].refunds_real_money1){
@@ -133,34 +135,8 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'购入金额',type:'number'
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
-    },{caption:'费用票/补点',type:'number',
-      beforeCellWrite:function(row, cellData){
-        if(row[17] == '佣金' && cellData){
-          return cellData;
-        }else if(row[17] == '高打' && row[19]){
-          var temp = (row[19]/row[18])*row[7];
-          return Math.round(temp*100)/100;
-        }else{
-          return 0;
-        }
-      }
-    },{caption:'应付积分',type:'number',
-      beforeCellWrite:function(row, cellData){
-        var temp = 0;
-        if(row[17] == '佣金' && cellData){
-          temp = row[12];
-        }else if(row[17] == '高打' && row[19]){
-          var temp = (row[19]/row[18])*row[7];
-          temp = Math.round(temp*100)/100;
-        }
-        var t = row[11]*row[7]-temp;
-        t = Math.round(t*100)/100;
-        if(cellData != t){
-          return t;
-        }else{
-          return cellData;
-        }
-      }
+    },{caption:'费用票/补点',type:'number'
+    },{caption:'应付积分',type:'number'
     },{caption:'实付积分',type:'number'
     },{
         caption:'付积分时间',
@@ -247,6 +223,7 @@ router.post("/getSalesReturnMoney",function(req,res){
 function getQuerySql(req){
   //连接查询医院名称
   var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
+            "s.sale_should_pay_percent,s.sale_should_pay_formula,"+
             "s.sale_account_name,s.sale_account_number,s.sale_account_address,s.batch_number,s.sales_purchase_id,s.sale_remark,"+
             "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
@@ -260,7 +237,7 @@ function getQuerySql(req){
             "left join purchase p on p.purchase_id = s.sales_purchase_id "+//取上游备货数量，计算实返金额
             "left join refunds r on r.sales_id = s.sale_id "+
             "left join refunds rs1 on s.sales_purchase_id = rs1.purchases_id "+
-            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
+            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag ='0' "+
             "left join business bus on d.product_business = bus.business_id "+
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on c.contacts_id = d.contacts_id "+
@@ -337,12 +314,14 @@ router.post("/copySalesPolicy",function(req,res){
     if(err){
       logger.error(req.session.user[0].realname + "复制销售政策，查询已选择销售出错" + err);
     }
-    var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id) values ";
+    var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id,sale_policy_formula,sale_policy_percent) values ";
+    var ids = "";
     for(var i = 0 ; i < d.length ;i++){
-      copySql += "('"+req.body.hospital_id_copy+"','"+d[i].sale_drug_id+"','"+d[i].sale_policy_money+"','"+d[i].sale_policy_remark+"','"+d[i].sale_policy_contact_id+"'),";
+      ids += "'"+d[i].sale_drug_id+"',";
+      copySql += "('"+req.body.hospital_id_copy+"','"+d[i].sale_drug_id+"','"+d[i].sale_policy_money+"','"+d[i].sale_policy_remark+"','"+d[i].sale_policy_contact_id+"','"+d[i].sale_policy_formula+"','"+d[i].sale_policy_percent+"'),";
     }
     copySql = copySql.substring(0,copySql.length-1);
-    copySql += " ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+    copySql += " ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent)";
     salePolicy.executeSql(copySql,function(err,d){
       if(err){
         logger.error(req.session.user[0].realname + "复制销售政策，复制销售出错" + err);
@@ -351,40 +330,66 @@ router.post("/copySalesPolicy",function(req,res){
       util.saveLogs(req.session.user[0].group_id,"-","-",message);
       res.json({"code":"000000",message:""});
     });
-
-
-    var getSalesSql = "select s.*,d.product_id from sales s left join drugs d on d.product_code = s.product_code "+
-                      "where s.group_id = '"+req.session.user[0].group_id+"' "+
-                      "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
-                      "and s.delete_flag = '0' and (s.sale_account_id is null or s.sale_account_id = '' ) "+
-                      "and s.hospital_id = '"+req.body.hospital_id_copy+"'";
-    salePolicy.executeSql(getSalesSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
-      if(err){
-        logger.error(req.session.user[0].realname + "更新政策前，查询要更新的销售记录更新出错" + err);
-      }
-      var salesHospital = "insert into sales (sale_id,sale_return_price,sale_return_money) values "
-      var updateFlag = false;
-      for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
-        for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
-          if(d[m].sale_drug_id == result[j].product_id){
-            updateFlag=true;
-            var t = util.mul(d[m].sale_policy_money,result[j].sale_num,2);
-            salesHospital+="('"+result[j].sale_id+"','"+d[m].sale_policy_money+"','"+t+"'),";
-          }
-        }
-      }
-      if(updateFlag){//判断是否更新
-        salesHospital = salesHospital.substring(0,salesHospital.length-1);
-        salesHospital +=" on duplicate key update sale_return_price=values(sale_return_price),sale_return_money=values(sale_return_money)";
-        salePolicy.executeSql(salesHospital,function(err,result){//更新记录
-          if(err){
-            logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录更新出错" + err);
-          }
-        });
-      }
-    });
+    if(ids){
+      ids = ids.substring(0,ids.length-1);
+      var hospitalIds = "'"+req.body.hospital_id_copy+"'";
+      updatePay(req,d,ids,hospitalIds)
+    }
   });
 });
+
+//更新下游应付
+function updatePay(req,d,ids,hospitalIds){
+  var getSalesSql = "select s.*,d.product_id,d.product_type,d.product_return_money,p.purchase_number,p.purchase_other_money,r.refunds_real_money,"+
+                    "rs1.refunds_real_money as refunds_real_money1 "+
+                    "from sales s left join drugs d on d.product_code = s.product_code "+
+                    "left join purchase p on p.purchase_id = s.sales_purchase_id "+//取上游备货数量，计算实返金额
+                    "left join refunds r on r.sales_id = s.sale_id "+
+                    "left join refunds rs1 on s.sales_purchase_id = rs1.purchases_id "+
+                    "where s.group_id = '"+req.session.user[0].group_id+"' "+
+                    "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
+                    "and s.delete_flag = '0' and (s.sale_account_id is null or s.sale_account_id = '' ) "+
+                    "and s.hospital_id in ("+hospitalIds+") and d.product_id in ("+ids+") "+
+                    "and (s.sale_return_price is null or s.sale_return_money is null or s.sale_return_price = '' or s.sale_return_money = '' or sale_return_price = '0' or sale_return_money = '0')";
+  var salePolicy = DB.get("SalePolicy");
+  salePolicy.executeSql(getSalesSql,function(err,result){//查询所有，政策相关的调货记录，用于更新调货政策
+    if(err){
+      logger.error(req.session.user[0].realname + "更新政策前，查询要更新的销售记录更新出错" + err);
+    }
+    var salesHospital = "insert into sales (sale_id,sale_return_price,sale_return_money,sale_should_pay_formula,sale_should_pay_percent) values "
+    var updateFlag = false;
+    for(var m=0; m<d.length; m++){//这个循环，查询被复制医院的调货政策
+      for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+        if(d[m].sale_drug_id == result[j].product_id){
+          updateFlag=true;
+          var temp = result[j].sale_other_money/result[j].sale_num;
+          var realReturnMoney = 0;
+          if(result[j].product_type == '佣金'){
+            realReturnMoney = result[j].refunds_real_money/result[j].sale_num;
+          }else if(result[j].product_type == '高打'){
+            realReturnMoney = result[j].refunds_real_money1/result[j].purchase_number;
+          }
+          realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+          var policyMoney = util.getShouldPayMoney(d[m].sale_policy_formula,result[j].sale_price,realReturnMoney,d[m].sale_policy_percent,temp,d[m].sale_policy_money);
+          var policyPrice = util.getShouldPayMoney(d[m].sale_policy_formula,result[j].sale_price,realReturnMoney,d[m].sale_policy_percent,0,d[m].sale_policy_money);
+          policyPrice = Math.round(policyPrice*100)/100;
+          var t = policyMoney*result[j].sale_num;
+          t = Math.round(t*100)/100;
+          salesHospital+="('"+result[j].sale_id+"','"+policyPrice+"','"+t+"','"+d[m].sale_policy_formula+"','"+d[m].sale_policy_percent+"'),";
+        }
+      }
+    }
+    if(updateFlag){//判断是否更新
+      salesHospital = salesHospital.substring(0,salesHospital.length-1);
+      salesHospital +=" on duplicate key update sale_return_price=values(sale_return_price),sale_return_money=values(sale_return_money),sale_should_pay_formula=values(sale_should_pay_formula),sale_should_pay_percent=values(sale_should_pay_percent)";
+      salePolicy.executeSql(salesHospital,function(err,result){//更新记录
+        if(err){
+          logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录更新出错" + err);
+        }
+      });
+    }
+  });
+}
 
 //批量新增政策
 router.post("/editSalesPolicy",function(req,res){
@@ -393,9 +398,9 @@ router.post("/editSalesPolicy",function(req,res){
     return ;
   }
   var salePolicy = DB.get("SalePolicy");
-  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id";
-      sql+=") values ('"+req.body.sale_hospital_id+"','"+req.body.sale_drug_id+"','"+req.body.sale_policy_money+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"'";
-      sql +=") ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id,sale_policy_formula,sale_policy_percent";
+      sql+=") values ('"+req.body.sale_hospital_id+"','"+req.body.sale_drug_id+"','"+req.body.sale_policy_money+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"','"+req.body.sale_policy_formula+"','"+req.body.sale_policy_percent+"'";
+      sql +=") ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent)";
   salePolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "更新销售医院药品政策，出错" + err);
@@ -408,15 +413,10 @@ router.post("/editSalesPolicy",function(req,res){
     res.json({"code":"000000",message:""});
   });
 
-  var saleHospital = "update sales set sale_return_price = '"+req.body.sale_policy_money+"',sale_return_money=sale_num*"+req.body.sale_policy_money+" "+
-                      "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+req.body.sale_hospital_id+"' "+
-                      "and product_code = '"+req.body.product_code+"' and (sale_account_id is null or sale_account_id = '') "+
-                      "and (sale_return_price is null or sale_return_money is null or sale_return_price = '' or sale_return_money = '')";
-  salePolicy.executeSql(saleHospital,function(err,result){
-    if(err){
-      logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
-    }
-  });
+  var tempData = [req.body];
+  var ids = "'"+req.body.sale_drug_id+"'";
+  var hospitals = "'"+req.body.sale_hospital_id+"'";
+  updatePay(req,tempData,ids,hospitals);
 });
 //修改销售政策
 router.post("/editSalesPolicyBatch",function(req,res){
@@ -425,23 +425,23 @@ router.post("/editSalesPolicyBatch",function(req,res){
     return ;
   }
   var salePolicy = DB.get("SalePolicy");
-  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id) values ";
+  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_remark,sale_policy_contact_id,sale_policy_formula,sale_policy_percent) values ";
   var drug = req.body.saleDrugs;
+  var ids = "",hospitalIds="";
   for(var i = 0 ; i < drug.length ;i++){
-    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
-    p=p?p:0;
-    var policyMoney = 0;
-    if(req.body.type=="2"||req.body.type=="3"){
-      policyMoney = Math.round(p*req.body.policy_percent)/100;
-    }else{
-      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
-      policyMoney = Math.round(policyMoney*100)/100;
-    }
+    var policyMoney = util.getShouldPayMoney(req.body.sale_policy_formula,drug[i].price,drug[i].returnMoney,req.body.sale_policy_percent,0,0);
+    drug[i].sale_policy_money = Math.round(policyMoney*100)/100;
+    drug[i].sale_policy_formula = req.body.sale_policy_formula;
+    drug[i].sale_policy_percent = req.body.sale_policy_percent;
+    drug[i].sale_drug_id = drug[i].id;
+    ids = "'"+drug[i].id+"',";
     var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.sale_hospital_id;
-    sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"'),";
+    hospitalIds = "'"+hospitalId + "',";
+    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.sale_hospital_id;
+    sql+="('"+hospitalId+"','"+drug[i].id+"','"+policyMoney+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"','"+req.body.sale_policy_formula+"','"+req.body.sale_policy_percent+"'),";
   }
   sql = sql.substring(0,sql.length-1);
-  sql +=" ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_contact_id=VALUES(sale_policy_contact_id)";
+  sql +=" ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent)";
   salePolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "批量新增销售医院药品政策，出错" + err);
@@ -451,26 +451,10 @@ router.post("/editSalesPolicyBatch",function(req,res){
     res.json({"code":"000000",message:""});
   });
 
-  for(var i = 0 ; i < drug.length ;i++){
-    var p = (req.body.type=="2"||req.body.type=="4")?drug[i].price:drug[i].returnMoney;
-    p=p?p:0;
-    var policyMoney = 0;
-    if(req.body.type=="2"||req.body.type=="3"){
-      policyMoney = Math.round(p*req.body.policy_percent)/100;
-    }else{
-      policyMoney = drug[i].returnMoney - (p*req.body.policy_percent)/100;
-      policyMoney = Math.round(policyMoney*100)/100;
-    }
-    var hospitalId = drug[i].hospitalId?drug[i].hospitalId:req.body.sale_hospital_id;
-    var saleHospital = "update sales set sale_return_price = '"+policyMoney+"',sale_return_money=sale_num*"+policyMoney+" "+
-                        "where group_id = '"+req.session.user[0].group_id+"' and hospital_id = '"+hospitalId+"' "+
-                        "and product_code = '"+drug[i].product_code+"' and (sale_account_id is null or sale_account_id = '') "+
-                        "and (sale_return_price is null or sale_return_money is null or sale_return_price = '' or sale_return_money = '')";
-    salePolicy.executeSql(saleHospital,function(err,result){
-      if(err){
-        logger.error(req.session.user[0].realname + "更新政策后，将所有的销售记录回款信息更新出错" + err);
-      }
-    });
+  if(ids){
+    ids = ids.substring(0,ids.length-1);
+    hospitalIds = hospitalIds.substring(0,hospitalIds.length-1);
+    updatePay(req,drug,ids,hospitalIds)
   }
 });
 //导出
@@ -498,14 +482,47 @@ router.post("/exportSalesPolicy",function(req,res){
     },{caption:'单位',type:'string'
     },{caption:'商业',type:'string'
     },{caption:'中标价',type:'number'
-    },{caption:'政策积分',type:'string'
+    },{caption:'积分',type:'string'
     },{caption:'销售积分',type:'string'
+    },{caption:'政策点数',type:'string'
+    },{caption:'政策公式',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var message = "";
+        switch (cellData) {
+          case "1":
+            message = "中标价*政策点数";
+            break;
+          case "2":
+            message = "中标价*政策点数-补点/费用票";
+            break;
+          case "3":
+            message = "实收上游积分或上游政策积分*政策点数";
+            break;
+          case "4":
+            message = "实收上游积分或上游政策积分*政策点数-补点/费用票";
+            break;
+          case "5":
+            message = "实收上游积分或上游政策积分-中标价*政策点数";
+            break;
+          case "6":
+            message = "实收上游积分或上游政策积分-中标价*政策点数-补点/费用票";
+            break;
+          case "7":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?(中标价*政策点数):实收上游积分";
+            break;
+          case "8":
+            message = "固定政策（上游政策修改后，需几时调整下游政策）";
+            break;
+          default:
+        }
+        return message;
+      }
     },{caption:'积分备注',type:'string'
     },{caption:'业务员',type:'string'
     }];
     var header = ['product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','product_price','product_return_money','sale_policy_money',
-                  'sale_policy_remark','contacts_name'];
+                  'sale_policy_percent','sale_policy_formula','sale_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出销售政策。"+conf.rows.length+"条";

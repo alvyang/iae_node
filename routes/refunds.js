@@ -26,11 +26,17 @@ router.post("/saveRefunds",function(req,res){
     delete req.body.account_detail;
     req.body.refund_create_time = new Date();
     req.body.refund_create_userid = req.session.user[0].id;
+    var purchaseNumber = req.body.purchase_number;
     refunds.insert(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "新增返款记录出错" + err);
       }
       res.json({"code":"000000",message:result});
+      if(req.body.sales_id){
+        updateSalePay(req);
+      }else{
+        updatePurchasePay(req,purchaseNumber);
+      }
     });
     //保存返款流水，如果保存时，还没有返款或者没有添加收款信息，则标识为删除
     var bankaccountdetail={};
@@ -88,6 +94,109 @@ router.post("/deleteRefunds",function(req,res){
     return ;
   }
 });
+//修改采进应收，更新应付
+function updatePurchasePay(req,purchaseNumber){
+  var getSalesSql = "select s.* from sales s where s.delete_flag = '0' and s.sales_purchase_id = '"+req.body.purchases_id+"' ";
+  var getAllotsSql = "select a.* from allot a where a.allot_delete_flag = '0' and a.allot_purchase_id = '"+req.body.purchases_id+"' ";
+
+  if(req.body.refunds_real_money){
+    var realReturnMoney = req.body.refunds_real_money/purchaseNumber;
+    var sales = DB.get("Sales");
+    sales.executeSql(getSalesSql,function(err,result){//查询现有库存
+      if(err){
+        logger.error(req.session.user[0].realname + "修改应收，先查询销售记录" + err);
+      }
+      var salesHospital = "insert into sales (sale_id,sale_return_money,sale_return_price) values "
+      var updateFlag = false;
+      for(var i = 0 ; i < result.length ; i++){
+        updateFlag=true;
+        var saleOtherMeony = result[i].sale_other_money/result[i].sale_num;
+        //减去其它费用
+        var policyMoney = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,saleOtherMeony,result[i].sale_return_price);
+        //没有减去其它费用，显示单价
+        var policyPrice = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,0,result[i].sale_return_price);
+        var t = policyMoney*result[i].sale_num;
+        t = Math.round(t*100)/100;
+        policyPrice = Math.round(policyPrice*100)/100;
+        salesHospital+="('"+result[i].sale_id+"','"+t+"','"+policyPrice+"'),";
+      }
+      if(updateFlag){//判断是否更新
+        salesHospital = salesHospital.substring(0,salesHospital.length-1);
+        salesHospital +=" on duplicate key update sale_return_money=values(sale_return_money),sale_return_price=values(sale_return_price)";
+        sales.executeSql(salesHospital,function(err,result){//更新记录
+          if(err){
+            logger.error(req.session.user[0].realname + "更新采进后，将所有的销售记录更新出错" + err);
+          }
+        });
+      }
+
+      sales.executeSql(getAllotsSql,function(err,result){//查询现有库存
+        if(err){
+          logger.error(req.session.user[0].realname + "修改应收，先查询调货记录" + err);
+        }
+        var allotHospital = "insert into allot (allot_id,allot_return_money,allot_return_price) values "
+        var updateFlag = false;
+        for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+          updateFlag=true;
+          var allotOtherMeony = result[j].allot_other_money/result[j].allot_number;
+          var policyMoney = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,allotOtherMeony,result[j].allot_return_price);
+          var policyPrice = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,0,result[j].allot_return_price);
+          var t = policyMoney*result[j].allot_number;
+          t = Math.round(t*100)/100;
+          policyPrice = Math.round(policyPrice*100)/100;
+          allotHospital+="('"+result[j].allot_id+"','"+t+"','"+policyPrice+"'),";
+        }
+        if(updateFlag){//判断是否更新
+          allotHospital = allotHospital.substring(0,allotHospital.length-1);
+          allotHospital +=" on duplicate key update allot_return_price=values(allot_return_price),allot_return_money=values(allot_return_money)";
+          sales.executeSql(allotHospital,function(err,result){//更新记录
+            if(err){
+              logger.error(req.session.user[0].realname + "更新采进后，将所有的调货记录更新出错" + err);
+            }
+          });
+        }
+      });
+    });
+  }
+}
+//修改应收，更新应付
+function updateSalePay(req){
+  var getSalesSql = "select s.*,d.product_return_money from sales s left join drugs d on d.product_code = s.product_code "+
+                    "where s.delete_flag = '0' and s.sale_id = '"+req.body.sales_id+"' ";
+  if(req.body.refunds_real_money){
+    var sales = DB.get("Sales");
+    sales.executeSql(getSalesSql,function(err,result){//查询现有库存
+      if(err){
+        logger.error(req.session.user[0].realname + "修改应收，先查询销售记录" + err);
+      }
+      var salesHospital = "insert into sales (sale_id,sale_return_money,sale_return_price) values "
+      var updateFlag = false;
+      for(var i = 0 ; i < result.length ; i++){
+        updateFlag=true;
+        var saleOtherMeony = result[i].sale_other_money/result[i].sale_num;
+        var realReturnMoney = req.body.refunds_real_money/result[i].sale_num;
+        //减去其它费用
+        var policyMoney = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,saleOtherMeony,result[i].sale_return_price);
+        //没有减去其它费用，显示单价
+        var policyPrice = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,0,result[i].sale_return_price);
+        var t = policyMoney*result[i].sale_num;
+        t = Math.round(t*100)/100;
+        saleOtherMeony = Math.round(saleOtherMeony*100)/100;
+        policyPrice = Math.round(policyPrice*100)/100;
+        salesHospital+="('"+result[i].sale_id+"','"+t+"','"+policyPrice+"'),";
+      }
+      if(updateFlag){//判断是否更新
+        salesHospital = salesHospital.substring(0,salesHospital.length-1);
+        salesHospital +=" on duplicate key update sale_return_money=values(sale_return_money),sale_return_price=values(sale_return_price)";
+        sales.executeSql(salesHospital,function(err,result){//更新记录
+          if(err){
+            logger.error(req.session.user[0].realname + "更新采进后，将所有的销售记录更新出错" + err);
+          }
+        });
+      }
+    });
+  }
+}
 //编辑返款记录
 router.post("/editRefunds",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",45,") > 0 || req.session.user[0].authority_code.indexOf(",47,") > 0){
@@ -106,6 +215,7 @@ router.post("/editRefunds",function(req,res){
     delete req.body.account_detail;
     delete req.body.refund_create_time;
     var front_message = req.body.front_message;
+    var purchaseNumber = req.body.purchase_number;
     refunds.update(req.body,'refunds_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改返款记录出错" + err);
@@ -113,6 +223,11 @@ router.post("/editRefunds",function(req,res){
       var message = req.session.user[0].realname+"修改积分应收记录。";
       util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
       res.json({"code":"000000",message:null});
+      if(req.body.sales_id){
+        updateSalePay(req);
+      }else{
+        updatePurchasePay(req,purchaseNumber);
+      }
     });
 
     //保存返款流水，如果保存时，还没有返款或者没有添加收款信息，则标识为删除
@@ -514,7 +629,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
             "left join hospitals h on s.hospital_id = h.hospital_id "+
             "left join contacts c on d.contacts_id = c.contacts_id "+
             "left join business bus on d.product_business = bus.business_id "+
-            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag !='1' "+
+            "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag ='0' "+
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
             "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag = '0'";
   if(req.body.data.overdue){

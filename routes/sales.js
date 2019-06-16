@@ -63,7 +63,7 @@ router.post("/importSales",function(req,res){
         //插入销售记录sql
         var sql = "insert into sales(sale_id,bill_date,sale_price,sale_num,batch_number,product_code,hospital_id,gross_profit,real_gross_profit,"+
                   "accounting_cost,cost_univalent,sale_return_flag,sale_tax_rate,group_id,sale_create_time,sale_create_userid,"+
-                  "sale_type,sale_money,sale_return_money,sales_purchase_id,sale_return_price) VALUES ";
+                  "sale_type,sale_money,sale_return_money,sales_purchase_id,sale_return_price,sale_should_pay_formula,sale_should_pay_percent,sale_other_money) VALUES ";
         //更新库存sql
         var updateStockSql = "insert into batch_stock(batch_stock_drug_id,batch_stock_purchase_id,batch_stock_number) values ";
         var updateFlag = false;//是否执行更新库存语句
@@ -88,7 +88,7 @@ router.post("/importSales",function(req,res){
                "'"+sData[i].hospital_id+"','"+sData[i].gross_profit+"','"+sData[i].real_gross_profit+"','"+sData[i].accounting_cost+"',"+
                "'"+sData[i].cost_univalent+"','"+sData[i].sale_return_flag+"','"+sData[i].sale_tax_rate+"','"+sData[i].group_id+"',"+
                "'"+createTime+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"',"+
-               "'"+sData[i].sales_purchase_id+"','"+sData[i].sale_policy_money+"'),";
+               "'"+sData[i].sales_purchase_id+"','"+sData[i].sale_return_price+"','"+sData[i].sale_policy_formula+"','"+sData[i].sale_policy_percent+"','"+sData[i].sale_other_money+"'),";
           if(sData[i].product_type == '高打'){//更新库存，sql语句拼接
             updateFlag = true;
             var key = sData[i].product_id+"--"+sData[i].sales_purchase_id;
@@ -120,16 +120,17 @@ router.post("/importSales",function(req,res){
         sales.executeSql(sql,function(err,result){//批量添加销售记录
           if(err){
             logger.error(req.session.user[0].realname + "批量插入销售记录出错" + err);
+          }else{
+            if(updateFlag){
+              sales.executeSql(updateStockSql,function(err,result){//更新库存
+                if(err){
+                  logger.error(req.session.user[0].realname + "批量插入销售记录，更新库存出错" + err);
+                }
+              });
+            }
           }
           var message = req.session.user[0].realname+"导入销售记录，数据导入成功"+sData.length+"条；导入错误"+salesData.errData.length+"条；";
           util.saveLogs(req.session.user[0].group_id,"-","-",message);
-          if(updateFlag){
-            sales.executeSql(updateStockSql,function(err,result){//更新库存
-              if(err){
-                logger.error(req.session.user[0].realname + "批量插入销售记录，更新库存出错" + err);
-              }
-            });
-          }
           if(bankDetailSqlValue){
             sales.executeSql(bankDetailSql,function(err,result){//插入流水账sql
               if(err){
@@ -189,13 +190,16 @@ function verData(req,data){
     if(d.storage_time){
       d.storage_time = new Date(d.storage_time).format("yyyy-MM-dd");
     }
+    d.sale_other_money = 0;
     for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
       var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
       if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
         d.sales_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
-        d.sale_other_money_temp = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.sale_num/batchStock[j].purchase_number:0;
+        d.sale_other_money = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.sale_num/batchStock[j].purchase_number:0;
         d.batch_number = d.batch_number + "("+d.storage_time+")";
+        d.refunds_real_money = batchStock[j].refunds_real_money?batchStock[j].refunds_real_money:"";
+        d.purchase_number = batchStock[j].purchase_number?batchStock[j].purchase_number:"";
         break;
       }
     }
@@ -260,8 +264,18 @@ function verData(req,data){
     d.sale_create_time = new Date().format('yyyy-MM-dd hh:mm:ss');
     d.sale_create_userid = req.session.user[0].id;
     d.sale_policy_money = sales[i].sale_policy_money?sales[i].sale_policy_money:"";
-    d.sale_return_money = sales[i].sale_policy_money?util.mul(d.sale_num,sales[i].sale_policy_money):"";
-    d.sale_return_money = util.sub(d.sale_return_money,d.sale_other_money_temp,2);
+    d.sale_policy_formula = sales[i].sale_policy_formula?sales[i].sale_policy_formula:0;
+    d.sale_policy_percent = sales[i].sale_policy_percent?sales[i].sale_policy_percent:0;
+
+
+    var saleOtherMoney = d.sale_other_money/d.sale_num;
+    var realReturnMeony =d.refunds_real_money/d.purchase_number;
+    realReturnMeony = realReturnMeony?realReturnMeony:d.product_return_money;
+
+    var shouldMoneyPrice = util.getShouldPayMoney(d.sale_policy_formula,d.sale_price,realReturnMeony,d.sale_policy_percent,saleOtherMoney,d.sale_policy_money);
+    var shouldReturnPrice = util.getShouldPayMoney(d.sale_policy_formula,d.sale_price,realReturnMeony,d.sale_policy_percent,0,d.sale_policy_money);
+    d.sale_return_price = Math.round(shouldReturnPrice*100)/100;
+    d.sale_return_money=util.mul(shouldMoneyPrice,d.sale_num);
 
     correctData.push(d);
   }
@@ -356,6 +370,8 @@ function getSalesData(req,sales){
                    data.salesDrugsData[i].product_id == result[j].sale_drug_id){
                    data.salesDrugsData[i].sale_policy_money = result[j].sale_policy_money;
                    data.salesDrugsData[i].sale_policy_contact_id = result[j].sale_policy_contact_id;
+                   data.salesDrugsData[i].sale_policy_formula = result[j].sale_policy_formula;
+                   data.salesDrugsData[i].sale_policy_percent = result[j].sale_policy_percent;
                 }
               }
             }
@@ -389,7 +405,8 @@ function getSalesData(req,sales){
   }).then(data=>{//查询批次库存
     return new Promise((resolve, reject) => {
       var batchStock = DB.get("BatchStock");
-      var sql = "select bs.*,p.purchase_number,p.purchase_other_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+      var sql = "select bs.*,p.purchase_number,p.purchase_other_money,r.refunds_real_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+                "left join refunds r on p.purchase_id = r.purchases_id "+
                 "where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
                 "and bs.batch_stock_number > 0 and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' ";
       batchStock.executeSql(sql,function(err,result){
@@ -496,11 +513,16 @@ router.post("/saveSales",function(req,res){
   var stock = req.body.stock;
   var productId = req.body.product_id;
   var productReturnMoney = req.body.product_return_money;
+  req.body.sale_other_money = req.body.sale_other_money?req.body.sale_other_money:0;
   if(req.body.sale_return_price){//销售回款金额
-    req.body.sale_return_money=util.mul(req.body.sale_return_price,req.body.sale_num);
-    req.body.sale_other_money = req.body.sale_other_money?req.body.sale_other_money:0;
-    req.body.sale_return_money=util.sub(req.body.sale_return_money,req.body.sale_other_money,2);
+    var realReturnMoney = req.body.realReturnMoney?req.body.realReturnMoney:req.body.product_return_money;
+    var saleOtherMoney = req.body.sale_other_money/req.body.sale_num;
+    var shouldMoneyPrice = util.getShouldPayMoney(req.body.sale_policy_formula,req.body.sale_price,realReturnMoney,req.body.sale_policy_percent,saleOtherMoney,req.body.sale_return_price);
+    req.body.sale_return_price = util.getShouldPayMoney(req.body.sale_policy_formula,req.body.sale_price,realReturnMoney,req.body.sale_policy_percent,0,req.body.sale_return_price);
+    req.body.sale_return_money=util.mul(shouldMoneyPrice,req.body.sale_num);
   }
+  req.body.sale_should_pay_formula = req.body.sale_policy_formula;
+  req.body.sale_should_pay_percent = req.body.sale_policy_percent;
   var returnTime={
     product_return_time_type:req.body.product_return_time_type,
     product_return_time_day:req.body.product_return_time_day,
@@ -508,6 +530,8 @@ router.post("/saveSales",function(req,res){
   }
   req.body.sale_create_time = new Date();
   req.body.sale_create_userid = req.session.user[0].id;
+  req.body.sale_other_money = Math.round(req.body.sale_other_money*100)/100;
+  req.body.sale_return_price = Math.round(req.body.sale_return_price*100)/100;
   sales.insert(req.body,'sale_id',function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "新增销售记录出错" + err);
@@ -593,6 +617,7 @@ router.post("/editSales",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",49,") > 0 || req.session.user[0].authority_code.indexOf(",128,") > 0){
     var sales = DB.get("Sales");
     req.body.bill_date = new Date(req.body.bill_date).format('yyyy-MM-dd');
+    req.body.sale_return_price = req.body.sale_return_price?req.body.sale_return_price:req.body.sale_policy_money;
     var params = {
       sale_id:req.body.sale_id,
   		sale_money:req.body.sale_money,
@@ -615,19 +640,23 @@ router.post("/editSales",function(req,res){
       sale_other_money:req.body.sale_other_money
 
     }
-    var t = req.body.sale_return_price?req.body.sale_return_price:req.body.sale_policy_money;
-    t = t?t:0;
     if(req.body.sale_return_real_return_money){
       params.sale_return_real_return_money=req.body.sale_return_real_return_money;
+    }else{
+      params.sale_return_real_return_money=0;
     }
-    params.sale_return_money = util.mul(t,req.body.sale_num);
-    if(req.body.product_type=="佣金"){
-      params.sale_return_money=util.sub(params.sale_return_money,req.body.sale_other_money,2);
-    }else if(req.body.product_type=="高打"){
-      var temp = (req.body.purchase_other_money/req.body.purchase_number)*req.body.sale_num;
-      temp = temp?temp:0;
-      params.sale_return_money=util.sub(params.sale_return_money,temp,2);
+    var realReturnMoney = "";
+    if(req.body.product_type == '高打'){
+      realReturnMoney = req.body.refunds_real_money1/req.body.purchase_number;
+      params.sale_other_money = params.sale_other_money*req.body.sale_num/req.body.sale_num_temp;
+    }else if(req.body.product_type == '佣金'){
+      realReturnMoney = req.body.refunds_real_money/req.body.sale_num;
     }
+    params.sale_other_money = params.sale_other_money?Math.round(params.sale_other_money*100)/100:0;
+    realReturnMoney = realReturnMoney?realReturnMoney:req.body.product_return_money;
+    var saleOtherMoney = params.sale_other_money/req.body.sale_num;
+    var shouldMoneyPrice = util.getShouldPayMoney(req.body.sale_should_pay_formula,req.body.sale_price,realReturnMoney,req.body.sale_should_pay_percent,saleOtherMoney,req.body.sale_return_price);
+    params.sale_return_money=util.mul(shouldMoneyPrice,req.body.sale_num);
 
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
@@ -788,11 +817,11 @@ function getQuerySql(req){
   //连接查询医院名称
   var sql = "select s.sale_id,s.bill_date,s.sale_type,s.sale_price,s.sale_num,s.sale_money,s.real_gross_profit,s.accounting_cost,s.gross_profit,"+
             "s.sale_account_name,s.sale_account_number,s.sale_account_address,s.batch_number,s.sales_purchase_id,s.sale_other_money,"+
-            "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,"+
+            "s.sale_return_time,s.sale_account_id,sp.sale_policy_remark,sp.sale_policy_money,sp.sale_policy_contact_id,sp.sale_policy_formula,sp.sale_policy_percent,"+
             "s.cost_univalent,bus.business_name,s.hospital_id,h.hospital_name,d.product_id,d.stock,d.product_type,d.buyer,d.product_business,"+
             "s.sale_return_price,s.sale_contact_id,d.product_common_name,d.product_specifications,s.sale_return_money,"+
-            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,"+
-            "td.tag_ids,p.purchase_number,p.purchase_other_money,h.hospital_area "+
+            "d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,d.product_code,c.contacts_name,s.sale_should_pay_percent,s.sale_should_pay_formula,"+
+            "td.tag_ids,p.purchase_number,p.purchase_other_money,h.hospital_area,rs1.refunds_real_money as refunds_real_money1,r.refunds_real_money  "+
             "from sales s "+
             "left join drugs d on s.product_code = d.product_code ";
   // if(req.body.data.tag && req.body.data.tag != 'undefined'){
@@ -805,6 +834,8 @@ function getQuerySql(req){
         "left join hospitals h on s.hospital_id = h.hospital_id "+
         "left join contacts c on c.contacts_id = d.contacts_id "+
         "left join purchase p on p.purchase_id = s.sales_purchase_id "+
+        "left join refunds r on r.sales_id = s.sale_id "+
+        "left join refunds rs1 on s.sales_purchase_id = rs1.purchases_id "+
         "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
         "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限

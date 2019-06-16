@@ -100,6 +100,14 @@ router.post("/importPurchases",function(req,res){
         purchase.executeSql(sql,function(err,result){//批量添加销售记录
           if(err){
             logger.error(req.session.user[0].realname + "批量插入采购出错" + err);
+          }else{
+            if(stockSqlFlag){
+              purchase.executeSql(stockSql,function(err,result){//插入返款记录
+                if(err){
+                  logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加批次库存" + err);
+                }
+              });
+            }
           }
           var message = req.session.user[0].realname+"导入采进记录，数据导入成功"+sData.length+"条；导入错误"+purchasesData.errData.length+"条；";
           util.saveLogs(req.session.user[0].group_id,"-","-",message);
@@ -113,13 +121,7 @@ router.post("/importPurchases",function(req,res){
               logger.error(req.session.user[0].realname + "批量插入采购记录，批量添加流水账出错" + err);
             }
           });
-          if(stockSqlFlag){
-            purchase.executeSql(stockSql,function(err,result){//插入返款记录
-              if(err){
-                logger.error(req.session.user[0].realname + "批量插入销售记录，批量添加批次库存" + err);
-              }
-            });
-          }
+
           res.json({"code":"000000",message:importMessage});
         });
 
@@ -307,8 +309,6 @@ router.post("/savePurchases",function(req,res){
     updateStatchStock(req,result);
     res.json({"code":"000000",message:result});
   });
-
-
 });
 function updateStatchStock(req,result){
   if(req.body.storage_time){//入库更新库存
@@ -416,20 +416,75 @@ router.post("/editPurchase",function(req,res){
 });
 //更新调货 销售应付
 function updatePay(req){
-  var t = req.body.purchase_other_money/req.body.purchase_number;
-  t = t?t:0;
-  var saleSql = "update sales set sale_return_money =  sale_num*(sale_return_price-"+t+") where sales_purchase_id = '"+req.body.purchase_id+"'";
-  var allotSql = "update allot set allot_return_money =  allot_number*(allot_return_price-"+t+") where allot_purchase_id = '"+req.body.purchase_id+"'";
+  var purchase_other_money_other = req.body.purchase_other_money/req.body.purchase_number;
+  purchase_other_money_other = purchase_other_money_other?purchase_other_money_other:0;
+  var getSalesSql = "select s.*,d.product_return_money,p.purchase_number,r.refunds_real_money from sales s left join drugs d on d.product_code = s.product_code "+
+                    "left join purchase p on p.purchase_id = s.sales_purchase_id "+
+                    "left join refunds r on s.sales_purchase_id = r.purchases_id "+
+                    "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' and s.sales_purchase_id = '"+req.body.purchase_id+"' ";
+  var getAllotsSql = "select a.*,d.product_return_money,p.purchase_number,r.refunds_real_money from allot a left join drugs d on d.product_id = a.allot_drug_id "+
+                     "left join purchase p on p.purchase_id = a.allot_purchase_id "+
+                     "left join refunds r on r.purchases_id = a.allot_purchase_id  "+
+                     "where a.allot_delete_flag = '0' and a.allot_group_id = '"+req.session.user[0].group_id+"' and a.allot_purchase_id = '"+req.body.purchase_id+"'";
   var sales = DB.get("Sales");
-  sales.executeSql(saleSql,function(err,result){//查询现有库存
+  sales.executeSql(getSalesSql,function(err,result){//查询现有库存
     if(err){
-      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，更新销售记录应付" + err);
+      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，先查询销售记录" + err);
+    }
+    var salesHospital = "insert into sales (sale_id,sale_return_money,sale_other_money,sale_return_price) values "
+    var updateFlag = false;
+    for(var i = 0 ; i < result.length ; i++){
+      updateFlag=true;
+      var saleOtherMeony = purchase_other_money_other*result[i].sale_num;
+      var realReturnMoney = result[i].refunds_real_money/result[i].purchase_number;
+      realReturnMoney = realReturnMoney?realReturnMoney:result[i].product_return_money;
+      var policyMoney = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,purchase_other_money_other,result[i].sale_return_price);
+      var policyPrice = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,0,result[i].sale_return_price);
+      policyPrice = Math.round(policyPrice*100)/100;
+      var t = policyMoney*result[i].sale_num;
+      t = Math.round(t*100)/100;
+      saleOtherMeony = Math.round(saleOtherMeony*100)/100;
+      salesHospital+="('"+result[i].sale_id+"','"+t+"','"+saleOtherMeony+"','"+policyPrice+"'),";
+    }
+    if(updateFlag){//判断是否更新
+      salesHospital = salesHospital.substring(0,salesHospital.length-1);
+      salesHospital +=" on duplicate key update sale_return_money=values(sale_return_money),sale_return_price=values(sale_return_price),sale_other_money=values(sale_other_money)";
+      sales.executeSql(salesHospital,function(err,result){//更新记录
+        if(err){
+          logger.error(req.session.user[0].realname + "更新采进后，将所有的销售记录更新出错" + err);
+        }
+      });
     }
   });
-  sales.executeSql(allotSql,function(err,result){//查询现有库存
+  sales.executeSql(getAllotsSql,function(err,result){//查询现有库存
     if(err){
-      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，更新销售调货应付" + err);
+      logger.error(req.session.user[0].realname + "修改采进记录，修改其它费用时，先查询调货记录" + err);
     }
+    var allotHospital = "insert into allot (allot_id,allot_return_money,allot_other_money,allot_return_price) values "
+    var updateFlag = false;
+    for(var j = 0 ; j < result.length ;j++){//这个循环，查询要更新-复制政策目标医院，的调货记录，根据记录id更新
+      updateFlag=true;
+      var allotOtherMeony = purchase_other_money_other*result[j].allot_number;
+      var realReturnMoney = result[j].refunds_real_money/result[j].purchase_number;
+      realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+      var policyMoney = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,purchase_other_money_other,result[j].allot_return_price);
+      var policyPrice = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,0,result[j].allot_return_price);
+      policyPrice = Math.round(policyPrice*100)/100;
+      allotOtherMeony = Math.round(allotOtherMeony*100)/100;
+      var t = policyMoney*result[j].allot_number;
+      t = Math.round(t*100)/100;
+      allotHospital+="('"+result[j].allot_id+"','"+t+"','"+allotOtherMeony+"','"+policyPrice+"'),";
+    }
+    if(updateFlag){//判断是否更新
+      allotHospital = allotHospital.substring(0,allotHospital.length-1);
+      allotHospital +=" on duplicate key update allot_other_money=values(allot_other_money),allot_return_price=values(allot_return_price),allot_return_money=values(allot_return_money)";
+      sales.executeSql(allotHospital,function(err,result){//更新记录
+        if(err){
+          logger.error(req.session.user[0].realname + "更新政策后，将所有的调货记录更新出错" + err);
+        }
+      });
+    }
+
   });
 
 }

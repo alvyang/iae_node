@@ -52,7 +52,8 @@ router.post("/exportStocks",function(req,res){
 //获取药品的所有，批次库存
 router.post("/getBatchStockByDrugId",function(req,res){
   var batchStock = DB.get("BatchStock");
-  var sql = "select bs.*,p.purchase_number,p.purchase_other_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+  var sql = "select bs.*,p.purchase_number,p.purchase_other_money,r.refunds_real_money from batch_stock bs left join purchase p on bs.batch_stock_purchase_id = p.purchase_id "+
+            "left join refunds r on p.purchase_id = r.purchases_id "+
             "where  bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
             "and bs.batch_stock_drug_id = '"+req.body.productId+"' "+
             "and p.delete_flag = '0' and p.group_id = '"+req.session.user[0].group_id+"' ";
