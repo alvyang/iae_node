@@ -110,7 +110,7 @@ router.post("/getGroups",function(req,res){
   var group = DB.get("Groups");
   var sql = "select g.*,concat(GROUP_CONCAT(ga.groups_authority_id),',') authority_code from groups g left join groups_authority ga on g.group_id = ga.groups_authority_group_id "+
             "where g.delete_flag = '0' and (ga.groups_authority_delete_flag = '0' || ga.groups_authority_delete_flag is null) ";
-  if(req.body.data.group_name){
+  if(!util.isEmpty(req.body.data.group_name)){
     sql+="and g.group_name like '%"+req.body.data.group_name+"%'"
   }
   sql += " group by g.group_id";

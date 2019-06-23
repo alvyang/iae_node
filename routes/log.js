@@ -12,7 +12,7 @@ router.post("/getLogs",function(req,res){
   var noDate = new Date();
   var log = DB.get("Log");
   var sql = "select * from log l where l.log_group_id = '"+req.session.user[0].group_id+"' ";
-  if(req.body.data.log_message){
+  if(!util.isEmpty(req.body.data.log_message)){
     sql += "and l.log_remark like '%"+req.body.data.log_message+"%' ";
   }
   log.countBySql(sql,function(err,num){//查询调货总数

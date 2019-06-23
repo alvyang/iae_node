@@ -78,10 +78,10 @@ router.post("/getTags",function(req,res){
   }
   var tag = DB.get("Tag");
   var sql = "select * from tag t where t.tag_delete_flag = '0' and t.tag_group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.data.tag_name){
+  if(!util.isEmpty(req.body.data.tag_name)){
     sql += " and t.tag_name like '%"+req.body.data.tag_name+"%'";
   }
-  if(req.body.data.tag_type){
+  if(!util.isEmpty(req.body.data.tag_type)){
     sql += " and t.tag_type = '"+req.body.data.tag_type+"'";
   }
   var tagNumSql = "select td.tag_id,count(*) tqn from tag_drug td "+

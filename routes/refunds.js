@@ -99,7 +99,7 @@ function updatePurchasePay(req,purchaseNumber){
   var getSalesSql = "select s.* from sales s where s.delete_flag = '0' and s.sales_purchase_id = '"+req.body.purchases_id+"' ";
   var getAllotsSql = "select a.* from allot a where a.allot_delete_flag = '0' and a.allot_purchase_id = '"+req.body.purchases_id+"' ";
 
-  if(req.body.refunds_real_money){
+  if(!util.isEmpty(req.body.refunds_real_money)){
     var realReturnMoney = req.body.refunds_real_money/purchaseNumber;
     var sales = DB.get("Sales");
     sales.executeSql(getSalesSql,function(err,result){//查询现有库存
@@ -163,7 +163,7 @@ function updatePurchasePay(req,purchaseNumber){
 function updateSalePay(req){
   var getSalesSql = "select s.*,d.product_return_money from sales s left join drugs d on d.product_code = s.product_code "+
                     "where s.delete_flag = '0' and s.sale_id = '"+req.body.sales_id+"' ";
-  if(req.body.refunds_real_money){
+  if(!util.isEmpty(req.body.refunds_real_money)){
     var sales = DB.get("Sales");
     sales.executeSql(getSalesSql,function(err,result){//查询现有库存
       if(err){
@@ -327,10 +327,10 @@ router.post("/exportRefundPurchase",function(req,res){
     },{caption:'未收积分',type:'number',
       beforeCellWrite:function(row, cellData){
         var t = row[15]?row[15]:0;
-        if(row[17]){
+        if(!util.isEmpty(row[17])){
           t = t - row[17];
         }
-        if(row[18]){
+        if(!util.isEmpty(row[18])){
           t = t - row[18];
         }
         t = t?Math.round(t*100)/100:0;
@@ -421,13 +421,13 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
   if(req.body.data.tag && req.body.data.tag != 'undefined'){
     sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
   }
-  if(req.body.data.batch_number){
+  if(!util.isEmpty(req.body.data.batch_number)){
     sql += "and p.batch_number = '"+req.body.data.batch_number+"'";
   }
-  if(req.body.data.overdue){
+  if(!util.isEmpty(req.body.data.overdue)){
     req.body.data.status="未收";
   }
-  if(req.body.data.status){
+  if(!util.isEmpty(req.body.data.status)){
     var s = req.body.data.status=="已收"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     sql += " and "+s;
   }
@@ -446,14 +446,14 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
     var end = new Date(req.body.data.makeMoneyTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(p.make_money_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.make_money_time,'%Y-%m-%d') <= '"+end+"')";
   }
-  if(req.body.data.overdue){//查询逾期未返款
+  if(!util.isEmpty(req.body.data.overdue)){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
   if(req.body.data.refundser){
@@ -469,10 +469,10 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
                    "on csr.drug_id = cdc.product_id where d.contacts_id = cdc.contacts_id";
     sql += " and exists("+contactIdSql+")";
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.time){
@@ -547,10 +547,10 @@ router.post("/exportRefundSale",function(req,res){
     },{caption:'未收积分',type:'number',
       beforeCellWrite:function(row, cellData){
         var t = row[16]?row[16]:0 ;
-        if(row[18]){
+        if(!util.isEmpty(row[18])){
           t = t - row[18];
         }
-        if(row[19]){
+        if(!util.isEmpty(row[19])){
           t = t - row[19];
         }
         t = t?Math.round(t*100)/100:0;
@@ -632,16 +632,16 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
             "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag ='0' "+
             "where s.group_id = '"+req.session.user[0].group_id+"' and s.sale_return_flag = '1' and s.delete_flag = '0' "+
             "and (r.refund_delete_flag = '0' or r.refund_delete_flag is null) and d.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag = '0'";
-  if(req.body.data.overdue){
+  if(!util.isEmpty(req.body.data.overdue)){
     req.body.data.status="未收";
   }
-  if(req.body.data.tag && req.body.data.tag != 'undefined'){
+  if(!util.isEmpty(req.body.data.tag) && req.body.data.tag != 'undefined'){
     sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
   }
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
-  if(req.body.data.status){
+  if(!util.isEmpty(req.body.data.status)){
     var s = req.body.data.status=="已收"?"r.refunds_real_time is not null && r.refunds_real_money is not null":"r.refunds_real_time is null && (r.refunds_real_money is null || r.refunds_real_money = '')";
     sql += " and "+s;
   }
@@ -649,16 +649,16 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
   if(req.session.user[0].data_authority == "2"){
     sql += " and s.sale_create_userid = '"+req.session.user[0].id+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.refundser){
+  if(!util.isEmpty(req.body.data.refundser)){
     //查询出与该返款人相关的所有联系人id
     var contactIdSql = "select cs.product_code from sales cs left join refunds cr on cs.sale_id = cr.sales_id where cs.group_id = '"+req.session.user[0].group_id+"' and cs.sale_return_flag = '1' ";
         contactIdSql += "and cr.refundser = '"+req.body.data.refundser+"'";
@@ -667,7 +667,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
                    "on csr.product_code = cdc.product_code where d.contacts_id = cdc.contacts_id";
     sql += " and exists("+contactIdSql+")";
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.salesTime){
@@ -685,7 +685,7 @@ var tagSql = "select tagd.drug_id,concat(GROUP_CONCAT(tagd.tag_id),',') tag_ids 
     var end = new Date(req.body.data.returnTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+end+"')";
   }
-  if(req.body.data.overdue){//查询逾期未返款
+  if(!util.isEmpty(req.body.data.overdue)){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(r.refunds_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }

@@ -6,5 +6,6 @@ module.exports = {
 					'purchase_pay_policy_floor_price',
 					'purchase_pay_policy_tax',
 					'purchase_pay_policy_price',
+					'purchase_pay_policy_make_price',
 					'purchase_pay_policy_remark']
 };

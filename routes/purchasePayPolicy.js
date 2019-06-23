@@ -102,9 +102,9 @@ router.post("/exportSalesRefund",function(req,res){
       logger.error(req.session.user[0].realname + "导出销售记录出错" + err);
     }
     for(var i = 0 ; i< result.length;i++){
-      if(result[i].product_type == '佣金' && result[i].refunds_real_time && result[i].refunds_real_money){
+      if(result[i].product_type == '佣金' && result[i].refunds_real_time && !util.isEmpty(result[i].refunds_real_money)){
         	result[i].realMoney = util.div(result[i].refunds_real_money,result[i].sale_num,2);
-      }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && result[i].refunds_real_money1){
+      }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && !util.isEmpty(result[i].refunds_real_money1)){
          result[i].realMoney = util.div(result[i].refunds_real_money1,result[i].purchase_number,2);
       }else{
          result[i].realMoney = 0;
@@ -132,9 +132,9 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'政策积分',type:'number'
     },{caption:'费用票/补点',type:'number',
       beforeCellWrite:function(row, cellData){
-        if(row[17] == '佣金' && cellData){
+        if(row[17] == '佣金' && !util.isEmpty(cellData)){
           return cellData;
-        }else if(row[17] == '高打' && row[19]){
+        }else if(row[17] == '高打' && !util.isEmpty(row[19])){
           var temp = (row[19]/row[18])*row[7];
           return Math.round(temp*100)/100;
         }else{
@@ -144,9 +144,9 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'应付积分',type:'number',
       beforeCellWrite:function(row, cellData){
         var temp = 0;
-        if(row[17] == '佣金' && cellData){
+        if(row[17] == '佣金' && !util.isEmpty(cellData)){
           temp = row[12];
-        }else if(row[17] == '高打' && row[19]){
+        }else if(row[17] == '高打' && !util.isEmpty(row[19])){
           var temp = (row[19]/row[18])*row[7];
           temp = Math.round(temp*100)/100;
         }
@@ -267,16 +267,16 @@ function getQuerySql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and s.sale_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonNam)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
-  if(req.body.data.productType){
+  if(!util.isEmpty(req.body.data.productType)){
     var type = req.body.data.productType;
     if(typeof type == 'object'){
       var t = type.join(",").replace(/,/g,"','");
@@ -285,19 +285,19 @@ function getQuerySql(req){
       sql += " and d.product_type in ('"+type+"')"
     }
   }
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.sale_type){
+  if(!util.isEmpty(req.body.data.sale_type)){
     sql += " and s.sale_type = '"+req.body.data.sale_type+"'"
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.sale_contact_id){
+  if(!util.isEmpty(req.body.data.sale_contact_id)){
     sql += " and sp.sale_policy_contact_id = '"+req.body.data.sale_contact_id+"'"
   }
   if(req.body.data.salesTime){
@@ -313,14 +313,82 @@ function getQuerySql(req){
   if(req.body.data.sale_return_flag){
     sql += req.body.data.sale_return_flag=="已付"?" and s.sale_return_time is not null":" and s.sale_return_time is null";
   }
-  if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
+  if(!util.isEmpty(req.body.data.rate_gap) && req.body.data.rate_gap!=0){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }
-  if(req.body.data.salesReturnFlag){
+  if(!util.isEmpty(req.body.data.salesReturnFlag)){
     sql += " and sp.sale_policy_money is not null and sp.sale_policy_money !=''";
   }
   return sql;
 }
+
+router.post("/editPurchasePayBatchPolicy",function(req,res){
+  if(!(req.session.user[0].authority_code.indexOf(",157,") > 0 || req.session.user[0].authority_code.indexOf(",160,") > 0) ){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var purchasePayPolicy = DB.get("PurchasePayPolicy");
+  var sql = "insert into purchase_pay_policy(purchase_pay_contact_id,purchase_pay_policy_drug_id,purchase_pay_policy_floor_price,purchase_pay_policy_tax,purchase_pay_policy_price,purchase_pay_policy_remark,purchase_pay_policy_make_price) values ";
+  var drug = req.body.purchasePayDrugs;
+  var ids = "",contactsIds="";
+  for(var i = 0 ; i < drug.length ;i++){
+    contactsIds += "'"+drug[i].contacts_id+"',";
+    ids += "'"+drug[i].id+"',";
+    sql += "('"+drug[i].contacts_id+"','"+drug[i].id+"','"+req.body.purchase_pay_policy_floor_price+"','"+req.body.purchase_pay_policy_tax+"','"+req.body.purchase_pay_policy_price+"','"+req.body.purchase_pay_policy_remark+"','"+req.body.purchase_pay_policy_make_price+"'),";
+  }
+  sql = sql.substring(0,sql.length-1);
+  sql +=" ON DUPLICATE KEY UPDATE purchase_pay_policy_floor_price=VALUES(purchase_pay_policy_floor_price),purchase_pay_policy_tax=VALUES(purchase_pay_policy_tax),purchase_pay_policy_price=VALUES(purchase_pay_policy_price),"+
+            "purchase_pay_policy_remark=VALUES(purchase_pay_policy_remark),purchase_pay_policy_make_price=VALUES(purchase_pay_policy_make_price)";
+  purchasePayPolicy.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "批量更新预付招商政策药品政策，出错" + err);
+    }
+    var message = req.session.user[0].realname+"批量新增、修改预付招商政策下游。";
+    var front_message = req.body.front_message?req.body.front_message:"-";
+    delete req.body.front_message;
+    util.saveLogs(req.session.user[0].group_id,front_message,JSON.stringify(req.body),message);
+    res.json({"code":"000000",message:""});
+  });
+  contactsIds = contactsIds.substring(0,contactsIds.length-1);
+  ids = ids.substring(0,ids.length-1);
+
+  var getPurchasePaySql = "select * from purchase_pay "+
+                      "where purchase_pay_group_id = '"+req.session.user[0].group_id+"' and purchase_pay_contact_id in ("+contactsIds+") "+
+                      "and purchase_pay_drug_id in ("+ids+") and (purchase_pay_real_account is null or purchase_pay_real_account = '') "+
+                      "and (purchase_pay_policy_price is null or purchase_pay_should_pay_money is null or "+
+                      "purchase_pay_policy_price = '' or purchase_pay_should_pay_money = '' or "+
+                      "purchase_pay_policy_price = '0')";
+  purchasePayPolicy.executeSql(getPurchasePaySql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "批量更新政策后，更新预付招商应付更新出错" + err);
+    }
+    var updatePurchasePay = "insert into purchase_pay (purchase_pay_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_group_id) values ";
+    var updateFlag = false;
+    for(var i = 0 ; i < result.length;i++){
+      updateFlag = true;
+      var price=0,money=0;
+      if(!util.isEmpty(req.body.purchase_pay_policy_floor_price) && !util.isEmpty(req.body.purchase_pay_policy_tax) && !util.isEmpty(req.body.purchase_pay_policy_make_price)){
+        price = (result[i].purchase_pay_price-req.body.purchase_pay_policy_floor_price)*(1-req.body.purchase_pay_policy_tax/100);
+        money = price * result[i].purchase_pay_number -result[i].purchase_pay_other_money;
+      }else if(!util.isEmpty(req.body.purchase_pay_policy_price) ){
+        price = req.body.purchase_pay_policy_price;
+        money = price * result[i].purchase_pay_number -result[i].purchase_pay_other_money;
+      }
+      price = Math.round(price*100)/100;
+      money = Math.round(money*100)/100;
+      updatePurchasePay+="('"+result[i].purchase_pay_id+"','"+price+"','"+money+"','"+result[i].purchase_pay_group_id+"'),"
+    }
+    if(updateFlag){
+      updatePurchasePay = updatePurchasePay.substring(0,updatePurchasePay.length-1);
+      updatePurchasePay +=" on duplicate key update purchase_pay_group_id=values(purchase_pay_group_id),purchase_pay_policy_price=values(purchase_pay_policy_price),purchase_pay_should_pay_money=values(purchase_pay_should_pay_money)";
+      purchasePayPolicy.executeSql(updatePurchasePay,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "批量更新政策后，将所有的预付招商记录更新出错" + err);
+        }
+      });
+    }
+  });
+});
 //新增政策
 router.post("/editPurchasePayPolicy",function(req,res){
   if(!(req.session.user[0].authority_code.indexOf(",157,") > 0 || req.session.user[0].authority_code.indexOf(",160,") > 0) ){
@@ -328,10 +396,10 @@ router.post("/editPurchasePayPolicy",function(req,res){
     return ;
   }
   var purchasePayPolicy = DB.get("PurchasePayPolicy");
-  var sql = "insert into purchase_pay_policy(purchase_pay_contact_id,purchase_pay_policy_drug_id,purchase_pay_policy_floor_price,purchase_pay_policy_tax,purchase_pay_policy_price,purchase_pay_policy_remark";
-      sql+=") values ('"+req.body.purchase_pay_contact_id+"','"+req.body.purchase_pay_policy_drug_id+"','"+req.body.purchase_pay_policy_floor_price+"','"+req.body.purchase_pay_policy_tax+"','"+req.body.purchase_pay_policy_price+"','"+req.body.purchase_pay_policy_remark+"'";
+  var sql = "insert into purchase_pay_policy(purchase_pay_contact_id,purchase_pay_policy_drug_id,purchase_pay_policy_floor_price,purchase_pay_policy_tax,purchase_pay_policy_price,purchase_pay_policy_remark,purchase_pay_policy_make_price";
+      sql+=") values ('"+req.body.purchase_pay_contact_id+"','"+req.body.purchase_pay_policy_drug_id+"','"+req.body.purchase_pay_policy_floor_price+"','"+req.body.purchase_pay_policy_tax+"','"+req.body.purchase_pay_policy_price+"','"+req.body.purchase_pay_policy_remark+"','"+req.body.purchase_pay_policy_make_price+"'";
       sql +=") ON DUPLICATE KEY UPDATE purchase_pay_policy_floor_price=VALUES(purchase_pay_policy_floor_price),purchase_pay_policy_tax=VALUES(purchase_pay_policy_tax),purchase_pay_policy_price=VALUES(purchase_pay_policy_price),"+
-            "purchase_pay_policy_remark=VALUES(purchase_pay_policy_remark)";
+            "purchase_pay_policy_remark=VALUES(purchase_pay_policy_remark),purchase_pay_policy_make_price=VALUES(purchase_pay_policy_make_price)";
   purchasePayPolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "更新预付招商政策药品政策，出错" + err);
@@ -344,15 +412,40 @@ router.post("/editPurchasePayPolicy",function(req,res){
     res.json({"code":"000000",message:""});
   });
 
-  var saleHospital = "update purchase_pay set purchase_pay_policy_price = '"+req.body.purchase_pay_policy_price+"',purchase_pay_should_pay_money=purchase_pay_number*"+req.body.purchase_pay_policy_price+" "+
+  var getPurchasePaySql = "select * from purchase_pay "+
                       "where purchase_pay_group_id = '"+req.session.user[0].group_id+"' and purchase_pay_contact_id = '"+req.body.purchase_pay_contact_id+"' "+
                       "and purchase_pay_drug_id = '"+req.body.purchase_pay_policy_drug_id+"' and (purchase_pay_real_account is null or purchase_pay_real_account = '') "+
                       "and (purchase_pay_policy_price is null or purchase_pay_should_pay_money is null or "+
                       "purchase_pay_policy_price = '' or purchase_pay_should_pay_money = '' or "+
                       "purchase_pay_policy_price = '0')";
-  purchasePayPolicy.executeSql(saleHospital,function(err,result){
+  purchasePayPolicy.executeSql(getPurchasePaySql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "更新政策后，更新预付招商应付更新出错" + err);
+    }
+    var updatePurchasePay = "insert into purchase_pay (purchase_pay_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_group_id) values ";
+    var updateFlag = false;
+    for(var i = 0 ; i < result.length;i++){
+      updateFlag = true;
+      var price=0,money=0;
+      if(!util.isEmpty(req.body.purchase_pay_policy_floor_price) && !util.isEmpty(req.body.purchase_pay_policy_tax) && !util.isEmpty(req.body.purchase_pay_policy_make_price)){
+        price = (result[i].purchase_pay_price-req.body.purchase_pay_policy_floor_price)*(1-req.body.purchase_pay_policy_tax/100);
+        money = price * result[i].purchase_pay_number -result[i].purchase_pay_other_money;
+      }else if(!util.isEmpty(req.body.purchase_pay_policy_price) ){
+        price = req.body.purchase_pay_policy_price;
+        money = price * result[i].purchase_pay_number -result[i].purchase_pay_other_money;
+      }
+      price = Math.round(price*100)/100;
+      money = Math.round(money*100)/100;
+      updatePurchasePay+="('"+result[i].purchase_pay_id+"','"+price+"','"+money+"','"+result[i].purchase_pay_group_id+"'),"
+    }
+    if(updateFlag){
+      updatePurchasePay = updatePurchasePay.substring(0,updatePurchasePay.length-1);
+      updatePurchasePay +=" on duplicate key update purchase_pay_group_id=values(purchase_pay_group_id),purchase_pay_policy_price=values(purchase_pay_policy_price),purchase_pay_should_pay_money=values(purchase_pay_should_pay_money)";
+      purchasePayPolicy.executeSql(updatePurchasePay,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "更新政策后，将所有的预付招商记录更新出错" + err);
+        }
+      });
     }
   });
 });
@@ -404,7 +497,12 @@ router.post("/getPurchasePayPolicy",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  var sql = getPurchasePayPolicySql(req);
+  var sql = "";
+  if(req.body.data.requestFrom == "drugsPurchasePayPolicy"){
+    sql = getHospitalPurchasePayPolicySql(req);
+  }else{
+    sql = getPurchasePayPolicySql(req);
+  }
   var purchasePayPolicy = DB.get("PurchasePayPolicy");
   purchasePayPolicy.countBySql(sql,function(err,result){
     if(err){
@@ -412,7 +510,11 @@ router.post("/getPurchasePayPolicy",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    if(req.body.data.requestFrom == "drugsPurchasePayPolicy"){
+      sql += " order by d.contact_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    }else{
+      sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    }
     purchasePayPolicy.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询预付招商政策分页列表，出错" + err);
@@ -422,18 +524,33 @@ router.post("/getPurchasePayPolicy",function(req,res){
     });
   });
 });
+function getHospitalPurchasePayPolicySql(req){
+   var drugsSql = "select dd.*,c.contacts_name,c.contacts_id as contacts_id1,c.contact_create_time from drugs dd,contacts c where dd.product_code = '"+req.body.data.productCode+"' and dd.delete_flag='0' and dd.group_id = '"+req.session.user[0].group_id+"' "+
+                 "and c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' and c.contact_type like '%业务员%' ";
+   var sql = "select * from ("+drugsSql+") d left join purchase_pay_policy ppp on ppp.purchase_pay_contact_id = d.contacts_id1 and d.product_id = ppp.purchase_pay_policy_drug_id "+
+             "left join business b on d.product_business = b.business_id where 1=1 ";
+   if(!util.isEmpty(req.body.data.contactId)){
+     sql += " and ppp.purchase_pay_contact_id = '"+req.body.data.contactId+"'";
+   }
+   if(req.body.data.purchase_pay_query_type == "已设置"){
+     sql += " and ppp.purchase_pay_policy_price is not null and ppp.purchase_pay_policy_price !=''";
+   }else if(req.body.data.purchase_pay_query_type == "未设置"){
+     sql += " and (ppp.purchase_pay_policy_price is null or ppp.purchase_pay_policy_price ='')";
+   }
+   return sql;
+}
 function getPurchasePayPolicySql(req){
   //药品连接政策
   var sql = "select * from purchase_pay_policy ppp left join drugs d on d.product_id = ppp.purchase_pay_policy_drug_id "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type = '高打' and ppp.purchase_pay_policy_price is not null and ppp.purchase_pay_policy_price !=''";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.sale_contact_id){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and ppp.purchase_pay_contact_id = '"+req.body.data.contactId+"'";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接业务员
@@ -472,10 +589,10 @@ function getPurchasePayPolicyDrugsSql(req){
             " and (ppp.purchase_pay_contact_id = '"+req.body.data.contactId+"' or ppp.purchase_pay_contact_id is null) "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type ='高打' and (ppp.purchase_pay_policy_price is null or ppp.purchase_pay_policy_price ='') ";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接商业

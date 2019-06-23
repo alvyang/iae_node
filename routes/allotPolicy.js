@@ -21,7 +21,7 @@ router.post("/exportAllotRefund",function(req,res){
     }
     for(var i = 0 ; i< result.length;i++){
       result[i].allot_return_price = result[i].allot_return_price?result[i].allot_return_price:result[i].allot_policy_money;
-      if(result[i].refunds_real_time && result[i].refunds_real_money){
+      if(result[i].refunds_real_time && !util.isEmpty(result[i].refunds_real_money)){
         var temp = result[i].refunds_real_money/result[i].purchase_number;
          result[i].realMoney = Math.round(temp*100)/100;
       }else{
@@ -144,19 +144,19 @@ function getAllotSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and a.allot_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += "and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.allot_hospital){
+  if(!util.isEmpty(req.body.data.allot_hospital)){
     sql += " and a.allot_hospital = '"+req.body.data.allot_hospital+"'"
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
   if(req.body.data.allot_time){
@@ -169,10 +169,10 @@ function getAllotSql(req){
     var end = new Date(req.body.data.allotReturnTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_return_time,'%Y-%m-%d') <= '"+end+"'";
   }
-  if(req.body.data.allot_return_flag){
+  if(!util.isEmpty(req.body.data.allot_return_flag)){
     sql += req.body.data.allot_return_flag=="已付"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";
   }
   return sql;
@@ -375,7 +375,12 @@ router.post("/getAllotPolicy",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  var sql = getAllotPolicySql(req);
+  var sql = "";
+  if(req.body.data.requestFrom == "drugsAllotPolicy"){
+    sql = getHospitalAllotPolicySql(req);
+  }else{
+    sql = getAllotPolicySql(req);
+  }
   var salePolicy = DB.get("SalePolicy");
   salePolicy.countBySql(sql,function(err,result){
     if(err){
@@ -383,7 +388,11 @@ router.post("/getAllotPolicy",function(req,res){
     }
     req.body.page.totalCount = result;
     req.body.page.totalPage = Math.ceil(req.body.page.totalCount / req.body.page.limit);
-    sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    if(req.body.data.requestFrom == "drugsAllotPolicy"){
+      sql += " order by d.hospital_create_time desc,d.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    }else{
+      sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+    }
     salePolicy.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询调货医院药品政策分页列表，出错" + err);
@@ -393,21 +402,44 @@ router.post("/getAllotPolicy",function(req,res){
     });
   });
 });
+function getHospitalAllotPolicySql(req){
+  var drugSql = "select dd.*,h.hospital_name,h.hospital_id,h.hospital_create_time from drugs dd,hospitals h where dd.product_code = '"+req.body.data.productCode+"' and dd.delete_flag='0' and dd.group_id = '"+req.session.user[0].group_id+"' "+
+                "and h.delete_flag = '0' and h.group_id = '"+req.session.user[0].group_id+"' and h.hospital_type like '%调货单位%'";
+  //药品连接政策
+  var sql = "select hpr.*,ap.*,d.*,c.contacts_name,b.* from ("+drugSql+") d "+
+            "left join allot_policy ap on ap.allot_hospital_id = d.hospital_id and d.product_id = ap.allot_drug_id "+
+            "left join contacts c on ap.allot_policy_contact_id = c.contacts_id "+
+            "left join business b on d.product_business = b.business_id "+
+            "left join hospital_policy_record hpr on ap.allot_drug_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_hospital_id = ap.allot_hospital_id "+
+            "where 1=1 ";
+  if(req.body.data.allot_policy_query_type == "已设置"){
+    sql += " and ap.allot_policy_money != '' and ap.allot_policy_money is not null ";
+  }else if(req.body.data.allot_policy_query_type == "未设置"){
+    sql += " and (ap.allot_policy_money = '' or ap.allot_policy_money is null) ";
+  }
+  if(!util.isEmpty(req.body.data.hospitalId)){
+    sql += " and ap.allot_hospital_id = '"+req.body.data.hospitalId+"' ";
+  }
+  if(!util.isEmpty(req.body.data.sale_contact_id)){
+    sql += " and ap.allot_policy_contact_id = '"+req.body.data.sale_contact_id+"'";
+  }
+  return sql;
+}
 function getAllotPolicySql(req){
   //药品连接政策
   var sql = "select * from allot_policy ap left join drugs d on d.product_id = ap.allot_drug_id "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type in ('高打') and ap.allot_policy_money != '' and ap.allot_policy_money is not null ";
-  if(req.body.data.hospitalId){
+  if(!util.isEmpty(req.body.data.hospitalId)){
     sql += " and ap.allot_hospital_id = '"+req.body.data.hospitalId+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and ap.allot_policy_contact_id = '"+req.body.data.contactId+"'";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接业务员
@@ -450,10 +482,10 @@ function getAllotPolicySqlDrugs(req){
             " and (ap.allot_hospital_id = '"+req.body.data.hospitalId+"' or ap.allot_hospital_id is null) "+
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type in ('高打') and (ap.allot_policy_money is null or ap.allot_policy_money ='') ";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接业务员

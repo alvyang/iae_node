@@ -84,10 +84,10 @@ router.post("/getHospitals",function(req,res){
   }
   var hospitals = DB.get("Hospitals");
   var sql = "select * from hospitals h where h.delete_flag = '0' and h.group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.data.hospital_name){
+  if(!util.isEmpty(req.body.data.hospital_name)){
     sql += " and h.hospital_name like '%"+req.body.data.hospital_name+"%'";
   }
-  if(req.body.data.hospital_type){
+  if(!util.isEmpty(req.body.data.hospital_type)){
     sql += " and h.hospital_type like '%"+req.body.data.hospital_type+"%'";
   }
   hospitals.countBySql(sql,function(err,result){
@@ -110,7 +110,7 @@ router.post("/getHospitals",function(req,res){
 router.post("/getAllHospitals",function(req,res){
   var hospitals = DB.get("Hospitals");
   var sql = "select * from hospitals h where h.group_id = '"+req.session.user[0].group_id+"' and h.delete_flag = '0' ";
-  if(req.body.hospital_type){
+  if(!util.isEmpty(req.body.hospital_type)){
     sql += "and h.hospital_type like '%"+req.body.hospital_type+"%'";
   }
   hospitals.executeSql(sql,function(err,result){

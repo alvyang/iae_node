@@ -78,18 +78,18 @@ router.post("/getReturnMoney",function(req,res){
   if(req.session.user[0].data_authority == "2"){
     sql += "and hrm.return_money_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     sql += " and hrm.return_money_hospital ='"+req.body.data.hospitalsId+"'";
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and hrm.return_money_business = '"+req.body.data.business+"'";
   }
   var start = new Date(req.body.data.startTime).format("yyyy-MM-dd");
-  if(req.body.data.startTime){
+  if(!util.isEmpty(req.body.data.startTime)){
     sql += " and DATE_FORMAT(hrm.return_money_time,'%Y-%m-%d') >= '"+start+"'";
   }
   var end = new Date(req.body.data.endTime).format("yyyy-MM-dd");
-  if(req.body.data.endTime){
+  if(!util.isEmpty(req.body.data.endTime)){
     sql += " and DATE_FORMAT(hrm.return_money_time,'%Y-%m-%d') <= '"+end+"'";
   }
   hospitalReturnMoney.countBySql(sql,function(err,result){

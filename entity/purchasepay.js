@@ -33,5 +33,7 @@ module.exports = {
 					'purchase_pay_remark',
 					'purchase_pay_return_remark',
 					'purchase_pay_service_charge',
-					'purchase_pay_delete_flag1']
+					'purchase_pay_delete_flag1',
+					'purchase_pay_send_time',
+					'purchase_pay_arrived_time']
 };

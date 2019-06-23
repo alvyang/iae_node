@@ -113,10 +113,10 @@ router.post("/getUsers",function(req,res){
   if(req.session.user[0].username != 'admin'){
     sql+=" and u.group_id = '"+req.session.user[0].group_id+"'  "
   }
-  if(req.body.data.groupId){
+  if(!util.isEmpty(req.body.data.groupId)){
     sql+=" and u.group_id = '"+req.body.data.groupId+"'  "
   }
-  if(req.body.data.username){
+  if(!util.isEmpty(req.body.data.username)){
     sql += " and u.username like '%"+req.body.data.username+"%'";
   }
   user.countBySql(sql,function(err,result){

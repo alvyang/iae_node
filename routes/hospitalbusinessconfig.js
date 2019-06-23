@@ -64,10 +64,10 @@ function getBusinessConfig(req){
   var sql = "select * from hospitals h join business b where h.delete_flag = '0' and h.group_id = '"+req.session.user[0].group_id+"' "+
             "and b.business_delete_flag = '0' and b.business_group_id = '"+req.session.user[0].group_id+"' "+
             "and h.hospital_type like '%销售单位%'";
-  if(req.body.data.business_id){
+  if(!util.isEmpty(req.body.data.business_id)){
     sql += "and b.business_id = '"+req.body.data.business_id+"'";
   }
-  if(req.body.data.hospital_id){
+  if(!util.isEmpty(req.body.data.hospital_id)){
     sql += "and h.hospital_id = '"+req.body.data.hospital_id+"'";
   }
   //多对多查询 查询医院商业提成配置

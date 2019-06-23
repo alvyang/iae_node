@@ -12,17 +12,31 @@ router.get("/downloadErrorPurchasePays",function(req,res){
   var conf ={};
   conf.stylesXmlFile = "./utils/styles.xml";
   conf.name = "mysheet";
-  conf.cols = [{caption:'合同日期',type:'string'
+  conf.cols = [{caption:'合同日期',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'产品编号',type:'string'
   },{caption:'打款价',type:'number'
   },{caption:'预付数量',type:'number'
-  },{caption:'打款时间',type:'string'
+  },{caption:'打款时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
+  },{caption:'发货时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
+  },{caption:'到货时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'业务员',type:'string'
   },{caption:'补点/费用票',type:'string'
   },{caption:'错误信息',type:'string'
   }];
   var header = ['purchase_pay_contract_time','product_code','purchase_pay_price','purchase_pay_number','purchase_pay_time',
-                'purchase_pay_contact_name','purchase_pay_other_money','errorMessage'];
+                'purchase_pay_send_time','purchase_pay_arrived_time','purchase_pay_contact_name','purchase_pay_other_money','errorMessage'];
   var d = JSON.parse(req.session.errorSalesData);
 
   conf.rows = util.formatExcel(header,d);
@@ -63,7 +77,7 @@ router.post("/importPurchasePay",function(req,res){
         //新增采购记录
         var sql = "insert into purchase_pay(purchase_pay_id,purchase_pay_group_id,purchase_pay_create_time,purchase_pay_drug_id,purchase_pay_create_userid,purchase_pay_contract_time,"+
                   "purchase_pay_time,purchase_pay_price,purchase_pay_number,purchase_pay_money,purchase_pay_should_time,purchase_pay_should_price,purchase_pay_should_money,"+
-                  "purchase_pay_other_money,purchase_pay_contact_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_receive_remark) VALUES ";
+                  "purchase_pay_other_money,purchase_pay_contact_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_receive_remark,purchase_pay_send_time,purchase_pay_arrived_time) VALUES ";
 
         //新增返款流水和医院销售回款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
@@ -79,7 +93,7 @@ router.post("/importPurchasePay",function(req,res){
                  "'"+sData[i].purchase_pay_time+"','"+sData[i].purchase_pay_price+"','"+sData[i].purchase_pay_number+"','"+sData[i].purchase_pay_money+"',"+
                  "'"+sData[i].purchase_pay_should_time+"','"+sData[i].purchase_pay_should_price+"','"+sData[i].purchase_pay_should_money+"',"+
                  "'"+sData[i].purchase_pay_other_money+"','"+sData[i].purchase_pay_contact_id+"','"+sData[i].purchase_pay_policy_price+"',"+
-                 "'"+sData[i].purchase_pay_should_pay_money+"',''),"
+                 "'"+sData[i].purchase_pay_should_pay_money+"','','"+sData[i].purchase_pay_send_time+"','"+sData[i].purchase_pay_arrived_time+"'),"
 
           bankDetailSql += "('"+uuid.v1()+"','1','"+sData[i].purchase_pay_group_id+"','purchase_pay_"+sData[i].purchase_pay_id+"','"+createTime+"','"+createUserId+"'),"+
                            "('"+uuid.v1()+"','1','"+sData[i].purchase_pay_group_id+"','purchase_pay_pay_"+sData[i].purchase_pay_id+"','"+createTime+"','"+createUserId+"'),";
@@ -123,21 +137,26 @@ function verData(req,purchases){
     d.purchase_pay_other_money=purchases[i].purchase_pay_other_money;
     d.purchase_pay_drug_id = purchases[i].product_id;
     d.purchase_pay_contact_id = purchases[i].purchase_pay_contact_id;
-    d.purchase_pay_contract_time = new Date(purchases[i].purchase_pay_contract_time).format("yyyy-MM-dd");
-    d.purchase_pay_time = new Date(purchases[i].purchase_pay_time).format("yyyy-MM-dd");
-    if(!d.purchase_pay_contract_time || !d.product_code ||!d.purchase_pay_price ||!d.purchase_pay_number
-        ||!d.purchase_pay_time||!d.purchase_pay_contact_name){
-      d.errorMessage = "合同日期、产品编号、打款价、预付数量、打款时间、业务员为必填项";
+    d.purchase_pay_send_time = purchases[i].purchase_pay_send_time;
+    d.purchase_pay_arrived_time = purchases[i].purchase_pay_arrived_time;
+
+    if(util.isEmpty(d.purchase_pay_contract_time) || util.isEmpty(d.product_code) ||util.isEmpty(d.purchase_pay_price) ||util.isEmpty(d.purchase_pay_number)
+        ||util.isEmpty(d.purchase_pay_time)||util.isEmpty(d.purchase_pay_contact_name) || util.isEmpty(d.purchase_pay_send_time) || util.isEmpty(d.purchase_pay_arrived_time)){
+      d.errorMessage = "合同日期、产品编号、打款价、预付数量、打款时间、发货时间、到货时间、业务员为必填项";
       errData.push(d);
       continue;
     }
+    d.purchase_pay_contract_time = new Date(purchases[i].purchase_pay_contract_time).format("yyyy-MM-dd");
+    d.purchase_pay_time = new Date(purchases[i].purchase_pay_time).format("yyyy-MM-dd");
+    d.purchase_pay_send_time = new Date(purchases[i].purchase_pay_send_time).format("yyyy-MM-dd");
+    d.purchase_pay_arrived_time = new Date(purchases[i].purchase_pay_arrived_time).format("yyyy-MM-dd");
     //验证编码是否存在
-    if(!d.purchase_pay_drug_id){
+    if(util.isEmpty(d.purchase_pay_drug_id)){
       d.errorMessage = "产品编码不存在";
       errData.push(d);
       continue;
     }
-    if(!d.purchase_pay_contact_id){
+    if(util.isEmpty(d.purchase_pay_contact_id)){
       d.errorMessage = "业务员不存在";
       errData.push(d);
       continue;
@@ -147,23 +166,29 @@ function verData(req,purchases){
     d.purchase_pay_group_id = req.session.user[0].group_id;
     d.purchase_pay_create_userid = req.session.user[0].id;
     d.purchase_pay_create_time = new Date().format("yyyy-MM-dd  hh:mm:ss");
-    if(purchases[i].product_return_money){
+    d.purchase_pay_money = util.mul(purchases[i].purchase_pay_price,purchases[i].purchase_pay_number,2);
+    //应收
+    if(!util.isEmpty(purchases[i].product_floor_price) && !util.isEmpty(purchases[i].product_high_discount)){
+      d.purchase_pay_should_price = (purchases[i].purchase_pay_price - purchases[i].product_floor_price)*(100-purchases[i].product_high_discount)/100;
+      d.purchase_pay_should_money = util.mul(d.purchase_pay_should_price,purchases[i].purchase_pay_number,2);
+      d.purchase_pay_should_price = Math.round(d.purchase_pay_should_price*100)/100;
+    }else if(!util.isEmpty(purchases[i].product_return_money)){//应收金额
+      d.purchase_pay_should_price = purchases[i].product_return_money;
       d.purchase_pay_should_money = util.mul(purchases[i].product_return_money,purchases[i].purchase_pay_number,2);
     }else{
-      d.purchase_pay_should_money = "";
+      d.purchase_pay_should_money = 0;
+      d.purchase_pay_should_price = 0;
     }
-    d.purchase_pay_should_price = purchases[i].product_return_money;
-    d.purchase_pay_money = util.mul(purchases[i].purchase_pay_price,purchases[i].purchase_pay_number,2);
-
     //应付金额
     purchases[i].purchase_pay_other_money = purchases[i].purchase_pay_other_money?purchases[i].purchase_pay_other_money:0;
     d.purchase_pay_policy_price = purchases[i].purchase_pay_policy_price?purchases[i].purchase_pay_policy_price:"";
-    if(purchases[i].purchase_pay_policy_floor_price && purchases[i].purchase_pay_policy_tax){
+    if(!util.isEmpty(purchases[i].purchase_pay_policy_floor_price) && !util.isEmpty(purchases[i].purchase_pay_policy_tax)&& !util.isEmpty(purchases[i].purchase_pay_price)){
       var t1 = purchases[i].purchase_pay_price - purchases[i].purchase_pay_policy_floor_price;
       var t2 = t1*(1-purchases[i].purchase_pay_policy_tax/100);
-      var t3 = t2 - purchases[i].purchase_pay_other_money;
+      var t3 = t2*purchases[i].purchase_pay_number - purchases[i].purchase_pay_other_money;
+      d.purchase_pay_policy_price = Math.round(t2*100)/100;
       d.purchase_pay_should_pay_money = Math.round(t3*100)/100;
-    }else if(purchases[i].purchase_pay_policy_price){
+    }else if(!util.isEmpty(purchases[i].purchase_pay_policy_price)){
       var t = purchases[i].purchase_pay_policy_price*purchases[i].purchase_pay_number - purchases[i].purchase_pay_other_money;
       d.purchase_pay_should_pay_money = Math.round(t*100)/100;
     }else{
@@ -210,6 +235,8 @@ function getPurchasePayData(req,purchases){
               result[j].purchase_pay_time=d.purchase_pay_time;
               result[j].purchase_pay_contact_name = d.purchase_pay_contact_name;
               result[j].purchase_pay_other_money = d.purchase_pay_other_money;
+              result[j].purchase_pay_send_time = d.purchase_pay_send_time;
+              result[j].purchase_pay_arrived_time = d.purchase_pay_arrived_time;
               var temp = JSON.stringify(result[j]);
               f = false;
               purchasePayDrugsData.push(JSON.parse(temp));
@@ -287,8 +314,10 @@ function arrayToObject(sales){
     purchase_pay_price:sales[2],
     purchase_pay_number:sales[3],
     purchase_pay_time:sales[4]?sales[4]:"",
-    purchase_pay_contact_name:sales[5]?sales[5]:"",
-    purchase_pay_other_money:sales[6]?sales[6]:"",
+    purchase_pay_send_time:sales[5]?sales[5]:"",
+    purchase_pay_arrived_time:sales[6]?sales[6]:"",
+    purchase_pay_contact_name:sales[7]?sales[7]:"",
+    purchase_pay_other_money:sales[8]?sales[8]:"",
   }
 }
 //新增采购记录
@@ -302,6 +331,16 @@ router.post("/savePurchasesPay",function(req,res){
     req.body.purchase_pay_time = new Date(req.body.purchase_pay_time).format("yyyy-MM-dd");
   }else{
     delete req.body.purchase_pay_time;
+  }
+  if(req.body.purchase_pay_send_time){
+    req.body.purchase_pay_send_time = new Date(req.body.purchase_pay_send_time).format("yyyy-MM-dd");
+  }else{
+    delete req.body.purchase_pay_send_time;
+  }
+  if(req.body.purchase_pay_arrived_time){
+    req.body.purchase_pay_arrived_time = new Date(req.body.purchase_pay_arrived_time).format("yyyy-MM-dd");
+  }else{
+    delete req.body.purchase_pay_arrived_time;
   }
 
   req.body.purchase_pay_group_id = req.session.user[0].group_id;
@@ -317,17 +356,26 @@ router.post("/savePurchasesPay",function(req,res){
     var rst = util.getReturnTime(new Date(req.body.purchase_pay_time),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
     req.body.purchase_pay_should_time = rst.format("yyyy-MM-dd");
   }
-  if(req.body.product_return_money){//应收金额
+  //应收
+  if(!util.isEmpty(req.body.product_floor_price) && !util.isEmpty(req.body.product_high_discount)){
+    req.body.purchase_pay_should_price = (req.body.purchase_pay_price - req.body.product_floor_price)*(100-req.body.product_high_discount)/100;
+    req.body.purchase_pay_should_money = util.mul(req.body.purchase_pay_should_price,req.body.purchase_pay_number,2);
+    req.body.purchase_pay_should_price = Math.round(req.body.purchase_pay_should_price*100)/100;
+  }else if(!util.isEmpty(req.body.product_return_money)){//应收金额
     req.body.purchase_pay_should_price = req.body.product_return_money;
     req.body.purchase_pay_should_money = util.mul(req.body.product_return_money,req.body.purchase_pay_number,2);
+  }else{
+    req.body.purchase_pay_should_money = 0;
+    req.body.purchase_pay_should_price = 0;
   }
   //应付金额
   req.body.purchase_pay_other_money = req.body.purchase_pay_other_money?req.body.purchase_pay_other_money:0;
   req.body.purchase_pay_policy_price = req.body.purchase_pay_policy_price?req.body.purchase_pay_policy_price:0;
-  if(req.body.purchase_pay_policy_floor_price && req.body.purchase_pay_policy_tax){
+  if(!util.isEmpty(req.body.purchase_pay_policy_floor_price) && !util.isEmpty(req.body.purchase_pay_policy_tax)&& !util.isEmpty(req.body.purchase_pay_price)){
     var t1 = req.body.purchase_pay_price - req.body.purchase_pay_policy_floor_price;
     var t2 = t1*(1-req.body.purchase_pay_policy_tax/100);
-    var t3 = t2 - req.body.purchase_pay_other_money;
+    var t3 = t2*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
+    req.body.purchase_pay_policy_price = Math.round(t2*100)/100; 
     req.body.purchase_pay_should_pay_money = Math.round(t3*100)/100;
   }else{
     var t = req.body.purchase_pay_policy_price*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
@@ -344,8 +392,6 @@ router.post("/savePurchasesPay",function(req,res){
     saveRefundsPurchase(req,result);
     res.json({"code":"000000",message:result});
   });
-
-
 });
 //新增 返款记录
 function saveRefundsPurchase(req,id){
@@ -390,7 +436,7 @@ router.post("/editPurchasePayReturn",function(req,res){
     purchase_pay_receive_account:req.body.account_number1,
     purchase_pay_receive_address:req.body.account_address1
   }
-  if(!req.body.purchase_pay_real_pay_time && !req.body.purchase_pay_real_pay_money && !req.body.purchase_pay_real_account){
+  if(!req.body.purchase_pay_real_pay_time && util.isEmpty(req.body.purchase_pay_real_pay_money) && util.isEmpty(req.body.purchase_pay_real_account)){
     delete params.purchase_pay_receive_name;
     delete params.purchase_pay_receive_account;
     delete params.purchase_pay_receive_address;
@@ -400,6 +446,7 @@ router.post("/editPurchasePayReturn",function(req,res){
   }else{
     delete params.purchase_pay_real_pay_time ;
   }
+
   var front_purchase = req.body.front_purchase;
   var purchasePay = DB.get("PurchasePay");
   purchasePay.update(params,'purchase_pay_id',function(err,result){
@@ -524,16 +571,31 @@ router.post("/editPurchasePay",function(req,res){
   }else{
     delete req.body.purchase_pay_time;
   }
-  if(req.body.product_return_money){//应收金额
+
+  if(!util.isEmpty(req.body.product_return_money)){//应收金额
     req.body.purchase_pay_should_money = util.mul(req.body.product_return_money,req.body.purchase_pay_number,2);
+  }
+
+  //应收
+  if(!util.isEmpty(req.body.product_floor_price) && !util.isEmpty(req.body.product_high_discount)){
+    req.body.purchase_pay_should_price = (req.body.purchase_pay_price - req.body.product_floor_price)*(100-req.body.product_high_discount)/100;
+    req.body.purchase_pay_should_money = util.mul(req.body.purchase_pay_should_price,req.body.purchase_pay_number,2);
+    req.body.purchase_pay_should_price = Math.round(req.body.purchase_pay_should_price*100)/100;
+  }else if(!util.isEmpty(req.body.product_return_money)){//应收金额
+    req.body.purchase_pay_should_price = req.body.product_return_money;
+    req.body.purchase_pay_should_money = util.mul(req.body.product_return_money,req.body.purchase_pay_number,2);
+  }else{
+    req.body.purchase_pay_should_money = 0;
+    req.body.purchase_pay_should_price = 0;
   }
 
   //应付金额
   req.body.purchase_pay_other_money = req.body.purchase_pay_other_money?req.body.purchase_pay_other_money:0;
-  if(req.body.purchase_pay_policy_floor_price && req.body.purchase_pay_policy_tax){
+  if(!util.isEmpty(req.body.purchase_pay_policy_floor_price) && !util.isEmpty(req.body.purchase_pay_policy_tax)){
     var t1 = req.body.purchase_pay_price - req.body.purchase_pay_policy_floor_price;
     var t2 = t1*(1-req.body.purchase_pay_policy_tax/100);
-    var t3 = t2 - req.body.purchase_pay_other_money;
+    var t3 = t2*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
+    req.body.purchase_pay_policy_price = Math.round(t2*100)/100;
     req.body.purchase_pay_should_pay_money = Math.round(t3*100)/100;
   }else{
     var t = req.body.purchase_pay_policy_price*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
@@ -551,9 +613,17 @@ router.post("/editPurchasePay",function(req,res){
 		purchase_pay_contract_time:req.body.purchase_pay_contract_time,
 		purchase_pay_time:req.body.purchase_pay_time,
 		purchase_pay_receive_remark:req.body.purchase_pay_receive_remark,
+    purchase_pay_price:req.body.purchase_pay_price,
+    purchase_pay_policy_price:req.body.purchase_pay_policy_price
   }
   if(req.body.purchase_pay_should_time){
     params.purchase_pay_should_time = req.body.purchase_pay_should_time;
+  }
+  if(req.body.purchase_pay_send_time){
+    params.purchase_pay_send_time = new Date(req.body.purchase_pay_send_time).format("yyyy-MM-dd");
+  }
+  if(req.body.purchase_pay_arrived_time){
+    params.purchase_pay_arrived_time = new Date(req.body.purchase_pay_arrived_time).format("yyyy-MM-dd");
   }
   var front_purchase = req.body.front_purchase;
   var purchasePay = DB.get("PurchasePay");
@@ -643,6 +713,22 @@ router.post("/exportPurchasePayRefund",function(req,res){
           return "";
         }
       }
+    },{caption:'发货时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
+    },{caption:'到货时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
     },{caption:'积分',type:'number'
     },{caption:'补点/费用票',type:'number'
     },{caption:'应收时间',type:'string',
@@ -669,7 +755,7 @@ router.post("/exportPurchasePayRefund",function(req,res){
 
     var header = ['contacts_name1','purchase_pay_contract_time', 'product_supplier', 'product_common_name', 'product_specifications',
                  'product_makesmakers','product_unit','product_packing','product_price','purchase_pay_number','purchase_pay_price',
-                 'purchase_pay_money','purchase_pay_time','purchase_pay_should_price','purchase_pay_other_money','purchase_pay_should_time',
+                 'purchase_pay_money','purchase_pay_time','purchase_pay_send_time','purchase_pay_arrived_time','purchase_pay_should_price','purchase_pay_other_money','purchase_pay_should_time',
                  'purchase_pay_should_money','purchase_pay_real_time','purchase_pay_real_money','purchase_pay_refundser','account_number','purchase_pay_remark'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
@@ -713,12 +799,36 @@ router.post("/exportPurchasePay",function(req,res){
     },{caption:'预付数量',type:'number'
     },{caption:'打款价',type:'number'
     },{caption:'预付金额',type:'number'
+    },{caption:'打款时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
+    },{caption:'发货时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
+    },{caption:'到货时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
     },{caption:'中标价',type:'number'
     },{caption:'业务员',type:'string'
     }];
     var header = ['purchase_pay_contract_time', 'product_supplier', 'product_common_name', 'product_specifications',
                  'product_makesmakers','product_unit','product_packing','purchase_pay_number','purchase_pay_price',
-                 'purchase_pay_money','product_price','contacts_name1'];
+                 'purchase_pay_money','purchase_pay_time','purchase_pay_send_time','purchase_pay_arrived_time','product_price','contacts_name1'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出预付招商记录。"+conf.rows.length+"条";
@@ -770,13 +880,14 @@ router.post("/getPurchasePay",function(req,res){
   });
 });
 function getPurchasePaySql(req){
-  var sql = "select p.*,bus.business_name,c1.contacts_name as contacts_name1,c.contacts_name,d.product_price,"+
+  var sql = "select p.*,bus.business_name,c1.contacts_name as contacts_name1,c.contacts_name,d.product_price,d.product_floor_price,d.product_high_discount,"+
             "d.product_id,d.stock,d.product_code,d.product_mack_price,d.product_type,d.buyer,d.product_common_name,"+
             "d.product_specifications,d.product_supplier,d.product_makesmakers,d.product_unit,d.product_packing,d.product_return_money,"+
             "d.product_return_time_type,d.product_return_time_day,d.product_return_time_day_num,ba.account_number,"+
             "c1.account_name as account_name1,c1.account_number as account_number1,c1.account_address as account_address1,"+
-            "ba1.account_number as account_number2 "+
+            "ba1.account_number as account_number2,ppp.purchase_pay_policy_floor_price,ppp.purchase_pay_policy_tax "+
             "from purchase_pay p "+
+            "left join purchase_pay_policy ppp on ppp.purchase_pay_contact_id = p.purchase_pay_contact_id and ppp.purchase_pay_policy_drug_id = p.purchase_pay_drug_id "+
             "left join drugs d on p.purchase_pay_drug_id = d.product_id "+
             "left join business bus on d.product_business = bus.business_id "+
             "left join contacts c on d.contacts_id = c.contacts_id "+
@@ -798,38 +909,38 @@ function getPurchasePaySql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and p.purchase_pay_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.contactId1){
+  if(!util.isEmpty(req.body.data.contactId1)){
     sql += " and p.purchase_pay_contact_id = '"+req.body.data.contactId1+"'"
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.status){
+  if(!util.isEmpty(req.body.data.status)){
     var s = req.body.data.status=="已收"?"p.purchase_pay_real_time is not null && p.purchase_pay_real_money is not null":"p.purchase_pay_real_time is null && (p.purchase_pay_real_money is null || p.purchase_pay_real_money = '')";
     sql += " and "+s;
   }
-  if(req.body.data.payStatus){
+  if(!util.isEmpty(req.body.data.payStatus)){
     var s = req.body.data.payStatus=="已付"?"p.purchase_pay_real_account !='' && p.purchase_pay_real_pay_money !=''":"p.purchase_pay_real_account ='' && p.purchase_pay_real_pay_money = '' ";
     sql += " and "+s;
   }
-  if(req.body.data.time){
+  if(!util.isEmpty(req.body.data.time)){
     var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.purchase_pay_contract_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.purchase_pay_contract_time,'%Y-%m-%d') <= '"+end+"'";
   }
-  if(req.body.data.overdue){//查询逾期未返款
+  if(!util.isEmpty(req.body.data.overdue)){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.purchase_pay_should_time,'%Y-%m-%d') <= '"+nowDate+"'";
   }
@@ -843,7 +954,7 @@ function getPurchasePaySql(req){
     var end = new Date(req.body.data.realPayTime[1]).format("yyyy-MM-dd");
     sql += " and (DATE_FORMAT(p.purchase_pay_real_pay_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.purchase_pay_real_pay_time,'%Y-%m-%d') <= '"+end+"')";
   }
-  if(req.body.data.purchase_pay_refundser){
+  if(!util.isEmpty(req.body.data.purchase_pay_refundser)){
     //查询出与该返款人相关的所有联系人id
     var contactIdSql = "select p.purchase_pay_drug_id from purchase_pay p where p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' ";
         contactIdSql += "and p.purchase_pay_refundser = '"+req.body.data.purchase_pay_refundser+"'";

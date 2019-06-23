@@ -12,7 +12,7 @@ router.post("/saveBunsinessCommission",function(req,res){
   var businesscommission = DB.get("BusinessCommission");
   req.body.commission_group_id = req.session.user[0].group_id;
   req.body.commission_time = new Date(req.body.commission_time).format('yyyy-MM-dd');
-  if(req.body.commission_id){
+  if(!util.isEmpty(req.body.commission_id)){
     businesscommission.update(req.body,'commission_id',function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "修改商业成本率出错" + err);
@@ -101,10 +101,10 @@ function getBusinessCommissionSql(req){
   //连接查询销售表和商品表 用于取药品
   var sql = "select sd.*,d.product_business from sales sd left join drugs d on sd.product_code = d.product_code "+
             "where sd.delete_flag = '0' and sd.group_id = '"+req.session.user[0].group_id+"' and d.delete_flag='0' ";
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     sql += " and sd.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
   //按销售日分组查询，用于统计日均应收账款

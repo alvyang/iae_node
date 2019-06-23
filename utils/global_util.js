@@ -4,6 +4,17 @@ var pinyin = require('node-pinyin');
 var logger = require('../utils/logger');
 var uuid=require("node-uuid");
 
+exports.isEmpty = function(value){
+  if(typeof value == "string"){
+    value = value.replace(/\s/g,"");
+  }
+	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null"){
+		return true;
+	}else{
+		return false;
+	}
+}
+
 //计算应付
 exports.getShouldPayMoney = function(formula,price,money,percent,otherMoney,sp){
   otherMoney=otherMoney?otherMoney:0;

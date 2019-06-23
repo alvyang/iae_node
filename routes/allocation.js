@@ -13,7 +13,10 @@ router.get("/downloadErrorAllocation",function(req,res){
   var conf ={};
   conf.stylesXmlFile = "./utils/styles.xml";
   conf.name = "mysheet";
-  conf.cols = [{caption:'调拨日期',type:'string'
+  conf.cols = [{caption:'调拨日期',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'调拨前产品编号',type:'string'
   },{caption:'调拨前产品批号',type:'string'
   },{caption:'该批号入库时间（高打品种必填）',type:'string'
@@ -132,23 +135,23 @@ function verData(req,d){
   var correctData=[];
   var errData=[];
   for(var i = 0 ; i < d.length ; i++){
-    if(!d[i].allocation_time || !d[i].allocation_front_product_code ||!d[i].allocation_after_product_code ||
-        !d[i].batch_number ||!d[i].storage_time||!d[i].allocation_number){
+    if(util.isEmpty(d[i].allocation_time) || util.isEmpty(d[i].allocation_front_product_code) ||util.isEmpty(d[i].allocation_after_product_code) ||
+        util.isEmpty(d[i].batch_number) ||util.isEmpty(d[i].storage_time)||util.isEmpty(d[i].allocation_number)){
       d[i].errorMessage = "调拨日期、调拨前产品编号、调拨前产品批号、该批号入库时间、调拨后产品编码、调拨数量为必填项";
       errData.push(d[i]);
       continue;
     }
-    if(!d[i].allocation_front_drug_id){
+    if(util.isEmpty(d[i].allocation_front_drug_id)){
       d[i].errorMessage = "调拨前产品编号不存在";
       errData.push(d[i]);
       continue;
     }
-    if(!d[i].allocation_purchase_id){
+    if(util.isEmpty(d[i].allocation_purchase_id)){
       d[i].errorMessage = "调拨前产品编号，批号/入库时间错误或库存不足";
       errData.push(d[i]);
       continue;
     }
-    if(!d[i].allocation_after_drug_id){
+    if(util.isEmpty(d[i].allocation_after_drug_id)){
       d[i].errorMessage = "调拨后产品编号不存在";
       errData.push(d[i]);
       continue;
@@ -371,10 +374,10 @@ function getAllocationListSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and a.allocation_create_userid = '"+req.session.user[0].id+"' ";
   }
-  if(req.body.data.businessFront){
+  if(!util.isEmpty(req.body.data.businessFront)){
     sql += "and a.allocation_front_business_id = '"+req.body.data.businessFront+"' ";
   }
-  if(req.body.data.businessAfter){
+  if(!util.isEmpty(req.body.data.businessAfter)){
     sql += "and a.allocation_after_business_id = '"+req.body.data.businessAfter+"' ";
   }
   if(req.body.data.allocation_time){
@@ -382,7 +385,7 @@ function getAllocationListSql(req){
     var end = new Date(req.body.data.allocation_time[1]).format("yyyy-MM-dd");
     sql += "and DATE_FORMAT(a.allocation_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allocation_time,'%Y-%m-%d') <= '"+end+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += "and d.product_common_name like '%"+req.body.data.productCommonName+"%'";
   }
   return sql;
@@ -494,22 +497,22 @@ router.post("/getAllocationDrugs",function(req,res){
             "left join business bus on d.product_business = bus.business_id "+
             " where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
             " and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' and bs.batch_stock_number != 0";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.time){
+  if(!util.isEmpty(req.body.data.time)){
     var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(bs.batch_stock_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(bs.batch_stock_time,'%Y-%m-%d') <= '"+end+"'";

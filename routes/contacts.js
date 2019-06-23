@@ -84,10 +84,10 @@ router.post("/getContacts",function(req,res){
   }
   var contacts = DB.get("Contacts");
   var sql = "select * from contacts c where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.data.contacts_name){
+  if(!util.isEmpty(req.body.data.contacts_name)){
     sql += " and c.contacts_name like '%"+req.body.data.contacts_name+"%'";
   }
-  if(req.body.data.contact_type){
+  if(!util.isEmpty(req.body.data.contact_type)){
     sql += " and c.contact_type like '%"+req.body.data.contact_type+"%'";
   }
   contacts.countBySql(sql,function(err,result){
@@ -113,7 +113,7 @@ router.post("/getAllContacts",function(req,res){
   req.body.delete_flag = 0;
   var sql = "select * from contacts c where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' ";
   var type="(";
-  if(req.body.contact_type){
+  if(!util.isEmpty(req.body.contact_type)){
     for(var i = 0 ; i < req.body.contact_type.length ;i++){
       type+=" c.contact_type like '%"+req.body.contact_type[i]+"%' ||";
     }

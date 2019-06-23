@@ -72,19 +72,19 @@ function getSaleVariance(req){
   var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
             "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
             " and DATE_FORMAT(s.bill_date,'%Y-%m') >= '"+d[11]+"' and DATE_FORMAT(s.bill_date,'%Y-%m') <= '"+d[0]+"' ";
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     saleSql += " and d.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
@@ -98,16 +98,16 @@ function getSaleVariance(req){
         "and ds.product_makesmakers = s2.product_makesmakers "+
         "left join ("+dataSql+") sd on s2.bd = sd.all_day "+
         "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and ds.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   sql += " group by ds.product_common_name,ds.product_specifications,ds.product_makesmakers";
@@ -159,35 +159,35 @@ function getSaleOnYear(req){
   var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
             "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
             " and DATE_FORMAT(s.bill_date,'%Y-%m') in ("+date.dateStr+") ";
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     saleSql += " and d.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
   var sql = "select ds.product_common_name,ds.product_specifications,ds.product_makesmakers,s2.bd,s2.sm,s2.sn from drugs ds left join ("+saleSql+") s2 on ds.product_common_name = s2.product_common_name and ds.product_specifications = s2.product_specifications "+
             "and ds.product_makesmakers = s2.product_makesmakers "+
             "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and ds.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   return new Promise((resolve, reject) => {//查询所有药品编码
@@ -300,35 +300,35 @@ function getSaleAble(req){
   var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+
             "where s.group_id='"+req.session.user[0].group_id+"' and s.delete_flag='0' and d.group_id='"+req.session.user[0].group_id+"' and d.delete_flag='0'"+
             " and DATE_FORMAT(s.bill_date,'%Y-%m') >= '"+d[11]+"' and DATE_FORMAT(s.bill_date,'%Y-%m') <= '"+d[0]+"' ";
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     saleSql += " and s.hospital_id = '"+req.body.data.hospitalsId+"' ";
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     saleSql += " and d.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     saleSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     saleSql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     saleSql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   saleSql += "group by d.product_common_name,d.product_specifications,d.product_makesmakers,DATE_FORMAT(s.bill_date,'%Y-%m')";
   var sql = "select ds.product_common_name,ds.product_specifications,ds.product_makesmakers,s2.bd,s2.sm,s2.sn from drugs ds left join ("+saleSql+") s2 on ds.product_common_name = s2.product_common_name and ds.product_specifications = s2.product_specifications "+
             "and ds.product_makesmakers = s2.product_makesmakers "+
             "where ds.group_id='"+req.session.user[0].group_id+"' and ds.delete_flag='0' ";
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and ds.product_business = '"+req.body.data.business+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and ds.product_common_name like '%"+req.body.data.productCommonName+"%' ";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and ds.product_makesmakers like '%"+req.body.data.product_makesmakers+"%' ";
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     sql += " and ds.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   return new Promise((resolve, reject) => {//查询所有药品编码
@@ -399,11 +399,11 @@ function getPurchaseComprehensive(req,data){
         var temp = new Date(result[i].refunds_real_time).format("yyyy-MM");
         var purchaseTime = new Date(result[i].make_money_time).format("yyyy-MM");
         for(var j = 0 ; j<data.length;j++){
-          if(result[i].refunds_real_money && result[i].refunds_real_time && result[i].receiver && data[j].time == temp){
+          if(!util.isEmpty(result[i].refunds_real_money) && result[i].refunds_real_time && result[i].receiver && data[j].time == temp){
             data[j].apurchaseReturnMoney1=data[j].apurchaseReturnMoney1?data[j].apurchaseReturnMoney1:0;//采进已回款
             data[j].apurchaseReturnMoney1+=result[i].refunds_real_money?parseFloat(result[i].refunds_real_money):0;
           }
-          if(result[i].refunds_real_money && result[i].refunds_real_time && data[j].time == purchaseTime){
+          if(!util.isEmpty(result[i].refunds_real_money) && result[i].refunds_real_time && data[j].time == purchaseTime){
             data[j].apurchaseReturnMoney0=data[j].apurchaseReturnMoney0?data[j].apurchaseReturnMoney0:0;//采进未回款
             data[j].apurchaseReturnMoney0+=result[i].refunds_real_money?parseFloat(result[i].refunds_real_money):0;
           }else if(result[i].make_money_time && data[j].time == purchaseTime){
@@ -452,10 +452,10 @@ function getAllotComprehensive(req,data){
             data[j].allotReturnMoney=data[j].allotReturnMoney?data[j].allotReturnMoney:0;//调货应付款
             data[j].allotReturnMoney+=result[i].allot_return_money?parseFloat(result[i].allot_return_money):0;
           }
-          if(result[i].refunds_should_money && result[i].purchase_number && data[j].time == allotTime){
+          if(!util.isEmpty(result[i].refunds_should_money) && !util.isEmpty(result[i].purchase_number) && data[j].time == allotTime){
             data[j].allotShouldReturn = data[j].allotShouldReturn?data[j].allotShouldReturn:0;
             data[j].allotShouldReturn += result[i].refunds_should_money*result[i].allot_number/result[i].purchase_number;
-            if(result[i].refunds_real_money && result[i].refunds_real_money > 0){
+            if(!util.isEmpty(result[i].refunds_real_money) && result[i].refunds_real_money > 0){
               data[j].allotRealReturn = data[j].allotRealReturn?data[j].allotRealReturn:0;
               data[j].allotRealReturn += result[i].refunds_real_money*result[i].allot_number/result[i].purchase_number;
             }else{
@@ -495,14 +495,14 @@ function getGroupData(data){
     rd[d[i].all_day].saleMoney = rd[d[i].all_day].saleMoney?rd[d[i].all_day].saleMoney:0;
     rd[d[i].all_day].saleMoney += parseFloat(d[i].sale_money);//销售总额
 
-    if(d[i].sale_policy_money){
+    if(!util.isEmpty(d[i].sale_policy_money)){
       rd[d[i].all_day].sReturnMoney0 = rd[d[i].all_day].sReturnMoney0?rd[d[i].all_day].sReturnMoney0:0//应付
       rd[d[i].all_day].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && d[i].sale_policy_money){//销售已付款金额
+    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_policy_money)){//销售已付款金额
       rd[d[i].all_day].aReturnMoney0 = rd[d[i].all_day].aReturnMoney0?rd[d[i].all_day].aReturnMoney0:0//已付
       rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
-    }else if(d[i].sale_policy_money){//销售未付金额
+    }else if(!util.isEmpty(d[i].sale_policy_money)){//销售未付金额
       rd[d[i].all_day].nReturnMoney0 = rd[d[i].all_day].nReturnMoney0?rd[d[i].all_day].nReturnMoney0:0//未付
       rd[d[i].all_day].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
     }
@@ -519,7 +519,7 @@ function getGroupData(data){
     if(d[i].sale_return_flag == '1'){//按销售返款
       rd[d[i].all_day].arefundsMoney1 = rd[d[i].all_day].arefundsMoney1?rd[d[i].all_day].arefundsMoney1:0;//上游返利  应收金额
       rd[d[i].all_day].arefundsMoney1 += d[i].refunds_should_money?parseFloat(d[i].refunds_should_money):0;
-      if(d[i].refunds_real_money && d[i].refunds_real_time){
+      if(!util.isEmpty(d[i].refunds_real_money) && d[i].refunds_real_time){
         rd[d[i].all_day].refundsMoney1 = rd[d[i].all_day].refundsMoney1?rd[d[i].all_day].refundsMoney1:0;//上游返利  实收金额
         rd[d[i].all_day].refundsMoney1 += d[i].refunds_real_money?parseFloat(d[i].refunds_real_money):0;
       }else{
@@ -535,15 +535,15 @@ function getGroupData(data){
       var saleRealPurchaseMoney = d[i].refunds_real_money2*d[i].sale_num/d[i].purchase_number;
 
       rd[d[i].all_day].arefundsMoney2 = rd[d[i].all_day].arefundsMoney2?rd[d[i].all_day].arefundsMoney2:0;//上游返利  应收金额
-      if(d[i].purchase_number){
+      if(!util.isEmpty(d[i].purchase_number)){
         rd[d[i].all_day].arefundsMoney2 += salePurchaseMoney;
       }
       rd[d[i].all_day].refundsMoney2 = rd[d[i].all_day].refundsMoney2?rd[d[i].all_day].refundsMoney2:0;//上游返利  实收金额
       rd[d[i].all_day].srefundsMoney2 = rd[d[i].all_day].srefundsMoney2?rd[d[i].all_day].srefundsMoney2:0;//上游返利  未收金额
 
-      if(d[i].refunds_real_money2 && d[i].refunds_real_time2){//已返
+      if(!util.isEmpty(d[i].refunds_real_money2) && d[i].refunds_real_time2){//已返
         rd[d[i].all_day].refundsMoney2 += saleRealPurchaseMoney;
-      }else if(d[i].purchase_number){
+      }else if(!util.isEmpty(d[i].purchase_number)){
         rd[d[i].all_day].srefundsMoney2 += salePurchaseMoney;
       }
     }
@@ -586,10 +586,10 @@ router.post("/getBatchStock",function(req,res){
                  "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
                  "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
                  "and bs.batch_stock_number != '0' ";
-   if(req.body.data.productCommonName){
+   if(!util.isEmpty(req.body.data.productCommonName)){
      stockSql += " and d.product_common_name like '%"+req.body.data.productCommonName+"%' ";
    }
-   if(req.body.data.product_code){
+   if(!util.isEmpty(req.body.data.product_code)){
      stockSql += " and d.product_code like '%"+req.body.data.product_code+"%' ";
    }
 
@@ -752,7 +752,7 @@ router.post("/getSalesByProduct",function(req,res){
   if(req.body.data.business){
     sql+="and d.product_business = '"+req.body.data.business+"' "
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     sql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"' ";
   }
   sql+="group by d.product_common_name,d.product_specifications,d.product_makesmakers";
@@ -922,7 +922,7 @@ router.post('/getTagAnalysis',function(req,res){
                 "where (td.tag_drug_group_id = '"+req.session.user[0].group_id+"' or td.tag_drug_group_id is null) "+
                 "and (td.tag_drug_deleta_flag = '0' or td.tag_drug_deleta_flag is null) "+
                 "and t.tag_delete_flag = '0' and t.tag_group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.tag_type){
+  if(!util.isEmpty(req.body.tag_type)){
     sql += " and t.tag_type = '"+req.body.tag_type+"'";
   }
   sql = "select tdt.tag_name,tdt.tag_id,d.product_code,d.product_business from ("+sql+") tdt left join drugs d on d.product_id = tdt.drug_id "+

@@ -68,15 +68,15 @@ router.post("/getAccountsDetails",function(req,res){
   }
   var accountDetail = DB.get("AccountDetail");
   var sql = "select b.*,ba.account_number from bank_account_detail b left join bank_account ba on b.account_id = ba.account_id where b.account_detail_deleta_flag = '0' and b.account_detail_group_id = '"+req.session.user[0].group_id+"' ";
-  if(req.body.data.account_id){
+  if(!util.isEmpty(req.body.data.account_id)){
     sql += " and b.account_id = '"+req.body.data.account_id+"'";
   }
-  if(req.body.data.account_type&&req.body.data.account_type == "1"){
+  if(!util.isEmpty(req.body.data.account_type)&&req.body.data.account_type == "1"){
     sql += " and b.account_detail_money >= 0 ";
-  }else if(req.body.data.account_type&&req.body.data.account_type == "2"){
+  }else if(!util.isEmpty(req.body.data.account_type)&&req.body.data.account_type == "2"){
     sql += " and b.account_detail_money < 0 ";
   }
-  if(req.body.data.textarea){
+  if(!util.isEmpty(req.body.data.textarea)){
     sql += " and b.account_detail_mark like '%"+req.body.data.textarea+"%'";
   }
   if(req.body.data.account_detail_time){

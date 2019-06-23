@@ -54,10 +54,10 @@ function getAllotComprehensive(req,data){
         rd[d[i].product_business].allotReturnMoney=rd[d[i].product_business].allotReturnMoney?rd[d[i].product_business].allotReturnMoney:0;//调货应付款
         rd[d[i].product_business].allotReturnMoney+=d[i].allot_return_money?parseFloat(d[i].allot_return_money):0;
 
-        if(d[i].refunds_should_money && d[i].purchase_number){
+        if(!util.isEmpty(d[i].refunds_should_money) && !util.isEmpty(d[i].purchase_number)){
           rd[d[i].product_business].allotShouldReturn = rd[d[i].product_business].allotShouldReturn?rd[d[i].product_business].allotShouldReturn:0;//调货应返
           rd[d[i].product_business].allotShouldReturn += d[i].refunds_should_money*d[i].allot_number/d[i].purchase_number;
-          if(d[i].refunds_real_money && d[i].refunds_real_money > 0){
+          if(!util.isEmpty(d[i].refunds_real_money) && d[i].refunds_real_money > 0){
             rd[d[i].product_business].allotRealReturn = rd[d[i].product_business].allotRealReturn?rd[d[i].product_business].allotRealReturn:0;//调货实返
             rd[d[i].product_business].allotRealReturn += d[i].refunds_real_money*d[i].allot_number/d[i].purchase_number;
           }else{
@@ -117,14 +117,14 @@ function getGroupData(data){
     rd[d[i].product_business].saleMoney = rd[d[i].product_business].saleMoney?rd[d[i].product_business].saleMoney:0;
     rd[d[i].product_business].saleMoney += parseFloat(d[i].sale_money);//销售总额
 
-    if(d[i].sale_policy_money){
+    if(!util.isEmpty(d[i].sale_policy_money)){
       rd[d[i].product_business].sReturnMoney0 = rd[d[i].product_business].sReturnMoney0?rd[d[i].product_business].sReturnMoney0:0//应付
       rd[d[i].product_business].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && d[i].sale_policy_money){//销售已付款金额
+    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_policy_money)){//销售已付款金额
       rd[d[i].product_business].aReturnMoney0 = rd[d[i].product_business].aReturnMoney0?rd[d[i].product_business].aReturnMoney0:0//已付
       rd[d[i].product_business].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
-    }else if(d[i].sale_policy_money){//销售未付金额
+    }else if(!util.isEmpty(d[i].sale_policy_money)){//销售未付金额
       rd[d[i].product_business].nReturnMoney0 = rd[d[i].product_business].nReturnMoney0?rd[d[i].product_business].nReturnMoney0:0//未付
       rd[d[i].product_business].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
     }
@@ -141,7 +141,7 @@ function getGroupData(data){
     if(d[i].sale_return_flag == '1'){//按销售返款
       rd[d[i].product_business].arefundsMoney1 = rd[d[i].product_business].arefundsMoney1?rd[d[i].product_business].arefundsMoney1:0;//上游返利  应收金额
       rd[d[i].product_business].arefundsMoney1 += d[i].refunds_should_money?parseFloat(d[i].refunds_should_money):0;
-      if(d[i].refunds_real_money && d[i].refunds_real_time){
+      if(!util.isEmpty(d[i].refunds_real_money) && d[i].refunds_real_time){
         rd[d[i].product_business].refundsMoney1 = rd[d[i].product_business].refundsMoney1?rd[d[i].product_business].refundsMoney1:0;//上游返利  实收金额
         rd[d[i].product_business].refundsMoney1 += d[i].refunds_real_money?parseFloat(d[i].refunds_real_money):0;
       }else{
@@ -157,15 +157,15 @@ function getGroupData(data){
       var saleRealPurchaseMoney = d[i].refunds_real_money2*d[i].sale_num/d[i].purchase_number;
 
       rd[d[i].product_business].arefundsMoney2 = rd[d[i].product_business].arefundsMoney2?rd[d[i].product_business].arefundsMoney2:0;//上游返利  应收金额
-      if(d[i].purchase_number){
+      if(!util.isEmpty(d[i].purchase_number)){
         rd[d[i].product_business].arefundsMoney2 += salePurchaseMoney;
       }
       rd[d[i].product_business].refundsMoney2 = rd[d[i].product_business].refundsMoney2?rd[d[i].product_business].refundsMoney2:0;//上游返利  实收金额
       rd[d[i].product_business].srefundsMoney2 = rd[d[i].product_business].srefundsMoney2?rd[d[i].product_business].srefundsMoney2:0;//上游返利  未收金额
 
-      if(d[i].refunds_real_money2 && d[i].refunds_real_time2){//已返
+      if(!util.isEmpty(d[i].refunds_real_money2) && d[i].refunds_real_time2){//已返
         rd[d[i].product_business].refundsMoney2 += saleRealPurchaseMoney;
-      }else if(d[i].purchase_number){
+      }else if(!util.isEmpty(d[i].purchase_number)){
         rd[d[i].product_business].srefundsMoney2 += salePurchaseMoney;
       }
     }

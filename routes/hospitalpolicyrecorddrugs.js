@@ -123,13 +123,13 @@ function getHospitalsPolicySql(req){
             " where d.delete_flag='0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             " and d.product_type in ('佣金','高打') and sp.hospital_policy_delete_flag ='0' and "+
             " sp.hospital_policy_group_id = '"+req.session.user[0].group_id+"' ";
-  if(req.body.data.hospitalId){
+  if(!util.isEmpty(req.body.data.hospitalId)){
     sql += " and sp.hospital_policy_hospital_id = '"+req.body.data.hospitalId+"' ";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接销往单位
@@ -170,10 +170,10 @@ function getHospitalsPolicyDrugs(req){
             " and ((sp.hospital_policy_return_money is null or sp.hospital_policy_return_money ='') "+
             " and (sp.hospital_policy_price is null or sp.hospital_policy_price ='') "+
             " or (sp.hospital_policy_delete_flag is null or sp.hospital_policy_delete_flag ='1')) ";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.productCode){
+  if(!util.isEmpty(req.body.data.productCode)){
     sql += " and d.product_code = '"+req.body.data.productCode+"'";
   }
   //连接销往单位

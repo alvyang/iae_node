@@ -12,7 +12,10 @@ router.get("/downloadErrorSales",function(req,res){
   var conf ={};
   conf.stylesXmlFile = "./utils/styles.xml";
   conf.name = "mysheet";
-  conf.cols = [{caption:'销售日期',type:'string'
+  conf.cols = [{caption:'销售日期',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'产品编号',type:'string'
   },{caption:'销售单价',type:'number'
   },{caption:'销售数量',type:'number'
@@ -97,7 +100,7 @@ router.post("/importSales",function(req,res){
           if(sData[i].product_type == '佣金'){//添加佣金返款流水    返款记录
             bankDetailSqlValue+="('"+uuid.v1()+"','1','"+groupId+"','sale_"+sData[i].sale_id+"','"+createTime+"','"+createUserId+"'),";
             var srm = "";
-            if(sData[i].product_return_money){//应返金额
+            if(!util.isEmpty(sData[i].product_return_money)){//应返金额
               srm = util.mul(sData[i].product_return_money,sData[i].sale_num,2);
             }
             var rst = util.getReturnTime(new Date(sData[i].bill_date),sData[i].product_return_time_type,sData[i].product_return_time_day,sData[i].product_return_time_day_num);
@@ -172,12 +175,13 @@ function verData(req,data){
     d.product_type = sales[i].product_type;
     d.storage_time = sales[i].storage_time;
     d.bill_date = new Date(d.bill_date).format('yyyy-MM-dd');
-    if(!d.bill_date || !d.sale_price ||!d.sale_num ||!d.hospital_name ||!d.product_code||!d.sale_type){
+    if(util.isEmpty(d.bill_date) || util.isEmpty(d.sale_price) ||util.isEmpty(d.sale_num) ||util.isEmpty(d.hospital_name)
+     ||util.isEmpty(d.product_code)||util.isEmpty(d.sale_type)){
       d.errorMessage = "销售日期、产品编号、销售单价、销售数量、销往单位、销售类型为必填项";
       errData.push(d);
       continue;
     }
-    if(d.product_type == "高打" && !d.batch_number){
+    if(d.product_type == "高打" && util.isEmpty(d.batch_number)){
       d.errorMessage = "高打品种，批号必填";
       errData.push(d);
       continue;
@@ -217,19 +221,19 @@ function verData(req,data){
     }
     //验证价格是否为正确的数字
     var moneyReg = /^(0|[1-9][0-9]*|-[1-9][0-9]*)$/;
-    if( (d.sale_num && !moneyReg.test(d.sale_num))){
+    if(util.isEmpty(d.sale_num) && !moneyReg.test(d.sale_num)){
       d.errorMessage = "销售数量填写错误";
       errData.push(d);
       continue;
     }
     //验证编码是否存在
-    if(!d.hospital_id){
+    if(util.isEmpty(d.hospital_id)){
       d.errorMessage = "销售单位不存在";
       errData.push(d);
       continue;
     }
     //验证编码是否存在
-    if(!d.product_id){
+    if(util.isEmpty(d.product_id)){
       d.errorMessage = "产品编码不存在";
       errData.push(d);
       continue;
@@ -243,10 +247,10 @@ function verData(req,data){
     d.hospital_id = sales[i].hospital_id;
     d.gross_profit = 0;//毛利
     d.real_gross_profit= 0;//真实毛利
-    if(sales[i].product_mack_price){
+    if(!util.isEmpty(sales[i].product_mack_price)){
       d.gross_profit = util.mul(d.sale_num,util.sub(d.sale_price,sales[i].product_mack_price),2);
     }
-    if(sales[i].accounting_cost){
+    if(!util.isEmpty(sales[i].accounting_cost)){
       d.real_gross_profit = util.mul(d.sale_num,util.sub(d.sale_price,sales[i].accounting_cost),2);
     }
     d.sale_money = util.mul(d.sale_num,d.sale_price,2);
@@ -393,7 +397,7 @@ function getSalesData(req,sales){
           for(var i = 0 ; i < data.salesDrugsData.length;i++){
             for(var j = 0 ;j < result.length;j++){
               if(data.salesDrugsData[i].hospital_id == result[j].hospital_policy_hospital_id &&
-                 data.salesDrugsData[i].product_id == result[j].hospital_policy_drug_id && result[j].hospital_policy_return_money){
+                 data.salesDrugsData[i].product_id == result[j].hospital_policy_drug_id && !util.isEmpty(result[j].hospital_policy_return_money)){
                  data.salesDrugsData[i].product_return_money=result[j].hospital_policy_return_money;
               }
             }
@@ -514,7 +518,7 @@ router.post("/saveSales",function(req,res){
   var productId = req.body.product_id;
   var productReturnMoney = req.body.product_return_money;
   req.body.sale_other_money = req.body.sale_other_money?req.body.sale_other_money:0;
-  if(req.body.sale_return_price){//销售回款金额
+  if(!util.isEmpty(req.body.sale_return_price)){//销售回款金额
     var realReturnMoney = req.body.realReturnMoney?req.body.realReturnMoney:req.body.product_return_money;
     var saleOtherMoney = req.body.sale_other_money/req.body.sale_num;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.sale_policy_formula,req.body.sale_price,realReturnMoney,req.body.sale_policy_percent,saleOtherMoney,req.body.sale_return_price);
@@ -568,7 +572,7 @@ function saveRefundsSale(req,productReturnMoney,id,returnTime,productType){
     refunds_policy_money:productReturnMoney,
     sales_id:id,
   }
-  if(productReturnMoney){
+  if(!util.isEmpty(productReturnMoney)){
     m.refunds_should_money = util.mul(productReturnMoney,req.body.sale_num,2);
   }
   var refunds = DB.get("Refunds");
@@ -640,7 +644,7 @@ router.post("/editSales",function(req,res){
       sale_other_money:req.body.sale_other_money
 
     }
-    if(req.body.sale_return_real_return_money){
+    if(!util.isEmpty(req.body.sale_return_real_return_money)){
       params.sale_return_real_return_money=req.body.sale_return_real_return_money;
     }else{
       params.sale_return_real_return_money=0;
@@ -698,7 +702,7 @@ function updateRefundsSale(req){
   var m = {
     sales_id:req.body.sale_id,
   }
-  if(req.body.product_return_money){
+  if(!util.isEmpty(req.body.product_return_money)){
     m.refunds_should_money = util.mul(req.body.product_return_money,req.body.sale_num,2);
   }
   var refunds = DB.get("Refunds");
@@ -842,16 +846,16 @@ function getQuerySql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and s.sale_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.tag && req.body.data.tag != 'undefined'){
+  if(!util.isEmpty(req.body.data.tag) && req.body.data.tag != 'undefined'){
     sql += "and td.tag_ids like '%"+req.body.data.tag+",%'"
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
   if(req.body.data.productType){
@@ -863,19 +867,19 @@ function getQuerySql(req){
       sql += " and d.product_type in ('"+type+"')"
     }
   }
-  if(req.body.data.hospitalsId){
+  if(!util.isEmpty(req.body.data.hospitalsId)){
     sql += " and s.hospital_id = '"+req.body.data.hospitalsId+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.sale_type){
+  if(!util.isEmpty(req.body.data.sale_type)){
     sql += " and s.sale_type = '"+req.body.data.sale_type+"'"
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.sale_contact_id){
+  if(!util.isEmpty(req.body.data.sale_contact_id)){
     sql += " and s.sale_contact_id = '"+req.body.data.sale_contact_id+"'"
   }
   if(req.body.data.salesTime){
@@ -883,10 +887,10 @@ function getQuerySql(req){
     var end = new Date(req.body.data.salesTime[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(s.bill_date,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(s.bill_date,'%Y-%m-%d') <= '"+end+"'";
   }
-  if(req.body.data.rate_gap && req.body.data.rate_gap!=0){
+  if(!util.isEmpty(req.body.data.rate_gap) && req.body.data.rate_gap!=0){
     sql += " and (s.sale_price-s.accounting_cost)*100/s.sale_price  "+req.body.data.rate_formula+" "+req.body.data.rate_gap+" "
   }
-  if(req.body.data.salesReturnFlag){
+  if(!util.isEmpty(req.body.data.salesReturnFlag)){
     sql += " and sp.sale_policy_money is not null and sp.sale_policy_money !=''";
   }
   return sql;

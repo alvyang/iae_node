@@ -66,7 +66,7 @@ router.post("/getBusiness",function(req,res){
   }
   var business = DB.get("Business");
   var sql = "select * from business b where b.business_delete_flag = '0' and b.business_group_id = '"+req.session.user[0].group_id+"'";
-  if(req.body.data.business_name){
+  if(!util.isEmpty(req.body.data.business_name)){
     sql += " and b.business_name like '%"+req.body.data.business_name+"%'";
   }
   business.countBySql(sql,function(err,result){

@@ -12,14 +12,26 @@ router.get("/downloadErrorPurchases",function(req,res){
   var conf ={};
   conf.stylesXmlFile = "./utils/styles.xml";
   conf.name = "mysheet";
-  conf.cols = [{caption:'备货日期',type:'string'
+  conf.cols = [{caption:'备货日期',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'产品编号',type:'string'
   },{caption:'备货单价',type:'number'
   },{caption:'备货数量',type:'number'
   },{caption:'补点/费用票',type:'number'
-  },{caption:'打款时间',type:'string'
-  },{caption:'发货时间',type:'string'
-  },{caption:'入库时间',type:'string'
+  },{caption:'打款时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
+  },{caption:'发货时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
+  },{caption:'入库时间',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'批号',type:'string'
   },{caption:'税票号',type:'string'
   },{caption:'错误信息',type:'string'
@@ -148,13 +160,14 @@ function verData(req,purchases){
     d.storage_time=purchases[i].storage_time;
     d.batch_number=purchases[i].batch_number;
     d.ticket_number=purchases[i].ticket_number;
-    if(!d.time || !d.product_code ||!d.purchase_mack_price ||!d.purchase_number||!d.batch_number||!d.make_money_time||!d.send_out_time||!d.storage_time){
+    if(util.isEmpty(d.time) || util.isEmpty(d.product_code) ||util.isEmpty(d.purchase_mack_price) ||util.isEmpty(d.purchase_number)
+        ||util.isEmpty(d.batch_number)||util.isEmpty(d.make_money_time)||util.isEmpty(d.send_out_time)||util.isEmpty(d.storage_time)){
       d.errorMessage = "备货日期、产品编号、备货单价、备货数量、打款时间、发货时间、入库时间、批号为必填项";
       errData.push(d);
       continue;
     }
     //验证编码是否存在
-    if(!d.product_id){
+    if(util.isEmpty(d.product_id)){
       d.errorMessage = "产品编码不存在";
       errData.push(d);
       continue;
@@ -186,7 +199,7 @@ function verData(req,purchases){
     d.purchase_return_flag = purchases[i].product_return_statistics;
     d.purchase_price = purchases[i].product_price;
     d.product_return_money = purchases[i].product_return_money;
-    if(purchases[i].product_return_money){
+    if(!util.isEmpty(purchases[i].product_return_money)){
       d.refunds_should_money = util.mul(purchases[i].product_return_money,purchases[i].purchase_number,2);
     }else{
       d.refunds_should_money = "";
@@ -337,7 +350,7 @@ function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
     var rst = util.getReturnTime(new Date(req.body.make_money_time),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
     m.refunds_should_time = rst.format("yyyy-MM-dd");
   }
-  if(productReturnMoney){
+  if(!util.isEmpty(productReturnMoney)){
     m.refunds_should_money = util.mul(productReturnMoney,req.body.purchase_number,2);
   }
   var refunds = DB.get("Refunds");
@@ -537,7 +550,7 @@ function updateRefundsPurchase(req){
     var rst = util.getReturnTime(new Date(req.body.make_money_time),returnTime.product_return_time_type,returnTime.product_return_time_day,returnTime.product_return_time_day_num);
     m.refunds_should_time = rst.format("yyyy-MM-dd");
   }
-  if(req.body.product_return_money){
+  if(!util.isEmpty(req.body.product_return_money)){
     m.refunds_should_money = util.mul(req.body.product_return_money,req.body.purchase_number,2);
   }
   var refunds = DB.get("Refunds");
@@ -680,25 +693,25 @@ function getPurchasesSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and p.purchase_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.batch_number){
+  if(!util.isEmpty(req.body.data.batch_number)){
     sql += "and p.batch_number = '"+req.body.data.batch_number+"'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql += " and d.contacts_id = '"+req.body.data.contactId+"'"
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += " and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'"
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.status){
+  if(!util.isEmpty(req.body.data.status)){
     switch (req.body.data.status) {
       case '1':
         sql += " and p.make_money_time is null";
@@ -715,10 +728,10 @@ function getPurchasesSql(req){
       default:
     }
   }
-  if(req.body.data.remark){
+  if(!util.isEmpty(req.body.data.remark)){
     sql += " and p.remark = '"+req.body.data.remark+"'"
   }
-  if(req.body.data.time){
+  if(!util.isEmpty(req.body.data.time)){
     var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.time,'%Y-%m-%d') <= '"+end+"'";

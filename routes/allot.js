@@ -13,7 +13,10 @@ router.get("/downloadErrorAllots",function(req,res){
   var conf ={};
   conf.stylesXmlFile = "./utils/styles.xml";
   conf.name = "mysheet";
-  conf.cols = [{caption:'调货日期',type:'string'
+  conf.cols = [{caption:'调货日期',type:'string',
+  beforeCellWrite:function(row, cellData){
+    return new Date(cellData).format('yyyy-MM-dd');
+  }
   },{caption:'产品编号',type:'string'
   },{caption:'批号',type:'string'
   },{caption:'该批号入库时间（高打品种必填）',type:'string'
@@ -149,7 +152,8 @@ function verData(req,data){
     d.product_type = sales[i].product_type;
     d.storage_time = sales[i].storage_time;
     d.allot_time = new Date(d.allot_time).format('yyyy-MM-dd');
-    if(!d.allot_time || !d.allot_price ||!d.allot_number ||!d.hospital_name ||!d.product_code||!d.batch_number || !d.allot_type){
+    if(util.isEmpty(d.allot_time) || util.isEmpty(d.allot_price) ||util.isEmpty(d.allot_number) ||util.isEmpty(d.hospital_name)
+        ||util.isEmpty(d.product_code)||util.isEmpty(d.batch_number) || util.isEmpty(d.allot_type)){
       d.errorMessage = "调货日期、产品编号、批号、调货单价、调货数量、调货单位、调货类型为必填项";
       errData.push(d);
       continue;
@@ -160,7 +164,7 @@ function verData(req,data){
       continue;
     }
     //验证编码是否存在
-    if(!d.allot_drug_id){
+    if(util.isEmpty(d.allot_drug_id)){
       d.errorMessage = "产品编码不存在";
       errData.push(d);
       continue;
@@ -178,7 +182,7 @@ function verData(req,data){
         break;
       }
     }
-    if(!d.allot_purchase_id){
+    if(util.isEmpty(d.allot_purchase_id)){
       d.errorMessage = "当前入库时间，无该批号或该批号无库存";
       errData.push(d);
       continue;
@@ -198,7 +202,7 @@ function verData(req,data){
       continue;
     }
     //验证编码是否存在
-    if(!d.allot_hospital){
+    if(util.isEmpty(d.allot_hospital)){
       d.errorMessage = "调货单位不存在";
       errData.push(d);
       continue;
@@ -379,11 +383,11 @@ router.post("/saveAllot",function(req,res){
   var accountDetail = req.body.account_detail;
   var contactId = req.body.allot_policy_contact_id;
   var allotPolicyRemark = req.body.allot_policy_remark;
-  if(!req.body.allot_account_id){
+  if(util.isEmpty(req.body.allot_account_id)){
       delete req.body.allot_account_id;
   }
   req.body.allot_other_money = req.body.allot_other_money?req.body.allot_other_money:0;
-  if(req.body.allot_return_price){
+  if(!util.isEmpty(req.body.allot_return_price)){
     var realReturnMoney = req.body.realReturnMoney?req.body.realReturnMoney:req.body.product_return_money;
     var allotOtherMoney = req.body.allot_other_money/req.body.allot_number;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.allot_policy_formula,req.body.product_price,realReturnMoney,req.body.allot_policy_percent,allotOtherMoney,req.body.allot_return_price);
@@ -488,7 +492,7 @@ router.post("/editAllot",function(req,res){
       allot_remark:req.body.allot_remark,
       allot_other_money:req.body.allot_other_money,
     }
-    if(req.body.allot_account_id){
+    if(!util.isEmpty(req.body.allot_account_id)){
       params.allot_account_id = req.body.allot_account_id;
     }
     var realReturnMoney = req.body.refunds_real_money/req.body.purchase_number;
@@ -685,30 +689,30 @@ function getAllotSql(req){
   if(req.session.user[0].data_authority == "2"){
     sql += "and a.allot_create_userid = '"+req.session.user[0].id+"'";
   }
-  if(req.body.data.product_makesmakers){
+  if(!util.isEmpty(req.body.data.product_makesmakers)){
     sql += "and d.product_makesmakers like '%"+req.body.data.product_makesmakers+"%'";
   }
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.allot_hospital){
+  if(!util.isEmpty(req.body.data.allot_hospital)){
     sql += " and a.allot_hospital = '"+req.body.data.allot_hospital+"'"
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.allot_time){
+  if(!util.isEmpty(req.body.data.allot_time)){
     var start = new Date(req.body.data.allot_time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.allot_time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(a.allot_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(a.allot_time,'%Y-%m-%d') <= '"+end+"'";
   }
-  if(req.body.data.allot_return_flag){
+  if(!util.isEmpty(req.body.data.allot_return_flag)){
     sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
   }
-  if(req.body.data.contactId){
+  if(!util.isEmpty(req.body.data.contactId)){
     sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";
   }
   return sql;

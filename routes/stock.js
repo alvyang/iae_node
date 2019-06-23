@@ -145,16 +145,16 @@ router.post("/getDrugsStock",function(req,res){
 function getDrugsSql(req){
   var salesSql = "select * from drugs ds where ds.delete_flag = '0' and ds.group_id = '"+req.session.user[0].group_id+"'";
   var sql = "select d.*,c.contacts_name from ("+salesSql+") d left join contacts c on d.contacts_id = c.contacts_id where 1=1";
-  if(req.body.data.productCommonName){
+  if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
-  if(req.body.data.product_code){
+  if(!util.isEmpty(req.body.data.product_code)){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
-  if(req.body.data.business){
+  if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
   }
-  if(req.body.data.product_type){
+  if(!util.isEmpty(req.body.data.product_type)){
     var type = req.body.data.product_type;
     if(typeof type == 'object'){
       var t = type.join(",").replace(/,/g,"','");
@@ -163,7 +163,7 @@ function getDrugsSql(req){
       sql += " and d.product_type in ('"+type+"')"
     }
   }
-  if(req.body.data.product_distribution_flag){
+  if(!util.isEmpty(req.body.data.product_distribution_flag)){
     sql += " and d.product_distribution_flag = '"+req.body.data.product_distribution_flag+"'";
   }
   var stockSql = "select sum(bs.batch_stock_number) batch_stock_number,bs.batch_stock_drug_id from batch_stock bs where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' group by bs.batch_stock_drug_id " ;
