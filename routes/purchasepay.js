@@ -77,7 +77,8 @@ router.post("/importPurchasePay",function(req,res){
         //新增采购记录
         var sql = "insert into purchase_pay(purchase_pay_id,purchase_pay_group_id,purchase_pay_create_time,purchase_pay_drug_id,purchase_pay_create_userid,purchase_pay_contract_time,"+
                   "purchase_pay_time,purchase_pay_price,purchase_pay_number,purchase_pay_money,purchase_pay_should_time,purchase_pay_should_price,purchase_pay_should_money,"+
-                  "purchase_pay_other_money,purchase_pay_contact_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_receive_remark,purchase_pay_send_time,purchase_pay_arrived_time) VALUES ";
+                  "purchase_pay_other_money,purchase_pay_contact_id,purchase_pay_policy_price,purchase_pay_should_pay_money,purchase_pay_receive_remark,"+
+                  "purchase_pay_business_id,purchase_pay_send_time,purchase_pay_arrived_time) VALUES ";
 
         //新增返款流水和医院销售回款流水
         var bankDetailSql = "insert into bank_account_detail(account_detail_id,account_detail_deleta_flag,account_detail_group_id,"+
@@ -93,7 +94,7 @@ router.post("/importPurchasePay",function(req,res){
                  "'"+sData[i].purchase_pay_time+"','"+sData[i].purchase_pay_price+"','"+sData[i].purchase_pay_number+"','"+sData[i].purchase_pay_money+"',"+
                  "'"+sData[i].purchase_pay_should_time+"','"+sData[i].purchase_pay_should_price+"','"+sData[i].purchase_pay_should_money+"',"+
                  "'"+sData[i].purchase_pay_other_money+"','"+sData[i].purchase_pay_contact_id+"','"+sData[i].purchase_pay_policy_price+"',"+
-                 "'"+sData[i].purchase_pay_should_pay_money+"','','"+sData[i].purchase_pay_send_time+"','"+sData[i].purchase_pay_arrived_time+"'),"
+                 "'"+sData[i].purchase_pay_should_pay_money+"','','"+sData[i].purchase_pay_business_id+"','"+sData[i].purchase_pay_send_time+"','"+sData[i].purchase_pay_arrived_time+"'),"
 
           bankDetailSql += "('"+uuid.v1()+"','1','"+sData[i].purchase_pay_group_id+"','purchase_pay_"+sData[i].purchase_pay_id+"','"+createTime+"','"+createUserId+"'),"+
                            "('"+uuid.v1()+"','1','"+sData[i].purchase_pay_group_id+"','purchase_pay_pay_"+sData[i].purchase_pay_id+"','"+createTime+"','"+createUserId+"'),";
@@ -139,10 +140,13 @@ function verData(req,purchases){
     d.purchase_pay_contact_id = purchases[i].purchase_pay_contact_id;
     d.purchase_pay_send_time = purchases[i].purchase_pay_send_time;
     d.purchase_pay_arrived_time = purchases[i].purchase_pay_arrived_time;
+    d.purchase_pay_business_id = purchases[i].purchase_pay_business_id;
+    d.purchase_pay_business_name = purchases[i].purchase_pay_business_name;
 
     if(util.isEmpty(d.purchase_pay_contract_time) || util.isEmpty(d.product_code) ||util.isEmpty(d.purchase_pay_price) ||util.isEmpty(d.purchase_pay_number)
-        ||util.isEmpty(d.purchase_pay_time)||util.isEmpty(d.purchase_pay_contact_name) || util.isEmpty(d.purchase_pay_send_time) || util.isEmpty(d.purchase_pay_arrived_time)){
-      d.errorMessage = "合同日期、产品编号、打款价、预付数量、打款时间、发货时间、到货时间、业务员为必填项";
+        ||util.isEmpty(d.purchase_pay_time)||util.isEmpty(d.purchase_pay_contact_name) || util.isEmpty(d.purchase_pay_send_time) || util.isEmpty(d.purchase_pay_arrived_time)
+        || util.isEmpty(d.purchase_pay_business_name)){
+      d.errorMessage = "合同日期、产品编号、打款价、预付数量、打款时间、发货时间、到货时间、业务员、商业为必填项";
       errData.push(d);
       continue;
     }
@@ -153,6 +157,11 @@ function verData(req,purchases){
     //验证编码是否存在
     if(util.isEmpty(d.purchase_pay_drug_id)){
       d.errorMessage = "产品编码不存在";
+      errData.push(d);
+      continue;
+    }
+    if(util.isEmpty(d.purchase_pay_business_id)){
+      d.errorMessage = "商业不存在";
       errData.push(d);
       continue;
     }
@@ -237,6 +246,7 @@ function getPurchasePayData(req,purchases){
               result[j].purchase_pay_other_money = d.purchase_pay_other_money;
               result[j].purchase_pay_send_time = d.purchase_pay_send_time;
               result[j].purchase_pay_arrived_time = d.purchase_pay_arrived_time;
+              result[j].purchase_pay_business_name = d.purchase_pay_business_name;
               var temp = JSON.stringify(result[j]);
               f = false;
               purchasePayDrugsData.push(JSON.parse(temp));
@@ -248,6 +258,26 @@ function getPurchasePayData(req,purchases){
         }
         resolve(purchasePayDrugsData);
       }
+    });
+  }).then(purchasePayDrugsData => {
+    return new Promise((resolve, reject) => {
+      var contacts = DB.get("Contacts");
+      var sql = "select * from business b where b.business_group_id = '"+req.session.user[0].group_id+"' and b.business_delete_flag = '0' ";
+      contacts.executeSql(sql,function(err,result){
+        if(err){
+          logger.error(req.session.user[0].realname + "导入预付政策数据，查询销售商业出错" + err);
+          reject(err);
+        }else{
+          for(var i = 0 ; i < purchasePayDrugsData.length;i++){
+            for(var j = 0 ;j < result.length;j++){
+              if(purchasePayDrugsData[i].purchase_pay_business_name == result[j].business_name){
+                purchasePayDrugsData[i].purchase_pay_business_id = result[j].business_id;
+              }
+            }
+          }
+          resolve(purchasePayDrugsData);
+        }
+      });
     });
   }).then(purchasePayDrugsData => {
     return new Promise((resolve, reject) => {
@@ -317,7 +347,8 @@ function arrayToObject(sales){
     purchase_pay_send_time:sales[5]?sales[5]:"",
     purchase_pay_arrived_time:sales[6]?sales[6]:"",
     purchase_pay_contact_name:sales[7]?sales[7]:"",
-    purchase_pay_other_money:sales[8]?sales[8]:"",
+    purchase_pay_business_name:sales[8]?sales[8]:"",
+    purchase_pay_other_money:sales[9]?sales[9]:"",
   }
 }
 //新增采购记录
@@ -375,7 +406,7 @@ router.post("/savePurchasesPay",function(req,res){
     var t1 = req.body.purchase_pay_price - req.body.purchase_pay_policy_floor_price;
     var t2 = t1*(1-req.body.purchase_pay_policy_tax/100);
     var t3 = t2*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
-    req.body.purchase_pay_policy_price = Math.round(t2*100)/100; 
+    req.body.purchase_pay_policy_price = Math.round(t2*100)/100;
     req.body.purchase_pay_should_pay_money = Math.round(t3*100)/100;
   }else{
     var t = req.body.purchase_pay_policy_price*req.body.purchase_pay_number - req.body.purchase_pay_other_money;
@@ -614,7 +645,8 @@ router.post("/editPurchasePay",function(req,res){
 		purchase_pay_time:req.body.purchase_pay_time,
 		purchase_pay_receive_remark:req.body.purchase_pay_receive_remark,
     purchase_pay_price:req.body.purchase_pay_price,
-    purchase_pay_policy_price:req.body.purchase_pay_policy_price
+    purchase_pay_policy_price:req.body.purchase_pay_policy_price,
+    purchase_pay_business_id:req.body.purchase_pay_business_id
   }
   if(req.body.purchase_pay_should_time){
     params.purchase_pay_should_time = req.body.purchase_pay_should_time;
@@ -889,7 +921,7 @@ function getPurchasePaySql(req){
             "from purchase_pay p "+
             "left join purchase_pay_policy ppp on ppp.purchase_pay_contact_id = p.purchase_pay_contact_id and ppp.purchase_pay_policy_drug_id = p.purchase_pay_drug_id "+
             "left join drugs d on p.purchase_pay_drug_id = d.product_id "+
-            "left join business bus on d.product_business = bus.business_id "+
+            "left join business bus on p.purchase_pay_business_id = bus.business_id "+
             "left join contacts c on d.contacts_id = c.contacts_id "+
             "left join contacts c1 on p.purchase_pay_contact_id = c1.contacts_id "+
             "left join bank_account ba on ba.account_id = p.purchase_pay_receiver "+

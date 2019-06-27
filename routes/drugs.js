@@ -324,7 +324,7 @@ router.post("/exitsCode",function(req,res){
 });
 function deleteParams(params){
   for (var pro in params) {
-    if(!util.isEmpty(params[pro])){
+    if(util.isEmpty(params[pro])){
       delete params[pro];
     }
   }

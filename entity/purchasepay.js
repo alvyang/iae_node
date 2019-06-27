@@ -35,5 +35,6 @@ module.exports = {
 					'purchase_pay_service_charge',
 					'purchase_pay_delete_flag1',
 					'purchase_pay_send_time',
-					'purchase_pay_arrived_time']
+					'purchase_pay_arrived_time',
+					'purchase_pay_business_id']
 };

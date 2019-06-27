@@ -429,7 +429,7 @@ router.post("/editSalesPolicyBatch",function(req,res){
   var drug = req.body.saleDrugs;
   var ids = "",hospitalIds="";
   for(var i = 0 ; i < drug.length ;i++){
-    var policyMoney = util.getShouldPayMoney(req.body.sale_policy_formula,drug[i].price,drug[i].returnMoney,req.body.sale_policy_percent,0,0);
+    var policyMoney = util.getShouldPayMoney(req.body.sale_policy_formula,drug[i].price,drug[i].returnMoney,req.body.sale_policy_percent,0,req.body.sale_policy_money);
     drug[i].sale_policy_money = Math.round(policyMoney*100)/100;
     drug[i].sale_policy_formula = req.body.sale_policy_formula;
     drug[i].sale_policy_percent = req.body.sale_policy_percent;
@@ -441,7 +441,7 @@ router.post("/editSalesPolicyBatch",function(req,res){
     sql+="('"+hospitalId+"','"+drug[i].id+"','"+drug[i].sale_policy_money+"','"+req.body.sale_policy_remark+"','"+req.body.sale_policy_contact_id+"','"+req.body.sale_policy_formula+"','"+req.body.sale_policy_percent+"'),";
   }
   sql = sql.substring(0,sql.length-1);
-  sql +=" ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent)";
+  sql +=" ON DUPLICATE KEY UPDATE sale_policy_contact_id=VALUES(sale_policy_contact_id),sale_policy_money=VALUES(sale_policy_money),sale_policy_remark=VALUES(sale_policy_remark),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent)";
   salePolicy.executeSql(sql,function(err,result){
     if(err){
       logger.error(req.session.user[0].realname + "批量新增销售医院药品政策，出错" + err);
@@ -615,7 +615,7 @@ function getSalesPolicySql(req){
   //连接业务员
   sql = "select dsc.*,c.contacts_name from ("+sql+") dsc left join contacts c on dsc.sale_policy_contact_id = c.contacts_id";
   //连接销往单位
-  sql = "select dsch.*,h.hospital_name from ("+sql+") dsch left join hospitals h on dsch.sale_hospital_id = h.hospital_id "
+  sql = "select dsch.*,h.hospital_name,h.hospital_id from ("+sql+") dsch left join hospitals h on dsch.sale_hospital_id = h.hospital_id "
   //连接商业
   sql = "select * from ("+sql+") dsp left join business b on dsp.product_business = b.business_id";
   return sql;
