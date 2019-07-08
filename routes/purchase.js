@@ -353,6 +353,8 @@ function saveRefundsPurchase(req,productReturnMoney,id,returnTime){
   if(!util.isEmpty(productReturnMoney)){
     m.refunds_should_money = util.mul(productReturnMoney,req.body.purchase_number,2);
   }
+
+
   var refunds = DB.get("Refunds");
   refunds.insert(m,'refunds_id',function(err,result){
     if(err){
@@ -692,6 +694,11 @@ function getPurchasesSql(req){
   //数据权限
   if(req.session.user[0].data_authority == "2"){
     sql += "and p.purchase_create_userid = '"+req.session.user[0].id+"'";
+  }
+  if(!util.isEmpty(req.body.data.otherMoneyFlag) && req.body.data.otherMoneyFlag == "2"){
+    sql += "and (p.purchase_other_money is null || p.purchase_other_money = '' || p.purchase_other_money = '0') ";
+  }else if(!util.isEmpty(req.body.data.otherMoneyFlag) && req.body.data.otherMoneyFlag == "3"){
+    sql += "and p.purchase_other_money is not null && p.purchase_other_money != '' && p.purchase_other_money != '0' ";
   }
   if(!util.isEmpty(req.body.data.batch_number)){
     sql += "and p.batch_number = '"+req.body.data.batch_number+"'";

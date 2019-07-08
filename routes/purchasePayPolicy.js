@@ -124,6 +124,7 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
     },{caption:'生产厂家',type:'string'
+    },{caption:'商业',type:'number'
     },{caption:'单位',type:'string'
     },{caption:'计划数量',type:'number'
     },{caption:'中标价',type:'number'
@@ -184,7 +185,7 @@ router.post("/exportSalesRefund",function(req,res){
       }
     }];
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','realMoney',
+                  'product_makesmakers','business_name','product_unit','sale_num','sale_price','sale_money','realMoney',
                   'sale_return_price','sale_other_money','sale_return_money','sale_return_real_return_money',
                   'sale_return_time','sale_policy_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
@@ -518,6 +519,9 @@ router.post("/getPurchasePayPolicy",function(req,res){
     purchasePayPolicy.executeSql(sql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "查询预付招商政策分页列表，出错" + err);
+      }
+      for(var i = 0 ; i < result.length;i++){
+        result[i].product_mack_price = !util.isEmpty(result[i].purchase_pay_policy_make_price)?result[i].purchase_pay_policy_make_price:result[i].product_mack_price ;
       }
       req.body.page.data = result;
       res.json({"code":"000000",message:req.body.page});

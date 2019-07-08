@@ -1,8 +1,79 @@
 var express = require("express");
 var logger = require('../utils/logger');
 var util= require('../utils/global_util.js');
+var nodeExcel = require('excel-export');
+var parse = require('csv-parse');
+var XLSX = require("xlsx");
 var router = express.Router();
 
+
+//导出
+router.post("/exportReportComprehensiveAllot",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  getAllotComprehensive(req).then(data => {
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'调货单位',type:'string'
+    },{caption:'调货总额',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货应收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货实收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货实收占比',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[2])){
+           percent = cellData/row[2];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'调货未收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货应付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货实付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'调货实付占比',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[6])){
+           percent = cellData/row[6];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'调货未付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    }];
+    var header = ['hospitalName', 'allotMoney','allotShouldReturn', 'allotRealReturn', 'allotRealReturn', 'allotNoReturn',
+                  'allotReturnMoney','allotReturnMoney0','allotReturnMoney0','allotReturnMoney1'];
+    conf.rows = util.formatExcel(header,data.rdTemp);
+    var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出报表。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
 //按调货单位查询利润负债表
 router.post("/getReportComprehensiveAllot",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",99,") < 0){
@@ -193,6 +264,121 @@ router.post("/getReportComprehensiveDetail",function(req,res){
   });
 });
 
+//导出
+router.post("/exportReportComprehensive",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  // var findParam = JSON.stringify(req.body);
+  getComprehensive(req).then(data => {
+    //销售表，综合统计回款情况，销售情况，库存负债情况
+    var result = getGroupData(data);
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{caption:'销售单位',type:'string'
+    },{caption:'销售总额',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'高打销售额（销售）',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'高打销售占比（销售）',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[1])){
+           percent = cellData/row[1];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'高打应收积分（销售）',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'高打实收积分（销售）',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'高打实收占比（销售）',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[4])){
+           percent = cellData/row[4];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'高打未收积分（销售）',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'佣金销售额',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'佣金销售占比',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[1])){
+           percent = cellData/row[1];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'佣金应收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'佣金实收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'佣金实收占比',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[10])){
+           percent = cellData/row[10];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'佣金未收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'销售应付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'销售实付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    },{caption:'销售实付占比',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var percent = 0;
+        if(!util.isEmpty(cellData) && !util.isEmpty(row[14])){
+           percent = cellData/row[14];
+        }
+        return Math.round(percent*100)+"%";
+      }
+    },{caption:'销售未付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return cellData?cellData:0;
+      }
+    }];
+    var header = ['hospitalName', 'saleMoney','saleMoney0', 'saleMoney0', 'arefundsMoney2', 'refundsMoney2','refundsMoney2','srefundsMoney2',
+                  'saleMoney1','saleMoney1','arefundsMoney1','refundsMoney1','refundsMoney1','srefundsMoney1','sReturnMoney0','aReturnMoney0',
+                  'aReturnMoney0','nReturnMoney0'];
+    conf.rows = util.formatExcel(header,result);
+    var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出报表。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
 //按销售单位查询，利润负债表
 router.post("/getReportComprehensive",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",99,") < 0){
@@ -259,7 +445,7 @@ function getGroupData(data){
       var saleRealPurchaseMoney = d[i].refunds_real_money2*d[i].sale_num/d[i].purchase_number;
 
       rd[d[i].hospital_id].arefundsMoney2 = rd[d[i].hospital_id].arefundsMoney2?rd[d[i].hospital_id].arefundsMoney2:0;//上游返利  应收金额
-      if(!util.isEmpty(d[i].purchase_numbe)){
+      if(!util.isEmpty(d[i].purchase_number)){
         rd[d[i].hospital_id].arefundsMoney2 += salePurchaseMoney;
       }
       rd[d[i].hospital_id].refundsMoney2 = rd[d[i].hospital_id].refundsMoney2?rd[d[i].hospital_id].refundsMoney2:0;//上游返利  实收金额

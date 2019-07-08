@@ -95,6 +95,7 @@ router.post("/importSales",function(req,res){
           if(sData[i].product_type == '高打'){//更新库存，sql语句拼接
             updateFlag = true;
             var key = sData[i].product_id+"--"+sData[i].sales_purchase_id;
+            // console.log(key,batchStockOject[key],sData[i].sale_num,sData[i].stock);
             batchStockOject[key]=batchStockOject[key]?batchStockOject[key]-sData[i].sale_num:sData[i].stock-sData[i].sale_num;
           }
           if(sData[i].product_type == '佣金'){//添加佣金返款流水    返款记录
@@ -197,7 +198,8 @@ function verData(req,data){
     d.sale_other_money = 0;
     for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
       var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
-      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
+      // console.log(batchStock[j].batch_stock_purchase_id,batchStock[j].batch_number,d.batch_number,d.storage_time,t);
+      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t && batchStock[j].batch_stock_drug_id == d.product_id){
         d.sales_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
         d.sale_other_money = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.sale_num/batchStock[j].purchase_number:0;
@@ -482,8 +484,9 @@ router.post("/exportSales",function(req,res){
     },{caption:'商业',type:'string'
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
+    },{caption:'批号',type:'string'
     }];
-    var header = ['bill_date', 'hospital_name','hospital_area', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money'];
+    var header = ['bill_date', 'hospital_name','hospital_area', 'product_code', 'product_common_name', 'product_specifications','product_makesmakers','product_unit','sale_num','business_name','sale_price','sale_money','batch_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出销售记录。"+conf.rows.length+"条";
@@ -881,6 +884,9 @@ function getQuerySql(req){
   }
   if(!util.isEmpty(req.body.data.sale_contact_id)){
     sql += " and s.sale_contact_id = '"+req.body.data.sale_contact_id+"'"
+  }
+  if(!util.isEmpty(req.body.data.batch_number)){
+    sql += " and s.batch_number like '%"+req.body.data.batch_number+"%'"
   }
   if(req.body.data.salesTime){
     var start = new Date(req.body.data.salesTime[0]).format("yyyy-MM-dd");

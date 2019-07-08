@@ -14,5 +14,6 @@ module.exports = {
 					'purchaserecovery_create_time',
 					'purchaserecovery_purchase_id',//这两个字段，用于删除时，更新库存
 					'purchaserecovery_drug_id',
-					'purchaserecovery_return_money_time']
+					'purchaserecovery_return_money_time',
+					'purchase_recovery_remark']
 };

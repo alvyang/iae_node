@@ -491,6 +491,7 @@ router.post("/editAllot",function(req,res){
       allot_should_pay_formula:req.body.allot_should_pay_formula,
       allot_remark:req.body.allot_remark,
       allot_other_money:req.body.allot_other_money,
+      allot_price:req.body.allot_price
     }
     if(!util.isEmpty(req.body.allot_account_id)){
       params.allot_account_id = req.body.allot_account_id;
@@ -618,9 +619,10 @@ router.post("/exportAllot",function(req,res){
     },{caption:'调货数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
+    },{caption:'批号',type:'string'
     }];
     var header = ['allot_time', 'hospital_name','hospital_area', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','allot_type','business_name','allot_number','allot_price','allot_money'];
+                  'product_makesmakers','product_unit','allot_type','business_name','allot_number','allot_price','allot_money','batch_number'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出调货记录。"+conf.rows.length+"条";
@@ -711,6 +713,9 @@ function getAllotSql(req){
   }
   if(!util.isEmpty(req.body.data.allot_return_flag)){
     sql += req.body.data.allot_return_flag=="已回"?" and a.allot_return_time is not null":" and a.allot_return_time is null";
+  }
+  if(!util.isEmpty(req.body.data.batch_number)){
+    sql += " and a.batch_number like '%"+req.body.data.batch_number+"%'"
   }
   if(!util.isEmpty(req.body.data.contactId)){
     sql+=" and ap.allot_policy_contact_id = '"+req.body.data.contactId+"' ";

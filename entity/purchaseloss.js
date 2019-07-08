@@ -13,5 +13,6 @@ module.exports = {
 					'purchaseloss_batch_number',
 					'purchaseloss_create_time',
 					'purchaseloss_purchase_id',//这两个字段，用于删除时，更新库存
-					'purchaseloss_drug_id']
+					'purchaseloss_drug_id',
+					'purchase_loss_remark']
 };

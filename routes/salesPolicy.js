@@ -49,6 +49,8 @@ router.post("/editSalesPay",function(req,res){
 
     if(req.body.sale_return_time){
       params.sale_return_time = new Date(req.body.sale_return_time).format('yyyy-MM-dd');
+    }else{
+      params.sale_return_time = null;
     }
     var front_message = req.body.front_sale_pay;
     sales.update(params,'sale_id',function(err,result){

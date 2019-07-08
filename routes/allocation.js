@@ -477,7 +477,7 @@ function updateStock(req){
     var stockSql = "insert into batch_stock values "+
                    "('"+req.body.allocation_front_drug_id+"','"+req.body.allocation_purchase_id+"','"+req.body.frontStock+"','"+req.body.batch_stock_time+"','"+req.body.batch_number+"','0','"+req.session.user[0].group_id+"'),"+
                    "('"+req.body.allocation_after_drug_id+"','"+req.body.allocation_purchase_id+"','"+req.body.afterStock+"','"+req.body.batch_stock_time+"','"+req.body.batch_number+"','0','"+req.session.user[0].group_id+"') ";
-    stockSql += " ON DUPLICATE KEY UPDATE batch_stock_number=VALUES(batch_stock_number),batch_number=VALUES(batch_number),batch_stock_time=VALUES(batch_stock_time);"
+    stockSql += " ON DUPLICATE KEY UPDATE tag_type_delete_flag=VALUES(tag_type_delete_flag),batch_stock_number=VALUES(batch_stock_number),batch_number=VALUES(batch_number),batch_stock_time=VALUES(batch_stock_time);"
     batchStock.executeSql(stockSql,function(err,result){
       if(err){
         logger.error(req.session.user[0].realname + "商业调拨,更新批次库存出错" + err);

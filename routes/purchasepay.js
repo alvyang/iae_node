@@ -734,6 +734,7 @@ router.post("/exportPurchasePayRefund",function(req,res){
     },{caption:'单位',type:'string'
     },{caption:'大包装',type:'number'
     },{caption:'中标价',type:'string'
+    },{caption:'商业',type:'string'
     },{caption:'预付数量',type:'number'
     },{caption:'打款价',type:'number'
     },{caption:'预付金额',type:'number'
@@ -786,7 +787,7 @@ router.post("/exportPurchasePayRefund",function(req,res){
     },{caption:'备注',type:'string'}];
 
     var header = ['contacts_name1','purchase_pay_contract_time', 'product_supplier', 'product_common_name', 'product_specifications',
-                 'product_makesmakers','product_unit','product_packing','product_price','purchase_pay_number','purchase_pay_price',
+                 'product_makesmakers','product_unit','product_packing','product_price','business_name','purchase_pay_number','purchase_pay_price',
                  'purchase_pay_money','purchase_pay_time','purchase_pay_send_time','purchase_pay_arrived_time','purchase_pay_should_price','purchase_pay_other_money','purchase_pay_should_time',
                  'purchase_pay_should_money','purchase_pay_real_time','purchase_pay_real_money','purchase_pay_refundser','account_number','purchase_pay_remark'];
     conf.rows = util.formatExcel(header,result);
@@ -857,10 +858,12 @@ router.post("/exportPurchasePay",function(req,res){
       }
     },{caption:'中标价',type:'number'
     },{caption:'业务员',type:'string'
+    },{caption:'商业',type:'string'
     }];
     var header = ['purchase_pay_contract_time', 'product_supplier', 'product_common_name', 'product_specifications',
                  'product_makesmakers','product_unit','product_packing','purchase_pay_number','purchase_pay_price',
-                 'purchase_pay_money','purchase_pay_time','purchase_pay_send_time','purchase_pay_arrived_time','product_price','contacts_name1'];
+                 'purchase_pay_money','purchase_pay_time','purchase_pay_send_time','purchase_pay_arrived_time','product_price','contacts_name1',
+                'business_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出预付招商记录。"+conf.rows.length+"条";

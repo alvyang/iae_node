@@ -14,7 +14,8 @@ router.post("/editPurchaseLoss",function(req,res){
   var params = {
     purchaseloss_id:req.body.purchaseloss_id,
 		purchaseloss_time:req.body.purchaseloss_time,
-    purchaseloss_money:req.body.purchaseloss_money
+    purchaseloss_money:req.body.purchaseloss_money,
+    purchase_loss_remark:req.body.purchase_loss_remark
   }
   var front_purchaseloss = req.body.front_purchaseloss;
   purchaseLoss.update(params,'purchaseloss_id',function(err,result){

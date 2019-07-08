@@ -1,6 +1,9 @@
 var express = require("express");
 var logger = require('../utils/logger');
 var util= require('../utils/global_util.js');
+var nodeExcel = require('excel-export');
+var parse = require('csv-parse');
+var XLSX = require("xlsx");
 var router = express.Router();
 
 //计算方差，标准差，来获取偏离程度，统计产品销售是否稳定
@@ -358,7 +361,194 @@ function getSaleAble(req){
     });
   });
 }
-
+//导出
+router.post("/exportReportComprehensive",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
+  getComprehensive(req).then(data => {
+    //销售表，综合统计回款情况，销售情况，库存负债情况
+    var result = getGroupData(data);
+    //调货相关数据
+    getAllotComprehensive(req,result).then(data=>{
+      var conf ={};
+      conf.stylesXmlFile = "./utils/styles.xml";
+      conf.name = "mysheet";
+      conf.cols = [{
+          caption:'日期',
+          type:'string',
+          beforeCellWrite:function(row, cellData){
+            return new Date(cellData).format('yyyy-MM');
+          }
+      },{caption:'销售总额',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打销售额（销售）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打销售占比（销售）',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[1])){
+             percent = cellData/row[1];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'高打应收积分（销售）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打实收积分（销售）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打实收占比（销售）',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[4])){
+             percent = cellData/row[4];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'高打未收积分（销售）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'佣金销售额',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'佣金销售占比',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[1])){
+             percent = cellData/row[1];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'佣金应收积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'佣金实收积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'佣金实收占比',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[10])){
+             percent = cellData/row[10];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'佣金未收积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打应收积分（调货）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打实收积分（调货）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'高打实收占比（调货）',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[14])){
+             percent = cellData/row[14];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'高打未收积分（调货）',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'销售应付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'销售实付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'销售实付占比',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[19])){
+             percent = cellData/row[19];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'销售未付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'调货应付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'调货实付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'调货实付占比',type:'string',
+        beforeCellWrite:function(row, cellData){
+          var percent = 0;
+          if(!util.isEmpty(cellData) && !util.isEmpty(row[23])){
+             percent = cellData/row[23];
+          }
+          return Math.round(percent*100)+"%";
+        }
+      },{caption:'调货未付积分',type:'number',
+        beforeCellWrite:function(row, cellData){
+          return cellData?cellData:0;
+        }
+      },{caption:'利润',type:'number',
+        beforeCellWrite:function(row, cellData){
+          row[4] = row[4]?parseFloat(row[4]):0;
+          row[10] = row[10]?parseFloat(row[10]):0;
+          row[14] = row[14]?parseFloat(row[14]):0;
+          row[18] = row[18]?parseFloat(row[18]):0;
+          row[22] = row[22]?parseFloat(row[22]):0;
+          var m = row[4] + row[10] + row[14] - row[18] - row[22];
+          console.log(row[4] + ":"+row[10] +":"+ row[14] +":"+ row[18] +":"+ row[22]);
+          m = Math.round(m*100)/100;
+          return m;
+        }
+      },{caption:'真实利润',type:'number',
+        beforeCellWrite:function(row, cellData){
+          row[5] = row[5]?parseFloat(row[5]):0;
+          row[12] = row[12]?parseFloat(row[12]):0;
+          row[16] = row[16]?parseFloat(row[16]):0;
+          row[20] = row[20]?parseFloat(row[20]):0;
+          row[24] = row[24]?parseFloat(row[24]):0;
+          var n = row[5] + row[12] + row[16] - row[20] - row[24];
+          n = Math.round(n*100)/100;
+          return n;
+        }
+      }];
+      var header = ['time', 'saleMoney','saleMoney0', 'saleMoney0', 'arefundsMoney2', 'refundsMoney2','refundsMoney2','srefundsMoney2',
+                    'saleMoney1','saleMoney1','arefundsMoney1','refundsMoney1','refundsMoney1','srefundsMoney1','allotShouldReturn',
+                    'allotRealReturn','allotRealReturn','allotNoReturn','sReturnMoney0','aReturnMoney0','aReturnMoney0',
+                    'nReturnMoney0','allotReturnMoney','allotReturnMoney0','allotReturnMoney0','allotReturnMoney1','',''];
+      conf.rows = util.formatExcel(header,data);
+      var result = nodeExcel.execute(conf);
+      var message = req.session.user[0].realname+"导出报表。"+conf.rows.length+"条";
+      util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+      res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+      res.end(result, 'binary');
+    });
+  });
+});
 //查询利润负债，综合查询
 router.post("/getReportComprehensive",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",99,") < 0){
@@ -868,8 +1058,9 @@ router.post("/getPurchasePayPaysReturnByContacts",function(req,res){
     res.json({"code":"111112",message:"无权限"});
     return ;
   }
-  var sql = "select p.* from purchase_pay p "+
+  var sql = "select p.* from purchase_pay p left join d on p.purchase_pay_drug_id = d.product_id "+
             "where p.purchase_pay_delete_flag = '0' and p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' "+
+            "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' "+
             "and p.purchase_pay_real_pay_time is null";
   sql = "select c.contacts_id,c.contacts_name,sum(sdc.purchase_pay_should_pay_money) rsm,c.contacts_phone from ("+sql+") sdc left join contacts c on c.contacts_id = sdc.purchase_pay_contact_id "+
         "where c.delete_flag = '0' and c.group_id = '"+req.session.user[0].group_id+"' "+

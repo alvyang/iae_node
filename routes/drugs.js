@@ -248,7 +248,7 @@ function getDrugsData(drugs,code,business,contacts){
       //将生产企业，修改为供货单位
       d.product_supplier = d.product_makesmakers;
       //计算返款金额 返款率
-      if(!util.isEmpty(drugs[i][18])){
+      if(!util.isEmpty(drugs[i][11]) && !util.isEmpty(drugs[i][16]) && !util.isEmpty(drugs[i][17])){
         var t1 = util.sub(drugs[i][11],drugs[i][16]);
         var t2 = util.sub(1,drugs[i][17]/100);
         d.product_return_money = util.mul(t1,t2,2);//返款金额

@@ -20,7 +20,9 @@ router.post("/editPurchaseRecovery",function(req,res){
     purchaserecovery_id:req.body.purchaserecovery_id,
 		purchaserecovery_time:req.body.purchaserecovery_time,
     purchaserecovery_money:req.body.purchaserecovery_money,
-    purchaserecovery_return_money_time:req.body.purchaserecovery_return_money_time
+    purchaserecovery_return_money_time:req.body.purchaserecovery_return_money_time,
+    purchaserecovery_money:req.body.purchaserecovery_money,
+    purchase_recovery_remark:req.body.purchase_recovery_remark
   }
   var front_purchaserecovery = req.body.front_purchaserecovery;
   purchaseRecovery.update(params,'purchaserecovery_id',function(err,result){
