@@ -6,6 +6,119 @@ var parse = require('csv-parse');
 var XLSX = require("xlsx");
 var router = express.Router();
 
+//导出
+router.post("/exportReportPurchasePayComprehensive",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var findParam = JSON.stringify(req.body);
+  req.body.data = JSON.parse(findParam);
+  var purchasePaySql = getReportComprehensiveSql(req,res);
+  var purchasePay = DB.get("PurchasePay");
+  purchasePay.executeSql(purchasePaySql,function(err,r){
+    var conf ={};
+    conf.stylesXmlFile = "./utils/styles.xml";
+    conf.name = "mysheet";
+    conf.cols = [{
+        caption:'打款日期',
+        type:'string',
+        beforeCellWrite:function(row, cellData){
+          return new Date(cellData).format('yyyy-MM');
+        }
+    },{caption:'应收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return !util.isEmpty(cellData)?cellData:0;
+      }
+    },{caption:'实收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return !util.isEmpty(cellData)?cellData:0;
+      }
+    },{caption:'未收积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t1 = !util.isEmpty(row[1])?row[1]:0;
+        var t2 = !util.isEmpty(row[2])?row[2]:0;
+        var t3 = t1 - t2 ;
+        t3 = Math.round(t3*100)/100;
+        return t3;
+
+        return cellData?cellData:0;
+      }
+    },{caption:'应付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return !util.isEmpty(cellData)?cellData:0;
+      }
+    },{caption:'实付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        return !util.isEmpty(cellData)?cellData:0;
+      }
+    },{caption:'未付积分',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t1 = !util.isEmpty(row[4])?row[4]:0;
+        var t2 = !util.isEmpty(row[5])?row[5]:0;
+        var t3 = t1 - t2 ;
+        t3 = Math.round(t3*100)/100;
+        return t3;
+      }
+    },{caption:'利润',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t1 = !util.isEmpty(row[1])?row[1]:0;
+        var t2 = !util.isEmpty(row[4])?row[4]:0;
+        var t3 = t1 - t2 ;
+        t3 = Math.round(t3*100)/100;
+        return t3;
+      }
+    },{caption:'真实利润',type:'number',
+      beforeCellWrite:function(row, cellData){
+        var t1 = !util.isEmpty(row[2])?row[2]:0;
+        var t2 = !util.isEmpty(row[5])?row[5]:0;
+        var t3 = t1 - t2 ;
+        t3 = Math.round(t3*100)/100;
+        return t3;
+      }
+    }];
+    var header = ['all_day','ppsm','pprm', '','ppspm','pprpm', ''];
+    conf.rows = util.formatExcel(header,r);
+    var result = nodeExcel.execute(conf);
+    var message = req.session.user[0].realname+"导出预付报表。"+conf.rows.length+"条";
+    util.saveLogs(req.session.user[0].group_id,"-",findParam,message);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+    res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+    res.end(result, 'binary');
+  });
+});
+//获取招商预付 应收  应付统计
+router.post("/getReportPurchasePayComprehensive",function(req,res){
+  if(req.session.user[0].authority_code.indexOf(",99,") < 0){
+    res.json({"code":"111112",message:"无权限"});
+    return ;
+  }
+  var purchasePaySql = getReportComprehensiveSql(req,res);
+  var purchasePay = DB.get("PurchasePay");
+  purchasePay.executeSql(purchasePaySql,function(err,r){
+    res.json({"code":"000000",message:r});
+  });
+});
+function getReportComprehensiveSql(req,res){
+  //查询近12个月日期
+  var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
+                "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 24) as c_init";
+
+  var sql = "select DATE_FORMAT(p.purchase_pay_time,'%Y-%m') purchase_pay_time,sum(purchase_pay_should_money) ppsm,sum(purchase_pay_real_money) pprm,sum(purchase_pay_should_pay_money) ppspm,sum(purchase_pay_real_pay_money) pprpm "+
+            "from purchase_pay p where p.purchase_pay_delete_flag = '0' and p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' ";
+  if(req.body.business){
+    sql += " and p.purchase_pay_business_id = '"+req.body.business+"' ";
+  }
+  if(req.body.contactId){
+    sql += " and p.purchase_pay_contact_id = '"+req.body.contactId+"' ";
+  }
+  sql += "group by DATE_FORMAT(p.purchase_pay_time,'%Y-%m') ";
+
+  var purchasePaySql = "select * from ("+dataSql+") t1 left join ("+sql+") t2 on t1.all_day = t2.purchase_pay_time order by t1.all_day desc";
+
+  return purchasePaySql;
+}
+
 //计算方差，标准差，来获取偏离程度，统计产品销售是否稳定
 router.post("/getSaleVariance",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",99,") < 0){
@@ -685,14 +798,14 @@ function getGroupData(data){
     rd[d[i].all_day].saleMoney = rd[d[i].all_day].saleMoney?rd[d[i].all_day].saleMoney:0;
     rd[d[i].all_day].saleMoney += parseFloat(d[i].sale_money);//销售总额
 
-    if(!util.isEmpty(d[i].sale_policy_money)){
+    if(!util.isEmpty(d[i].sale_return_money)){
       rd[d[i].all_day].sReturnMoney0 = rd[d[i].all_day].sReturnMoney0?rd[d[i].all_day].sReturnMoney0:0//应付
       rd[d[i].all_day].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_policy_money)){//销售已付款金额
+    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_return_money)){//销售已付款金额
       rd[d[i].all_day].aReturnMoney0 = rd[d[i].all_day].aReturnMoney0?rd[d[i].all_day].aReturnMoney0:0//已付
       rd[d[i].all_day].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
-    }else if(!util.isEmpty(d[i].sale_policy_money)){//销售未付金额
+    }else if(!util.isEmpty(d[i].sale_return_money)){//销售未付金额
       rd[d[i].all_day].nReturnMoney0 = rd[d[i].all_day].nReturnMoney0?rd[d[i].all_day].nReturnMoney0:0//未付
       rd[d[i].all_day].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
     }

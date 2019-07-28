@@ -301,14 +301,14 @@ function getGroupData(data){
     rd[d[i].product_business].saleMoney = rd[d[i].product_business].saleMoney?rd[d[i].product_business].saleMoney:0;
     rd[d[i].product_business].saleMoney += parseFloat(d[i].sale_money);//销售总额
 
-    if(!util.isEmpty(d[i].sale_policy_money)){
+    if(!util.isEmpty(d[i].sale_return_money)){
       rd[d[i].product_business].sReturnMoney0 = rd[d[i].product_business].sReturnMoney0?rd[d[i].product_business].sReturnMoney0:0//应付
       rd[d[i].product_business].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_policy_money)){//销售已付款金额
+    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_return_money)){//销售已付款金额
       rd[d[i].product_business].aReturnMoney0 = rd[d[i].product_business].aReturnMoney0?rd[d[i].product_business].aReturnMoney0:0//已付
       rd[d[i].product_business].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
-    }else if(!util.isEmpty(d[i].sale_policy_money)){//销售未付金额
+    }else if(!util.isEmpty(d[i].sale_return_money)){//销售未付金额
       rd[d[i].product_business].nReturnMoney0 = rd[d[i].product_business].nReturnMoney0?rd[d[i].product_business].nReturnMoney0:0//未付
       rd[d[i].product_business].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
     }

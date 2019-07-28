@@ -206,7 +206,7 @@ router.post("/getReportComprehensiveDetail",function(req,res){
         listData.listData2Sum.sum2 += d[i].refunds_should_money?parseFloat(d[i].refunds_should_money):0;//应收
       }
 
-      if(!util.isEmpty(d[i].sale_policy_money)){
+      if(!util.isEmpty(d[i].sale_return_money)){
         listData.listData4Sum.sum2 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
         if(d[i].sale_return_time){//销售已付款金额
           listData.listData4Sum.sum3 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//实付
@@ -405,14 +405,14 @@ function getGroupData(data){
     rd[d[i].hospital_id].saleMoney = rd[d[i].hospital_id].saleMoney?rd[d[i].hospital_id].saleMoney:0;
     rd[d[i].hospital_id].saleMoney += parseFloat(d[i].sale_money);//销售总额
 
-    if(!util.isEmpty(d[i].sale_policy_money)){
+    if(!util.isEmpty(d[i].sale_return_money)){
       rd[d[i].hospital_id].sReturnMoney0 = rd[d[i].hospital_id].sReturnMoney0?rd[d[i].hospital_id].sReturnMoney0:0//应付
       rd[d[i].hospital_id].sReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//应付
     }
-    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_policy_money)){//销售已付款金额
+    if(d[i].sale_return_time && !util.isEmpty(d[i].sale_return_money)){//销售已付款金额
       rd[d[i].hospital_id].aReturnMoney0 = rd[d[i].hospital_id].aReturnMoney0?rd[d[i].hospital_id].aReturnMoney0:0//已付
       rd[d[i].hospital_id].aReturnMoney0 += d[i].sale_return_real_return_money?parseFloat(d[i].sale_return_real_return_money):0;//已付
-    }else if(!util.isEmpty(d[i].sale_policy_money)){//销售未付金额
+    }else if(!util.isEmpty(d[i].sale_return_money)){//销售未付金额
       rd[d[i].hospital_id].nReturnMoney0 = rd[d[i].hospital_id].nReturnMoney0?rd[d[i].hospital_id].nReturnMoney0:0//未付
       rd[d[i].hospital_id].nReturnMoney0 += d[i].sale_return_money?parseFloat(d[i].sale_return_money):0;//未付
     }

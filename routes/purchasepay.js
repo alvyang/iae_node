@@ -32,11 +32,12 @@ router.get("/downloadErrorPurchasePays",function(req,res){
     return new Date(cellData).format('yyyy-MM-dd');
   }
   },{caption:'业务员',type:'string'
+  },{caption:' 商业',type:'string'
   },{caption:'补点/费用票',type:'string'
   },{caption:'错误信息',type:'string'
   }];
   var header = ['purchase_pay_contract_time','product_code','purchase_pay_price','purchase_pay_number','purchase_pay_time',
-                'purchase_pay_send_time','purchase_pay_arrived_time','purchase_pay_contact_name','purchase_pay_other_money','errorMessage'];
+                'purchase_pay_send_time','purchase_pay_arrived_time','purchase_pay_contact_name','purchase_pay_business_name','purchase_pay_other_money','errorMessage'];
   var d = JSON.parse(req.session.errorSalesData);
 
   conf.rows = util.formatExcel(header,d);
@@ -974,6 +975,11 @@ function getPurchasePaySql(req){
     var start = new Date(req.body.data.time[0]).format("yyyy-MM-dd");
     var end = new Date(req.body.data.time[1]).format("yyyy-MM-dd");
     sql += " and DATE_FORMAT(p.purchase_pay_contract_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.purchase_pay_contract_time,'%Y-%m-%d') <= '"+end+"'";
+  }
+  if(!util.isEmpty(req.body.data.payTime)){
+    var start = new Date(req.body.data.payTime[0]).format("yyyy-MM-dd");
+    var end = new Date(req.body.data.payTime[1]).format("yyyy-MM-dd");
+    sql += " and DATE_FORMAT(p.purchase_pay_time,'%Y-%m-%d') >= '"+start+"' and DATE_FORMAT(p.purchase_pay_time,'%Y-%m-%d') <= '"+end+"'";
   }
   if(!util.isEmpty(req.body.data.overdue)){//查询逾期未返款
     var nowDate = new Date().format("yyyy-MM-dd");

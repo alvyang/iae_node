@@ -462,6 +462,7 @@ function updateStock(req){
       logger.error(req.session.user[0].realname + "更新批次库存，查询现库存出错" + err);
     }
     for(var i = 0 ; i < result.length;i++){
+      console.log(result[i]);
       if(result[i].batch_stock_drug_id == req.body.allocation_front_drug_id){
         req.body.frontStock = parseInt(result[i].batch_stock_number) - parseInt(req.body.allocation_number);
         req.body.batch_number = result[i].batch_number;
@@ -471,7 +472,7 @@ function updateStock(req){
         req.body.afterStock = parseInt(result[i].batch_stock_number) + parseInt(req.body.allocation_number);
       }
     }
-    req.body.afterStock=req.body.afterStock?req.body.afterStock:req.body.allocation_number;
+    req.body.afterStock=req.body.afterStocka||req.body.afterStock==0?req.body.afterStock:req.body.allocation_number;
 
     //联合主键，更新库存
     var stockSql = "insert into batch_stock values "+
