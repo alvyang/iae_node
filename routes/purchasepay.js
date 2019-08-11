@@ -468,11 +468,11 @@ router.post("/editPurchasePayReturn",function(req,res){
     purchase_pay_receive_account:req.body.account_number1,
     purchase_pay_receive_address:req.body.account_address1
   }
-  if(!req.body.purchase_pay_real_pay_time && util.isEmpty(req.body.purchase_pay_real_pay_money) && util.isEmpty(req.body.purchase_pay_real_account)){
-    delete params.purchase_pay_receive_name;
-    delete params.purchase_pay_receive_account;
-    delete params.purchase_pay_receive_address;
-  }
+  // if(!req.body.purchase_pay_real_pay_time && util.isEmpty(req.body.purchase_pay_real_pay_money) && util.isEmpty(req.body.purchase_pay_real_account)){
+  //   delete params.purchase_pay_receive_name;
+  //   delete params.purchase_pay_receive_account;
+  //   delete params.purchase_pay_receive_address;
+  // }
   if(req.body.purchase_pay_real_pay_time){
     params.purchase_pay_real_pay_time = new Date(req.body.purchase_pay_real_pay_time).format("yyyy-MM-dd");
   }else{
@@ -961,7 +961,7 @@ function getPurchasePaySql(req){
     sql += " and d.product_code = '"+req.body.data.product_code+"'"
   }
   if(!util.isEmpty(req.body.data.business)){
-    sql += " and d.product_business = '"+req.body.data.business+"'"
+    sql += " and p.purchase_pay_business_id = '"+req.body.data.business+"'"
   }
   if(!util.isEmpty(req.body.data.status)){
     var s = req.body.data.status=="已收"?"p.purchase_pay_real_time is not null && p.purchase_pay_real_money is not null":"p.purchase_pay_real_time is null && (p.purchase_pay_real_money is null || p.purchase_pay_real_money = '')";

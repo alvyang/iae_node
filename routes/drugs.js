@@ -446,7 +446,44 @@ router.post("/editDrugs",function(req,res){
       }
     });
   }
+  //如果添加了政策，更新应收
+  if(!util.isEmpty(req.body.product_return_money)){
 
+    //更新销售
+    var salesSql = "update refunds r left join sales s on r.sales_id = s.sale_id set r.refunds_policy_money='"+req.body.product_return_money+"',r.refunds_should_money = ROUND(s.sale_num*"+req.body.product_return_money+",2) "+
+                    "where (r.refunds_policy_money is null or r.refunds_policy_money = '0' or r.refunds_policy_money = '') and (r.refunds_should_money is null or r.refunds_should_money = '0' or r.refunds_should_money = '') "+
+                    "and s.group_id = '"+req.session.user[0].group_id+"' and s.delete_flag = '0' "+
+                    "and s.product_code = '"+req.body.product_code+"' ";
+    var sales = DB.get("Sales");
+    sales.executeSql(salesSql,function(err,d){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改药品，更新销售应收出错" + err);
+      }
+    });
+    //更新采进
+    var purchaseSql = "update refunds r left join purchase p on r.purchases_id = p.purchase_id set "+
+                    "r.refunds_policy_money='"+req.body.product_return_money+"',r.refunds_should_money = ROUND(p.purchase_number*"+req.body.product_return_money+",2) "+
+                    "where (r.refunds_policy_money is null or r.refunds_policy_money = '0' or r.refunds_policy_money = '') and (r.refunds_should_money is null or r.refunds_should_money = '0' or r.refunds_should_money = '') "+
+                    "and p.group_id = '"+req.session.user[0].group_id+"' and p.delete_flag = '0' "+
+                    "and p.drug_id = '"+req.body.product_id+"' ";
+    var purchase = DB.get("Purchase");
+    purchase.executeSql(purchaseSql,function(err,d){
+      if(err){
+        logger.error(req.session.user[0].realname + "修改药品，更新采进应收出错" + err);
+      }
+    });
+    //更新预付招商
+    var purchasePaySql = "update purchase_pay p set p.purchase_pay_should_price = '"+req.body.product_return_money+"',p.purchase_pay_should_money = ROUND(p.purchase_pay_number*"+req.body.product_return_money+",2) "+
+                         "where p.purchase_pay_group_id = '"+req.session.user[0].group_id+"' and p.purchase_pay_delete_flag = '0' "+
+                         "and p.purchase_pay_drug_id = '"+req.body.product_id+"' and (p.purchase_pay_should_money is null or p.purchase_pay_should_money = '0' or p.purchase_pay_should_money = '') "+
+                         "and (p.purchase_pay_should_price is null or p.purchase_pay_should_price = '0' or p.purchase_pay_should_price = '')";
+   var purchasePay = DB.get("PurchasePay");
+   purchasePay.executeSql(purchasePaySql,function(err,d){
+     if(err){
+       logger.error(req.session.user[0].realname + "修改药品，更新预付招商出错" + err);
+     }
+   });
+  }
 });
 //更新销售政策
 function updateAllotPolicy(req){

@@ -127,7 +127,7 @@ router.post("/getSaleVariance",function(req,res){
   }
   getSaleVariance(req).then(data => {
     var date = new Date();
-    date.setMonth(date.getMonth()-1,1);
+    // date.setMonth(date.getMonth()-1,1);
     var d = util.getnMonth(12,date);
     //计算方差
     for(var i = 0 ; i < data.length;i++){
@@ -166,23 +166,45 @@ function culVariance(data,d){
   }
   var avg = cum/12;
   var s = 0;
-  var continuity1=0,continuity2=0;//continuity1  值大于0的个数   continuity2等于0的个数
+  //continuity2 记录不连续的次数 , continuity3 记录连续次数 continuity4 12个月连续长度
+  var continuity2=0,continuity3=0,continuity4=[];
+  saleMoney.reverse();
   for(var j = 0 ; j < saleMoney.length;j++){
-    saleMoney[j]>0?continuity1++:continuity2++;
+    if(saleMoney[j]>0){
+      continuity3++;
+      continuity2<0?continuity4.push(continuity2):continuity4.push(0);
+      continuity2=0;
+    }else{
+      continuity2--;
+      continuity3>0?continuity4.push(continuity3):continuity4.push(0);
+      continuity3=0;
+    }
+    if(j == saleMoney.length - 1){
+      continuity2<0?continuity4.push(continuity2):"";
+      continuity3>0?continuity4.push(continuity3):"";
+    }
     s+=(saleMoney[j]/100-avg)*(saleMoney[j]/100-avg);
   }
-  continuity1=continuity1==0?1:continuity1;
-  continuity2=continuity2==0?1:continuity2;
+  continuity4.splice(0,1);
+  var con = 0;
+  for(var m = continuity4.length-1 ; m > 0 ; m--){
+    if(continuity4[m] > 0){
+      con += continuity4[m] * (m+1)/12;
+    }else{
+      con += continuity4[m] * (m+1)/48;
+    }
+
+  }
   data.variance = Math.sqrt(s/12);
   data.variance = Math.round(Math.sqrt(s/12)*100)/100;
-  data.continuity = Math.round(continuity1*100/continuity2)/100;
+  data.continuity = Math.round(con*100)/100;
 }
 function getSaleVariance(req){
   //查询近12个月日期
   var dataSql = "select @rownum :=@rownum + 1 AS num,date_format(DATE_SUB(now(),INTERVAL @rownum MONTH),'%Y-%m') AS all_day "+
-                "FROM (SELECT @rownum := 0) AS r_init,(select * from sales s limit 12) as c_init";
+                "FROM (SELECT @rownum := -1) AS r_init,(select * from sales s limit 12) as c_init";
   var data = new Date();
-  data.setMonth(data.getMonth()-1,1);
+  // data.setMonth(data.getMonth()-1,1);
   var d = util.getnMonth(12,data);
   //以药品信息，及日期分组查询出销售数据
   var saleSql = "select DATE_FORMAT(s.bill_date,'%Y-%m') bd,d.product_common_name,d.product_specifications,d.product_makesmakers,sum(s.sale_money) sm,sum(s.sale_num) sn from sales s left join drugs d on s.product_code = d.product_code "+

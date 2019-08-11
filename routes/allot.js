@@ -172,7 +172,7 @@ function verData(req,data){
     d.storage_time =  new Date(d.storage_time).format("yyyy-MM-dd");
     for(var j = 0 ; j < batchStock.length ;j++){//如果遇到相同批号的情况，则取最近的一条
       var t = new Date(batchStock[j].batch_stock_time).format("yyyy-MM-dd");
-      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t){
+      if(batchStock[j].batch_number == d.batch_number && d.storage_time == t && batchStock[j].batch_stock_drug_id == d.allot_drug_id){
         d.allot_purchase_id = batchStock[j].batch_stock_purchase_id;
         d.stock = batchStock[j].batch_stock_number;
         d.allot_other_money = batchStock[j].purchase_other_money?batchStock[j].purchase_other_money*d.allot_number/batchStock[j].purchase_number:0;
