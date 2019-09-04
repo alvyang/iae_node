@@ -529,8 +529,8 @@ function updateSalePolicy(req){
         var returnMoney = req.body.product_return_money?req.body.product_return_money:0;
         for(var j = 0 ; j < hospitalRecord.length;j++){
           if(d[i].sale_hospital_id == hospitalRecord[j].hospital_policy_hospital_id){
-            price = hospitalRecord[j].hospital_policy_price?hospitalRecord[j].hospital_policy_price:price;
-            returnMoney = hospitalRecord[j].hospital_policy_return_money?hospitalRecord[j].hospital_policy_return_money:returnMoney;
+            price = !util.isEmptyAndZero(hospitalRecord[j].hospital_policy_price)?hospitalRecord[j].hospital_policy_price:price;
+            returnMoney = !util.isEmptyAndZero(hospitalRecord[j].hospital_policy_return_money)?hospitalRecord[j].hospital_policy_return_money:returnMoney;
           }
         }
         var t =  util.getShouldPayMoney(d[i].sale_policy_formula,price,returnMoney,d[i].sale_policy_percent,0,d[i].sale_policy_money);

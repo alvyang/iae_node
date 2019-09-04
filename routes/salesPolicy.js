@@ -113,6 +113,7 @@ router.post("/exportSalesRefund",function(req,res){
         	result[i].realMoney = util.div(result[i].refunds_real_money,result[i].sale_num,2);
       }else if(result[i].product_type == '高打' && result[i].refunds_real_time1 && !util.isEmpty(result[i].refunds_real_money1)){
          result[i].realMoney = util.div(result[i].refunds_real_money1,result[i].purchase_number,2);
+         result[i].refunds_real_time = result[i].refunds_real_time1;
       }else{
          result[i].realMoney = 0;
       }
@@ -135,6 +136,14 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'计划数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
+    },{caption:'实收上游时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
     },{caption:'费用票/补点',type:'number'
@@ -165,7 +174,7 @@ router.post("/exportSalesRefund",function(req,res){
       }
     }];
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','realMoney',
+                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','refunds_real_time','realMoney',
                   'sale_return_price','sale_other_money','sale_return_money','sale_return_real_return_money',
                   'sale_return_time','sale_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
@@ -371,7 +380,7 @@ function updatePay(req,d,ids,hospitalIds){
           }else if(result[j].product_type == '高打'){
             realReturnMoney = result[j].refunds_real_money1/result[j].purchase_number;
           }
-          realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+          realReturnMoney = !util.isEmptyAndZero(realReturnMoney)?realReturnMoney:result[j].product_return_money;
           var policyMoney = util.getShouldPayMoney(d[m].sale_policy_formula,result[j].sale_price,realReturnMoney,d[m].sale_policy_percent,temp,d[m].sale_policy_money);
           var policyPrice = util.getShouldPayMoney(d[m].sale_policy_formula,result[j].sale_price,realReturnMoney,d[m].sale_policy_percent,0,d[m].sale_policy_money);
           policyPrice = Math.round(policyPrice*100)/100;
@@ -477,7 +486,8 @@ router.post("/exportSalesPolicy",function(req,res){
     var conf ={};
     conf.stylesXmlFile = "./utils/styles.xml";
     conf.name = "mysheet";
-    conf.cols = [{caption:'产品编码',type:'string'
+    conf.cols = [{caption:'销往单位',type:'string'
+    },{caption:'产品编码',type:'string'
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
     },{caption:'生产厂家',type:'string'
@@ -515,6 +525,12 @@ router.post("/exportSalesPolicy",function(req,res){
           case "8":
             message = "固定政策（上游政策修改后，需几时调整下游政策）";
             break;
+          case "9":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?实收上游积分-中标价*0.03-补点/费用票:实收上游积分-补点/费用票";
+            break;
+          case "10":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?实收上游积分-中标价*0.05-补点/费用票:实收上游积分-补点/费用票";
+            break;
           default:
         }
         return message;
@@ -522,7 +538,7 @@ router.post("/exportSalesPolicy",function(req,res){
     },{caption:'积分备注',type:'string'
     },{caption:'业务员',type:'string'
     }];
-    var header = ['product_code', 'product_common_name', 'product_specifications',
+    var header = ['hospital_name','product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','product_price','product_return_money','sale_policy_money',
                   'sale_policy_percent','sale_policy_formula','sale_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);

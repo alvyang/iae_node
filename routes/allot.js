@@ -220,9 +220,9 @@ function verData(req,data){
     d.allot_policy_percent = sales[i].allot_policy_percent?sales[i].allot_policy_percent:0;
     d.product_return_money = sales[i].product_return_money?sales[i].product_return_money:0;
 
-    var saleOtherMoney = d.allot_other_money/d.allot_number;
-    var realReturnMeony =d.refunds_real_money/d.purchase_number;
-    realReturnMeony = realReturnMeony?realReturnMeony:d.product_return_money;
+    var saleOtherMoney = !util.isEmptyAndZero(d.allot_other_money)?d.allot_other_money/d.allot_number:0;
+    var realReturnMeony =!util.isEmptyAndZero(d.refunds_real_money)?d.refunds_real_money/d.purchase_number:0;
+    realReturnMeony = !util.isEmptyAndZero(realReturnMeony)?realReturnMeony:d.product_return_money;
     var shouldMoneyPrice = util.getShouldPayMoney(d.allot_policy_formula,d.allot_price,realReturnMeony,d.allot_policy_percent,saleOtherMoney,d.allot_return_price);
     var shouldReturnPrice = util.getShouldPayMoney(d.allot_policy_formula,d.allot_price,realReturnMeony,d.allot_policy_percent,0,d.allot_return_price);
     d.allot_return_price = Math.round(shouldReturnPrice*100)/100;
@@ -388,7 +388,7 @@ router.post("/saveAllot",function(req,res){
   }
   req.body.allot_other_money = req.body.allot_other_money?req.body.allot_other_money:0;
   if(!util.isEmpty(req.body.allot_return_price)){
-    var realReturnMoney = req.body.realReturnMoney?req.body.realReturnMoney:req.body.product_return_money;
+    var realReturnMoney = !util.isEmptyAndZero(req.body.realReturnMoney)?req.body.realReturnMoney:req.body.product_return_money;
     var allotOtherMoney = req.body.allot_other_money/req.body.allot_number;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.allot_policy_formula,req.body.product_price,realReturnMoney,req.body.allot_policy_percent,allotOtherMoney,req.body.allot_return_price);
     req.body.allot_return_price= util.getShouldPayMoney(req.body.allot_policy_formula,req.body.product_price,realReturnMoney,req.body.allot_policy_percent,0,req.body.allot_return_price);
@@ -501,7 +501,7 @@ router.post("/editAllot",function(req,res){
 
 
     var saleOtherMoney = req.body.purchase_other_money/req.body.purchase_number;
-    params.allot_other_money = saleOtherMoney?saleOtherMoney*req.body.allot_number:0;
+    params.allot_other_money = !util.isEmptyAndZero(saleOtherMoney)?saleOtherMoney*req.body.allot_number:0;
     params.allot_other_money = Math.round(params.allot_other_money*100)/100;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.allot_should_pay_formula,req.body.allot_price,realReturnMoney,req.body.allot_should_pay_percent,saleOtherMoney,req.body.allot_return_price);
     params.allot_return_money=util.mul(shouldMoneyPrice,req.body.allot_number);

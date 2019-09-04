@@ -47,6 +47,14 @@ router.post("/exportAllotRefund",function(req,res){
     },{caption:'调货数量',type:'number'//8
     },{caption:'中标价',type:'number'
     },{caption:'调货金额',type:'number'
+    },{caption:'实收上游时间',type:'string',
+      beforeCellWrite:function(row, cellData){
+        if(cellData){
+          return new Date(cellData).format('yyyy-MM-dd');
+        }else{
+          return "";
+        }
+      }
     },{caption:'实收上游积分(单价)',type:'number'
     },{caption:'政策积分',type:'number'
     },{caption:'补点/费用票',type:'number'
@@ -68,7 +76,7 @@ router.post("/exportAllotRefund",function(req,res){
         return "";
     }}];
     var header = ['allot_time', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','realMoney',
+                  'product_makesmakers','product_unit','business_name','allot_number','allot_price','allot_money','refunds_real_time','realMoney',
                   'allot_return_price','allot_other_money','allot_return_money','allot_real_return_money','allot_return_time',
                   'allot_remark','purchase_number'];
     conf.rows = util.formatExcel(header,result);
@@ -239,7 +247,7 @@ function updatePay(req,d,ids,hospitalId){
           var t = util.mul(d[m].allot_policy_money,result[j].allot_number,2);
           var temp = result[j].allot_other_money/result[j].allot_number;
           var realReturnMoney = result[j].refunds_real_money/result[j].purchase_number;
-          realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+          realReturnMoney = !util.isEmptyAndZero(realReturnMoney)?realReturnMoney:result[j].product_return_money;
           var policyMoney = util.getShouldPayMoney(d[m].allot_policy_formula,result[j].allot_price,realReturnMoney,d[m].allot_policy_percent,temp,d[m].allot_policy_money);
           var policyPrice = util.getShouldPayMoney(d[m].allot_policy_formula,result[j].allot_price,realReturnMoney,d[m].allot_policy_percent,0,d[m].allot_policy_money);
           policyPrice = Math.round(policyPrice*100)/100;
@@ -345,7 +353,8 @@ router.post("/exportAllotPolicy",function(req,res){
     var conf ={};
     conf.stylesXmlFile = "./utils/styles.xml";
     conf.name = "mysheet";
-    conf.cols = [{caption:'产品编码',type:'string'
+    conf.cols = [{caption:'销往单位',type:'string'
+    },{caption:'产品编码',type:'string'
     },{caption:'产品名称',type:'string'
     },{caption:'产品规格',type:'string'
     },{caption:'生产厂家',type:'string'
@@ -354,12 +363,51 @@ router.post("/exportAllotPolicy",function(req,res){
     },{caption:'中标价',type:'number'
     },{caption:'积分',type:'number'
     },{caption:'调货积分',type:'number'
+    },{caption:'政策点数',type:'string'
+    },{caption:'政策公式',type:'string',
+      beforeCellWrite:function(row, cellData){
+        var message = "";
+        switch (cellData) {
+          case "1":
+            message = "中标价*政策点数";
+            break;
+          case "2":
+            message = "中标价*政策点数-补点/费用票";
+            break;
+          case "3":
+            message = "实收上游积分或上游政策积分*政策点数";
+            break;
+          case "4":
+            message = "实收上游积分或上游政策积分*政策点数-补点/费用票";
+            break;
+          case "5":
+            message = "实收上游积分或上游政策积分-中标价*政策点数";
+            break;
+          case "6":
+            message = "实收上游积分或上游政策积分-中标价*政策点数-补点/费用票";
+            break;
+          case "7":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?(中标价*政策点数):实收上游积分";
+            break;
+          case "8":
+            message = "固定政策（上游政策修改后，需几时调整下游政策）";
+            break;
+          case "9":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?实收上游积分-中标价*0.03-补点/费用票:实收上游积分-补点/费用票";
+            break;
+          case "10":
+            message = "实收上游积分或上游政策积分>中标价*政策点数?实收上游积分-中标价*0.05-补点/费用票:实收上游积分-补点/费用票";
+            break;
+          default:
+        }
+        return message;
+      }
     },{caption:'积分备注',type:'string'
     },{caption:'业务员',type:'string'
     }];
-    var header = ['product_code', 'product_common_name', 'product_specifications',
+    var header = ['hospital_name','product_code', 'product_common_name', 'product_specifications',
                   'product_makesmakers','product_unit','business_name','product_price','product_return_money','allot_policy_money',
-                  'allot_policy_remark','contacts_name'];
+                  'allot_policy_percent','allot_policy_formula','allot_policy_remark','contacts_name'];
     conf.rows = util.formatExcel(header,result);
     var result = nodeExcel.execute(conf);
     var message = req.session.user[0].realname+"导出调货政策。"+conf.rows.length+"条";

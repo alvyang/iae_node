@@ -274,10 +274,9 @@ function verData(req,data){
     d.sale_policy_percent = sales[i].sale_policy_percent?sales[i].sale_policy_percent:0;
 
 
-    var saleOtherMoney = d.sale_other_money/d.sale_num;
-    var realReturnMeony =d.refunds_real_money/d.purchase_number;
-    realReturnMeony = realReturnMeony?realReturnMeony:d.product_return_money;
-
+    var saleOtherMoney = !util.isEmptyAndZero(d.sale_other_money)?d.sale_other_money/d.sale_num:0;
+    var realReturnMeony =!util.isEmptyAndZero(d.refunds_real_money)?d.refunds_real_money/d.purchase_number:0;
+    realReturnMeony = !util.isEmptyAndZero(realReturnMeony)?realReturnMeony:d.product_return_money;
     var shouldMoneyPrice = util.getShouldPayMoney(d.sale_policy_formula,d.sale_price,realReturnMeony,d.sale_policy_percent,saleOtherMoney,d.sale_policy_money);
     var shouldReturnPrice = util.getShouldPayMoney(d.sale_policy_formula,d.sale_price,realReturnMeony,d.sale_policy_percent,0,d.sale_policy_money);
     d.sale_return_price = Math.round(shouldReturnPrice*100)/100;
@@ -522,7 +521,7 @@ router.post("/saveSales",function(req,res){
   var productReturnMoney = req.body.product_return_money;
   req.body.sale_other_money = req.body.sale_other_money?req.body.sale_other_money:0;
   if(!util.isEmpty(req.body.sale_return_price)){//销售回款金额
-    var realReturnMoney = req.body.realReturnMoney?req.body.realReturnMoney:req.body.product_return_money;
+    var realReturnMoney = !util.isEmptyAndZero(req.body.realReturnMoney)?req.body.realReturnMoney:productReturnMoney;
     var saleOtherMoney = req.body.sale_other_money/req.body.sale_num;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.sale_policy_formula,req.body.sale_price,realReturnMoney,req.body.sale_policy_percent,saleOtherMoney,req.body.sale_return_price);
     req.body.sale_return_price = util.getShouldPayMoney(req.body.sale_policy_formula,req.body.sale_price,realReturnMoney,req.body.sale_policy_percent,0,req.body.sale_return_price);
@@ -660,7 +659,7 @@ router.post("/editSales",function(req,res){
       realReturnMoney = req.body.refunds_real_money/req.body.sale_num;
     }
     params.sale_other_money = params.sale_other_money?Math.round(params.sale_other_money*100)/100:0;
-    realReturnMoney = realReturnMoney?realReturnMoney:req.body.product_return_money;
+    realReturnMoney = !util.isEmptyAndZero(realReturnMoney)?realReturnMoney:req.body.product_return_money;
     var saleOtherMoney = params.sale_other_money/req.body.sale_num;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.sale_should_pay_formula,req.body.sale_price,realReturnMoney,req.body.sale_should_pay_percent,saleOtherMoney,req.body.sale_return_price);
     params.sale_return_money=util.mul(shouldMoneyPrice,req.body.sale_num);

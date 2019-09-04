@@ -452,7 +452,7 @@ function updatePay(req){
       updateFlag=true;
       var saleOtherMeony = purchase_other_money_other*result[i].sale_num;
       var realReturnMoney = result[i].refunds_real_money/result[i].purchase_number;
-      realReturnMoney = realReturnMoney?realReturnMoney:result[i].product_return_money;
+      realReturnMoney = !util.isEmptyAndZero(realReturnMoney)?realReturnMoney:result[i].product_return_money;
       var policyMoney = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,purchase_other_money_other,result[i].sale_return_price);
       var policyPrice = util.getShouldPayMoney(result[i].sale_should_pay_formula,result[i].sale_price,realReturnMoney,result[i].sale_should_pay_percent,0,result[i].sale_return_price);
       policyPrice = Math.round(policyPrice*100)/100;
@@ -481,7 +481,7 @@ function updatePay(req){
       updateFlag=true;
       var allotOtherMeony = purchase_other_money_other*result[j].allot_number;
       var realReturnMoney = result[j].refunds_real_money/result[j].purchase_number;
-      realReturnMoney = realReturnMoney?realReturnMoney:result[j].product_return_money;
+      realReturnMoney = !util.isEmptyAndZero(realReturnMoney)?realReturnMoney:result[j].product_return_money;
       var policyMoney = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,purchase_other_money_other,result[j].allot_return_price);
       var policyPrice = util.getShouldPayMoney(result[j].allot_should_pay_formula,result[j].allot_price,realReturnMoney,result[j].allot_should_pay_percent,0,result[j].allot_return_price);
       policyPrice = Math.round(policyPrice*100)/100;

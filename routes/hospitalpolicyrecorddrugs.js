@@ -76,8 +76,8 @@ function updateSalePolicy(req){
     }
     var copySql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_contact_id) values ";
     for(var i = 0 ; i < d.length ;i++){
-      var price = req.body.hospital_policy_price?req.body.hospital_policy_price:d[i].product_price;
-      var returnMoney = req.body.hospital_policy_return_money?req.body.hospital_policy_return_money:d[i].product_return_money;
+      var price = !util.isEmptyAndZero(req.body.hospital_policy_price)?req.body.hospital_policy_price:d[i].product_price;
+      var returnMoney = !util.isEmptyAndZero(req.body.hospital_policy_return_money)?req.body.hospital_policy_return_money:d[i].product_return_money;
       var t =  util.getShouldPayMoney(d[i].sale_policy_formula,price,returnMoney,d[i].sale_policy_percent,0,d[i].sale_policy_money);
       t = Math.round(t*100)/100;
       copySql += "('"+d[i].sale_hospital_id+"','"+d[i].sale_drug_id+"','"+t+"','"+d[i].sale_policy_contact_id+"'),";

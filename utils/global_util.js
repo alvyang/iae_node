@@ -4,11 +4,21 @@ var pinyin = require('node-pinyin');
 var logger = require('../utils/logger');
 var uuid=require("node-uuid");
 
+exports.isEmptyAndZero = function(value){
+  if(typeof value == "string"){
+    value = value.replace(/\s/g,"");
+  }
+	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null" || value == "0" || value == "NaN"){
+		return true;
+	}else{
+		return false;
+	}
+}
 exports.isEmpty = function(value){
   if(typeof value == "string"){
     value = value.replace(/\s/g,"");
   }
-	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null"){
+	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null"  || value == "NaN"){
 		return true;
 	}else{
 		return false;
@@ -51,7 +61,11 @@ exports.getShouldPayMoney = function(formula,price,money,percent,otherMoney,sp){
       break;
     case "9":
       var temp = price*percent/100;
-      shouldPay = money > temp?money-price*0.03:money;
+      shouldPay = money > temp?money-price*0.03-otherMoney:money-otherMoney;
+      break;
+    case "10":
+      var temp = price*percent/100;
+      shouldPay = money > temp?money-price*0.05-otherMoney:money-otherMoney;
       break;
     default:
       shouldPay = 0
