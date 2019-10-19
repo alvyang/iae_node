@@ -15,7 +15,9 @@ router.post("/editPurchaseLoss",function(req,res){
     purchaseloss_id:req.body.purchaseloss_id,
 		purchaseloss_time:req.body.purchaseloss_time,
     purchaseloss_money:req.body.purchaseloss_money,
-    purchase_loss_remark:req.body.purchase_loss_remark
+    purchase_loss_remark:req.body.purchase_loss_remark,
+    purchase_loss_number:req.body.purchase_loss_number,
+    purchase_loss_money:req.body.purchase_loss_money,
   }
   var front_purchaseloss = req.body.front_purchaseloss;
   purchaseLoss.update(params,'purchaseloss_id',function(err,result){
@@ -24,9 +26,31 @@ router.post("/editPurchaseLoss",function(req,res){
     }
     var message = req.session.user[0].realname+"修改报损记录。";
     util.saveLogs(req.session.user[0].group_id,front_purchaseloss,JSON.stringify(params),message);
+    updatePurchaseLoss(req,params.purchaseloss_id);
     res.json({"code":"000000",message:null});
   });
 });
+//更新流水
+function updatePurchaseLoss(req,purchaseLossId){
+  var bankaccountdetail={};
+  if(req.body.purchase_loss_money != '' && req.body.purchase_loss_number){
+    bankaccountdetail.account_detail_deleta_flag = '0';
+    bankaccountdetail.account_id = req.body.purchase_loss_number;
+  }else{
+    bankaccountdetail.account_detail_deleta_flag = '1';
+  }
+  bankaccountdetail.account_detail_money = -req.body.purchase_loss_money;
+  bankaccountdetail.account_detail_time = req.body.purchaseloss_time;
+  bankaccountdetail.account_detail_mark = "报损"+req.body.purchaseloss_number+req.body.product_unit+req.body.product_common_name;
+  bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
+  bankaccountdetail.flag_id = "purchase_loss_"+purchaseLossId;
+  var accountDetail = DB.get("AccountDetail");
+  accountDetail.update(bankaccountdetail,'flag_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "修改返款修改流水出错" + err);
+    }
+  });
+}
 //删除报损
 router.post("/deletePurchasesLoss",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",115,") < 0){
@@ -126,6 +150,8 @@ router.post("/savePurchasesLoss",function(req,res){
   req.body.purchaseloss_create_time = new Date();
   var batch_stock_purchase_id = req.body.purchaseloss_purchase_id;
   var batch_stock_drug_id = req.body.purchaseloss_drug_id;
+  var productUnit = req.body.product_unit;
+  var productCommonName = req.body.product_common_name;
   var purchaseLoss = DB.get("PurchaseLoss");
   purchaseLoss.insert(req.body,'purchaseloss_id',function(err,result){
     if(err){
@@ -134,6 +160,8 @@ router.post("/savePurchasesLoss",function(req,res){
     var message = req.session.user[0].realname+"新增报损记录。id："+req.body.purchaseloss_id;
     util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
+    //更新流水
+    savePurchaseLoss(req,result,productUnit,productCommonName);
     //更新库存
     var batchStock = DB.get("BatchStock");
     var sqlstock = "update batch_stock set batch_stock_number=batch_stock_number-"+req.body.purchaseloss_number+" where "+
@@ -145,7 +173,31 @@ router.post("/savePurchasesLoss",function(req,res){
     });
   });
 });
-
+//更新流水
+function savePurchaseLoss(req,purchaseLossId,productUnit,productCommonName){
+  var bankaccountdetail={};
+  if(req.body.purchase_loss_money != '' && req.body.purchase_loss_number){
+    bankaccountdetail.account_detail_deleta_flag = '0';
+    bankaccountdetail.account_id = req.body.purchase_loss_number;
+  }else{
+    bankaccountdetail.account_detail_deleta_flag = '1';
+  }
+  bankaccountdetail.account_detail_money = -req.body.purchase_loss_money;
+  bankaccountdetail.account_detail_time = req.body.purchaseloss_time;
+  bankaccountdetail.account_detail_mark = "报损"+req.body.purchaseloss_number+productUnit+productCommonName;
+  bankaccountdetail.account_detail_group_id = req.session.user[0].group_id;
+  bankaccountdetail.account_detail_create_userid = req.session.user[0].id;
+  bankaccountdetail.flag_id = "purchase_loss_"+purchaseLossId;
+  var accountDetail = DB.get("AccountDetail");
+  req.body.account_detail_create_time = new Date();
+  accountDetail.insert(bankaccountdetail,'account_detail_id',function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "添加报损新增流水出错" + err);
+    }
+    var message = req.session.user[0].realname+"添加报损新增流水。id："+result;
+    util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
+  });
+}
 //查询报损的批次库存记录
 router.post("/getPurchasesLossDrugs",function(req,res){
   if(req.session.user[0].authority_code.indexOf(",114,") < 0){

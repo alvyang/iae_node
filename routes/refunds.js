@@ -94,13 +94,26 @@ router.post("/deleteRefunds",function(req,res){
     return ;
   }
 });
+//更新采退应付，采退实收
+function updatePurchaseRecovery(req,realReturnMoney){
+  var sql = "update purchase_recovery set purchase_recovery_receiver_money=round(purchaserecovery_number*"+realReturnMoney+",2),"+
+            "purchase_recovery_return_money=round(purchaserecovery_number*"+realReturnMoney+",2) where purchaserecovery_purchase_id = '"+req.body.purchases_id+"'";
+  var purchaseRecovery = DB.get("PurchaseRecovery");
+  purchaseRecovery.executeSql(sql,function(err,result){//查询现有库存
+    if(err){
+      logger.error(req.session.user[0].realname + "采进应收积分修改时，更新采退应付" + err);
+    }
+  });
+}
 //修改采进应收，更新应付
 function updatePurchasePay(req,purchaseNumber){
   var getSalesSql = "select s.* from sales s where s.delete_flag = '0' and s.sales_purchase_id = '"+req.body.purchases_id+"' ";
   var getAllotsSql = "select a.* from allot a where a.allot_delete_flag = '0' and a.allot_purchase_id = '"+req.body.purchases_id+"' ";
 
   if(!util.isEmpty(req.body.refunds_real_money)){
+    //修改了实付积分后，如果有采退，更新采退实收，采退应付
     var realReturnMoney = req.body.refunds_real_money/purchaseNumber;
+    updatePurchaseRecovery(req,realReturnMoney);
     var sales = DB.get("Sales");
     sales.executeSql(getSalesSql,function(err,result){//查询现有库存
       if(err){

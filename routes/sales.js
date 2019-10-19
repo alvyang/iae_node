@@ -66,7 +66,7 @@ router.post("/importSales",function(req,res){
         //插入销售记录sql
         var sql = "insert into sales(sale_id,bill_date,sale_price,sale_num,batch_number,product_code,hospital_id,gross_profit,real_gross_profit,"+
                   "accounting_cost,cost_univalent,sale_return_flag,sale_tax_rate,group_id,sale_create_time,sale_create_userid,"+
-                  "sale_type,sale_money,sale_return_money,sales_purchase_id,sale_return_price,sale_should_pay_formula,sale_should_pay_percent,sale_other_money) VALUES ";
+                  "sale_type,sale_money,sale_return_money,sales_purchase_id,sale_return_price,sale_should_pay_formula,sale_should_pay_percent,sale_other_money,sale_contact_id) VALUES ";
         //更新库存sql
         var updateStockSql = "insert into batch_stock(batch_stock_drug_id,batch_stock_purchase_id,batch_stock_number) values ";
         var updateFlag = false;//是否执行更新库存语句
@@ -91,7 +91,7 @@ router.post("/importSales",function(req,res){
                "'"+sData[i].hospital_id+"','"+sData[i].gross_profit+"','"+sData[i].real_gross_profit+"','"+sData[i].accounting_cost+"',"+
                "'"+sData[i].cost_univalent+"','"+sData[i].sale_return_flag+"','"+sData[i].sale_tax_rate+"','"+sData[i].group_id+"',"+
                "'"+createTime+"','"+sData[i].sale_create_userid+"','"+sData[i].sale_type+"','"+sData[i].sale_money+"','"+sData[i].sale_return_money+"',"+
-               "'"+sData[i].sales_purchase_id+"','"+sData[i].sale_return_price+"','"+sData[i].sale_policy_formula+"','"+sData[i].sale_policy_percent+"','"+sData[i].sale_other_money+"'),";
+               "'"+sData[i].sales_purchase_id+"','"+sData[i].sale_return_price+"','"+sData[i].sale_policy_formula+"','"+sData[i].sale_policy_percent+"','"+sData[i].sale_other_money+"','"+sData[i].sale_contact_id+"'),";
           if(sData[i].product_type == '高打'){//更新库存，sql语句拼接
             updateFlag = true;
             var key = sData[i].product_id+"--"+sData[i].sales_purchase_id;
@@ -272,7 +272,7 @@ function verData(req,data){
     d.sale_policy_money = sales[i].sale_policy_money?sales[i].sale_policy_money:"";
     d.sale_policy_formula = sales[i].sale_policy_formula?sales[i].sale_policy_formula:0;
     d.sale_policy_percent = sales[i].sale_policy_percent?sales[i].sale_policy_percent:0;
-
+    d.sale_contact_id = sales[i].sale_policy_contact_id?sales[i].sale_policy_contact_id:"";
 
     var saleOtherMoney = !util.isEmptyAndZero(d.sale_other_money)?d.sale_other_money/d.sale_num:0;
     var realReturnMeony =!util.isEmptyAndZero(d.refunds_real_money)?d.refunds_real_money/d.purchase_number:0;

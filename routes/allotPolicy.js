@@ -439,7 +439,7 @@ router.post("/getAllotPolicy",function(req,res){
     if(req.body.data.requestFrom == "drugsAllotPolicy"){
       sql += " order by d.hospital_create_time desc,d.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     }else{
-      sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by dsp.hospital_create_time,dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     }
     salePolicy.executeSql(sql,function(err,result){
       if(err){
@@ -488,12 +488,12 @@ function getAllotPolicySql(req){
     sql += " and ap.allot_policy_contact_id = '"+req.body.data.contactId+"'";
   }
   if(!util.isEmpty(req.body.data.productCode)){
-    sql += " and d.product_code = '"+req.body.data.productCode+"'";
+    sql += " and d.product_code like '%"+req.body.data.productCode+"%'";
   }
   //连接业务员
   sql = "select apc.*,c.contacts_name from ("+sql+") apc left join contacts c on apc.allot_policy_contact_id = c.contacts_id";
   //连接销往单位
-  sql = "select dsch.*,h.hospital_name,h.hospital_id from ("+sql+") dsch left join hospitals h on dsch.allot_hospital_id = h.hospital_id ";
+  sql = "select dsch.*,h.hospital_name,h.hospital_id,h.hospital_create_time from ("+sql+") dsch left join hospitals h on dsch.allot_hospital_id = h.hospital_id ";
   //连接商业
   sql = "select * from ("+sql+") dsp left join business b on dsp.product_business = b.business_id";
   return sql;
@@ -534,7 +534,7 @@ function getAllotPolicySqlDrugs(req){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
   }
   if(!util.isEmpty(req.body.data.productCode)){
-    sql += " and d.product_code = '"+req.body.data.productCode+"'";
+    sql += " and d.product_code like '%"+req.body.data.productCode+"%'";
   }
   //连接业务员
   sql = "select apc.*,c.contacts_name from ("+sql+") apc left join contacts c on apc.allot_policy_contact_id = c.contacts_id";

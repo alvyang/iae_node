@@ -136,6 +136,8 @@ router.post("/exportSalesRefund",function(req,res){
     },{caption:'计划数量',type:'number'
     },{caption:'中标价',type:'number'
     },{caption:'购入金额',type:'number'
+    },{caption:'商业',type:'string'
+    },{caption:'联系人',type:'string'
     },{caption:'实收上游时间',type:'string',
       beforeCellWrite:function(row, cellData){
         if(cellData){
@@ -174,7 +176,7 @@ router.post("/exportSalesRefund",function(req,res){
       }
     }];
     var header = ['bill_date', 'hospital_name', 'product_code', 'product_common_name', 'product_specifications',
-                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','refunds_real_time','realMoney',
+                  'product_makesmakers','product_unit','sale_num','sale_price','sale_money','business_name','contacts_name','refunds_real_time','realMoney',
                   'sale_return_price','sale_other_money','sale_return_money','sale_return_real_return_money',
                   'sale_return_time','sale_remark','product_type','purchase_number','purchase_other_money'];
     conf.rows = util.formatExcel(header,result);
@@ -251,7 +253,7 @@ function getQuerySql(req){
             "left join hospital_policy_record hpr on s.hospital_id = hpr.hospital_policy_hospital_id and d.product_id = hpr.hospital_policy_drug_id and hpr.hospital_policy_delete_flag ='0' "+
             "left join business bus on d.product_business = bus.business_id "+
             "left join hospitals h on s.hospital_id = h.hospital_id "+
-            "left join contacts c on c.contacts_id = d.contacts_id "+
+            "left join contacts c on c.contacts_id = sp.sale_policy_contact_id "+
             "where s.delete_flag = '0' and s.group_id = '"+req.session.user[0].group_id+"' "+
             "and d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"' ";
   //数据权限
@@ -572,7 +574,7 @@ router.post("/getSalesPolicy",function(req,res){
     if(req.body.data.requestFrom == "drugsSalesPolicy"){
       sql += " order by d.hospital_create_time desc,d.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     }else{
-      sql += " order by dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
+      sql += " order by dsp.hospital_create_time,dsp.product_create_time desc limit " + req.body.page.start + "," + req.body.page.limit + "";
     }
     salePolicy.executeSql(sql,function(err,result){
       if(err){
@@ -628,12 +630,12 @@ function getSalesPolicySql(req){
     sql += " and sp.sale_policy_contact_id = '"+req.body.data.sale_contact_id+"'";
   }
   if(!util.isEmpty(req.body.data.productCode)){
-    sql += " and d.product_code = '"+req.body.data.productCode+"'";
+    sql += " and d.product_code like '%"+req.body.data.productCode+"%'";
   }
   //连接业务员
   sql = "select dsc.*,c.contacts_name from ("+sql+") dsc left join contacts c on dsc.sale_policy_contact_id = c.contacts_id";
   //连接销往单位
-  sql = "select dsch.*,h.hospital_name,h.hospital_id from ("+sql+") dsch left join hospitals h on dsch.sale_hospital_id = h.hospital_id "
+  sql = "select dsch.*,h.hospital_name,h.hospital_id,h.hospital_create_time from ("+sql+") dsch left join hospitals h on dsch.sale_hospital_id = h.hospital_id "
   //连接商业
   sql = "select * from ("+sql+") dsp left join business b on dsp.product_business = b.business_id";
   return sql;

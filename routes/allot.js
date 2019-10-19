@@ -500,7 +500,7 @@ router.post("/editAllot",function(req,res){
     realReturnMoney=realReturnMoney?realReturnMoney:req.body.product_return_money;
 
 
-    var saleOtherMoney = req.body.purchase_other_money/req.body.purchase_number;
+    var saleOtherMoney = !util.isEmptyAndZero(req.body.purchase_other_money)?req.body.purchase_other_money/req.body.purchase_number:0;
     params.allot_other_money = !util.isEmptyAndZero(saleOtherMoney)?saleOtherMoney*req.body.allot_number:0;
     params.allot_other_money = Math.round(params.allot_other_money*100)/100;
     var shouldMoneyPrice = util.getShouldPayMoney(req.body.allot_should_pay_formula,req.body.allot_price,realReturnMoney,req.body.allot_should_pay_percent,saleOtherMoney,req.body.allot_return_price);

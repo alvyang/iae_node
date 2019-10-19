@@ -15,5 +15,15 @@ module.exports = {
 					'purchaserecovery_purchase_id',//这两个字段，用于删除时，更新库存
 					'purchaserecovery_drug_id',
 					'purchaserecovery_return_money_time',
-					'purchase_recovery_remark']
+					'purchase_recovery_remark',
+					'purchase_recovery_return_money',//应付
+					'purchase_recovery_pay_time',
+					'purchase_recovery_pay_number',
+					'purchase_recovery_receiver_number',
+					'purchase_recovery_receiver_name',
+					'purchase_recovery_receiver_address',
+					'purchase_recovery_receiver_money',
+					'purchase_recovery_pay_remark',
+					'purchase_recovery_real_pay_money',//实付
+				]
 };

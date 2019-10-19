@@ -14,5 +14,7 @@ module.exports = {
 					'purchaseloss_create_time',
 					'purchaseloss_purchase_id',//这两个字段，用于删除时，更新库存
 					'purchaseloss_drug_id',
-					'purchase_loss_remark']
+					'purchase_loss_remark',
+					'purchase_loss_number',
+					'purchase_loss_money']
 };

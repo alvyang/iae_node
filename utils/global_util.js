@@ -8,7 +8,7 @@ exports.isEmptyAndZero = function(value){
   if(typeof value == "string"){
     value = value.replace(/\s/g,"");
   }
-	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null" || value == "0" || value == "NaN"){
+	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null" || value == "0" || value == "NaN" || value ==  NaN){
 		return true;
 	}else{
 		return false;
@@ -18,14 +18,14 @@ exports.isEmpty = function(value){
   if(typeof value == "string"){
     value = value.replace(/\s/g,"");
   }
-	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null"  || value == "NaN"){
+	if(value == null || value == "" || value == "undefined" || value == undefined || value == "null"  || value == "NaN" || value ==  NaN){
 		return true;
 	}else{
 		return false;
 	}
 }
 
-//计算应付
+//计算应付price:中标价  money实收上游积分或政策积分 percent:政策点数  otherMoney:费用票等其它费用  sp:固定政策
 exports.getShouldPayMoney = function(formula,price,money,percent,otherMoney,sp){
   otherMoney=otherMoney?otherMoney:0;
   price = price?price:0;

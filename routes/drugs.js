@@ -107,6 +107,9 @@ router.post("/importDrugs",function(req,res){
         drugsSql.executeSql(sql,function(err,result){
           if(err){
             logger.error(req.session.user[0].realname + "批量添加药品出错" + err);
+          }else{
+            //导入成功后，自动添加下游政策
+            updateBatchHospitalsPolicy(req,cData);
           }
           var message = req.session.user[0].realname+"导入药品记录，数据导入成功"+cData.length+"条；导入错误"+drugData.errData.length+"条；";
           util.saveLogs(req.session.user[0].group_id,"-","-",message);
@@ -352,12 +355,115 @@ router.post("/saveDrugs",function(req,res){
       logger.error(req.session.user[0].realname + "新增药品出错" + err);
     }else{
       updateQuoteNum(tagIds,tagIdsTemp,req,result);
+      //根据设置的政策，更新下游政策
+      updateHospitalSale(req,result);
     }
     var message = req.session.user[0].realname+"新增药品记录。id："+req.body.product_id;
     util.saveLogs(req.session.user[0].group_id,"-",JSON.stringify(req.body),message);
     res.json({"code":"000000",message:result});
   });
 });
+function updateBatchHospitalsPolicy(req,drugs){
+  var sql = "select hsp.*,h.hospital_type from hospital_sale_policy hsp left join hospitals h on hsp.hospital_sale_policy_hospital_id = h.hospital_id "+
+            "where hsp.hospital_sale_policy_group_id = '"+req.session.user[0].group_id+"' "+
+            "and (hsp.hospital_sale_policy is not null or hsp.hospital_sale_policy != '' ) "+
+            "or (hsp.hospital_sale_contacts_id is not null or hsp.hospital_sale_contacts_id != '')";
+  var hospitalSalePolicy = DB.get("HospitalSalePolicy");
+  hospitalSalePolicy.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "导入添加药品，自动添加政策，查询销往单位政策出错" + err);
+    }
+    updateBatchDurgSalePolicy(req,drugs,result);
+  });
+}
+function updateBatchDurgSalePolicy(req,drugs,result){
+  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_contact_id,sale_policy_formula,sale_policy_percent,sale_policy_remark) values ";
+  var sql2 = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_contact_id,allot_policy_formula,allot_policy_percent,allot_policy_remark) values ";
+  var sqlFlag = false,sql2Flag = false;
+  for(var j = 0;j<drugs.length;j++){
+    for(var i = 0 ; i < result.length; i++){
+      var policyMoney =  util.getShouldPayMoney(result[i].hospital_sale_policy,drugs[j].product_price,drugs[j].product_return_money,result[i].policy_percent,0,0);
+      if(result[i].hospital_type.indexOf("销售单位") > -1 && drugs[j].product_type != '其它'){
+        sqlFlag = true;
+        sql+="('"+result[i].hospital_sale_policy_hospital_id+"','"+drugs[j].product_id+"','"+policyMoney+"','"+result[i].hospital_sale_contacts_id+"','"+result[i].hospital_sale_policy+"','"+result[i].policy_percent+"','"+result[i].hospital_sale_policy_remark+"'),";
+      }else if(result[i].hospital_type.indexOf("调货单位") > -1 && drugs[j].product_type =='高打'){
+        sql2Flag = true;
+        sql2+="('"+result[i].hospital_sale_policy_hospital_id+"','"+drugs[j].product_id+"','"+policyMoney+"','"+result[i].hospital_sale_contacts_id+"','"+result[i].hospital_sale_policy+"','"+result[i].policy_percent+"','"+result[i].hospital_sale_policy_remark+"'),";
+      }
+    };
+  }
+  sql = sql.substring(0,sql.length-1);
+  sql +=" ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_contact_id=VALUES(sale_policy_contact_id),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent),sale_policy_remark=VALUES(sale_policy_remark)";
+  sql2 = sql2.substring(0,sql2.length-1);
+  sql2 +=" ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_contact_id=VALUES(allot_policy_contact_id),allot_policy_formula=VALUES(allot_policy_formula),allot_policy_percent=VALUES(allot_policy_percent),allot_policy_remark=VALUES(allot_policy_remark)";
+  var salePolicy = DB.get("SalePolicy");
+  var allotPolicy = DB.get("AllotPolicy");
+  if(sqlFlag){
+    salePolicy.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增药品，添加销售政策出错" + err);
+      }
+    });
+  }
+  if(sql2Flag){
+    allotPolicy.executeSql(sql2,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增药品，添加调货政策出错" + err);
+      }
+    });
+  }
+}
+//添加药品后，根据医院政策自动添加下游政策
+function updateHospitalSale(req,drugId){
+  var sql = "select hsp.*,h.hospital_type from hospital_sale_policy hsp left join hospitals h on hsp.hospital_sale_policy_hospital_id = h.hospital_id "+
+            "where hsp.hospital_sale_policy_group_id = '"+req.session.user[0].group_id+"' "+
+            "and (hsp.hospital_sale_policy is not null or hsp.hospital_sale_policy != '' ) "+
+            "or (hsp.hospital_sale_contacts_id is not null or hsp.hospital_sale_contacts_id != '')";
+  var hospitalSalePolicy = DB.get("HospitalSalePolicy");
+  hospitalSalePolicy.executeSql(sql,function(err,result){
+    if(err){
+      logger.error(req.session.user[0].realname + "添加药品，自动添加政策，查询销往单位政策出错" + err);
+    }
+    updateDurgSalePolicy(req,result,drugId);
+  });
+}
+//更新政策
+function updateDurgSalePolicy(req,result,drugId){
+  var sql = "insert into sale_policy(sale_hospital_id,sale_drug_id,sale_policy_money,sale_policy_contact_id,sale_policy_formula,sale_policy_percent,sale_policy_remark) values ";
+  var sql2 = "insert into allot_policy(allot_hospital_id,allot_drug_id,allot_policy_money,allot_policy_contact_id,allot_policy_formula,allot_policy_percent,allot_policy_remark) values ";
+  var sqlFlag = false,sql2Flag = false;
+  for(var i = 0 ; i < result.length; i++){
+    var policyMoney =  util.getShouldPayMoney(result[i].hospital_sale_policy,req.body.product_price,req.body.product_return_money,result[i].policy_percent,0,0);
+    if(result[i].hospital_type.indexOf("销售单位") > -1 && req.body.product_type != '其它'){
+      sqlFlag = true;
+      sql+="('"+result[i].hospital_sale_policy_hospital_id+"','"+drugId+"','"+policyMoney+"','"+result[i].hospital_sale_contacts_id+"','"+result[i].hospital_sale_policy+"','"+result[i].policy_percent+"','"+result[i].hospital_sale_policy_remark+"'),";
+    }else if(result[i].hospital_type.indexOf("调货单位") > -1 && req.body.product_type =='高打'){
+      sql2Flag = true;
+      sql2+="('"+result[i].hospital_sale_policy_hospital_id+"','"+drugId+"','"+policyMoney+"','"+result[i].hospital_sale_contacts_id+"','"+result[i].hospital_sale_policy+"','"+result[i].policy_percent+"','"+result[i].hospital_sale_policy_remark+"'),";
+    }
+  };
+  sql = sql.substring(0,sql.length-1);
+  sql +=" ON DUPLICATE KEY UPDATE sale_policy_money=VALUES(sale_policy_money),sale_policy_contact_id=VALUES(sale_policy_contact_id),sale_policy_formula=VALUES(sale_policy_formula),sale_policy_percent=VALUES(sale_policy_percent),sale_policy_remark=VALUES(sale_policy_remark)";
+  sql2 = sql2.substring(0,sql2.length-1);
+  sql2 +=" ON DUPLICATE KEY UPDATE allot_policy_money=VALUES(allot_policy_money),allot_policy_contact_id=VALUES(allot_policy_contact_id),allot_policy_formula=VALUES(allot_policy_formula),allot_policy_percent=VALUES(allot_policy_percent),allot_policy_remark=VALUES(allot_policy_remark)";
+  var salePolicy = DB.get("SalePolicy");
+  var allotPolicy = DB.get("AllotPolicy");
+  if(sqlFlag){
+    salePolicy.executeSql(sql,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增药品，添加销售政策出错" + err);
+      }
+    });
+  }
+  if(sql2Flag){
+    allotPolicy.executeSql(sql2,function(err,result){
+      if(err){
+        logger.error(req.session.user[0].realname + "新增药品，添加调货政策出错" + err);
+      }
+    });
+  }
+}
+
 //修改标签引用交数
 function updateQuoteNum(data1,data2,req,drugId){
   var addTags = util.getArrayDuplicateRemoval(data1,data2);
@@ -672,7 +778,7 @@ function getDrugsSql(req){
     sql += " and d.product_medical_type = '"+req.body.data.product_medical_type+"'"
   }
   if(!util.isEmpty(req.body.data.product_code)){
-    sql += " and d.product_code = '"+req.body.data.product_code+"'"
+    sql += " and d.product_code like '%"+req.body.data.product_code+"%'"
   }
   if(!util.isEmpty(req.body.data.business)){
     sql += " and d.product_business = '"+req.body.data.business+"'"
@@ -710,9 +816,11 @@ router.post("/getStockNum",function(req,res){
     return ;
   }
   var drugs = DB.get("Drugs");
-  var stockNumSql = "select sum(bs.batch_stock_number) bn,bs.batch_stock_drug_id from batch_stock bs where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' "+
-                    " group by bs.batch_stock_drug_id ";
-  var sql = "select sum(st.bn*d.product_mack_price) mpn,sum(st.bn) sn from drugs d left join ("+stockNumSql+") st on d.product_id = st.batch_stock_drug_id "+
+  var stockNumSql = "select sum(p.purchase_money*bs.batch_stock_number/p.purchase_number) pm,sum(bs.batch_stock_number) bn,bs.batch_stock_drug_id from batch_stock bs left join purchase p on p.purchase_id = bs.batch_stock_purchase_id "+
+                    "where bs.tag_type_delete_flag = '0' and bs.tag_type_group_id = '"+req.session.user[0].group_id+"' and "+
+                    "p.group_id = '"+req.session.user[0].group_id+"' and p.delete_flag = '0' "+
+                    "group by bs.batch_stock_drug_id ";
+  var sql = "select sum(st.bn*d.product_mack_price) mpn,sum(st.bn) sn,sum(st.pm) bpm from drugs d left join ("+stockNumSql+") st on d.product_id = st.batch_stock_drug_id "+
             " where d.delete_flag = '0' and d.group_id = '"+req.session.user[0].group_id+"'";
   if(!util.isEmpty(req.body.data.productCommonName)){
     sql += " and (d.product_common_name like '%"+req.body.data.productCommonName+"%' or d.product_name_pinyin like '%"+req.body.data.productCommonName+"%')";
