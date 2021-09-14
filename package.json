@@ -7,7 +7,7 @@
   },
   "repository": "https://github.com/alvyang/iae_node.git",
   "dependencies": {
-    "body-parser-xml": "^1.1.0"
+    "body-parser-xml": "^2.0.3"
   },
   "devDependencies": {
     "body-parser": "^1.16.1",
